@@ -1,0 +1,78 @@
+@import "variables";
+@import "components";
+@import "overrides";
+@import "responsive";
+@import "variants";
+
+// Constrain content width and centre it — only in the c4lauthor inner editor.
+body.tiny_c4lauthor-inner-body {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 24px 32px;
+}
+
+// When the outer sidebar is collapsed, allow the inner content to expand.
+body.tiny_c4lauthor-inner-body.tiny_c4lauthor-inner-body--wide {
+    max-width: 1100px;
+}
+
+.fade {
+    opacity: 1 !important;
+}
+
+// Collapse adjacent spacers.
+p.c4l-spacer + p.c4l-spacer {
+    display: none;
+}
+
+// Variant toolbar — floating bar above C4L components.
+.c4lauthor-vt {
+    position: absolute;
+    display: none;
+    align-items: center;
+    background: $sidebar-bg;
+    outline: none;
+    border: 1px solid $variant-border;
+    border-radius: 8px;
+    overflow: hidden;
+    padding: 0;
+    gap: 0;
+    z-index: 10000;
+}
+
+.c4lauthor-vt--visible {
+    display: flex;
+}
+
+.c4lauthor-vt:hover,
+.c4lauthor-vt:has(.c4lauthor-vt__btn--active) {
+    border-color: $variant-accent;
+}
+
+.c4lauthor-vt__btn {
+    font-size: 11px;
+    padding: 4px 10px;
+    border: none;
+    outline: none;
+    box-shadow: none;
+    border-radius: 0;
+    background: $variant-bg;
+    color: $variant-accent;
+    cursor: pointer;
+    white-space: nowrap;
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.c4lauthor-vt__btn:hover {
+    background: $variant-accent;
+    color: #fff;
+}
+
+.c4lauthor-vt__btn--active {
+    background: $variant-accent;
+    color: #fff;
+}
+
+.c4lauthor-vt__btn--active:hover {
+    background: $variant-accent;
+}

@@ -1,0 +1,86 @@
+// C4L Author design tokens — organised by UI component.
+
+$c4l-white: #fff;
+$c4l-primary: #1679f9;
+$c4l-primary-light: #c0d4f5;
+$c4l-primary-pale: #ecf3ff;
+$c4l-dark-gray: #495057;
+$c4l-regular-gray: #6e767e;
+$c4l-background-gray: #e9ecef;
+
+// ── Overlay (click-to-open mask) ──
+$overlay-bg:                  rgba(255, 255, 255, 0.82);
+$overlay-close-text:          $c4l-regular-gray;
+$overlay-icon:                #6c757d;
+$overlay-text:                $c4l-dark-gray;
+
+// ── Modal footer ──
+$footer-bg:                   $c4l-white;
+$footer-border:               $c4l-background-gray;
+
+// ── Sidebar ──
+$sidebar-bg:                  $c4l-white;
+
+// ── Sidebar toggle strip ──
+$sidebar-toggle-bg:           #eaedf0;
+$sidebar-toggle-color:        $c4l-dark-gray;
+$sidebar-toggle-hover:        #dee2e6;
+
+// ── Sidebar filter tabs ──
+$tab-bg:                      transparent;
+$tab-text:                    $c4l-dark-gray;
+$tab-border:                  #dee2e6;
+$tab-hover:                   $c4l-background-gray;
+$tab-active-bg:               $c4l-primary;
+$tab-active-text:             #fff;
+$tab-active-hover:            $c4l-primary;
+
+// ── Sidebar group header ──
+$group-header-text:           $c4l-regular-gray;
+
+// ── Sidebar component buttons ──
+$comp-btn-text:               #1e1e1e;
+$comp-btn-hover:              #f0f3f7;
+
+// ── Sidebar "More" dropdown ──
+$more-menu-bg:                #fff;
+$more-menu-border:            #dee2e6;
+$more-menu-shadow:            rgba(0, 0, 0, 0.12);
+$more-item-text:              $c4l-dark-gray;
+$more-item-hover:             $c4l-background-gray;
+
+// ── AI suggest button (modal header) ──
+$ai-btn-bg:                   transparent;
+$ai-btn-text:                 $c4l-primary;
+$ai-btn-border:               $c4l-primary;
+
+// ── AI suggest view ──
+$ai-view-bg:                  $c4l-white;
+
+// ── AI suggestion cards ──
+$ai-card-border:              #D1EBDB;
+$ai-card-selected-bg:         #DFF2E6;
+$ai-card-hover:               #f7fdfa;
+$ai-card-icon-bg:             #fff;
+$ai-card-icon-border:         #CFECDA;
+
+// ── AI redo label / footer ──
+$ai-footer-bg:                #fff;
+$ai-footer-border:            $c4l-background-gray;
+$ai-footer-text:              $c4l-dark-gray;
+$ai-redo-text:                $c4l-dark-gray;
+
+// ── AI alert banner ──
+$ai-alert-bg:                 #dff2e6;
+$ai-alert-border:             #f0f7f2;
+$ai-alert-text:               #3c6e47;
+$ai-alert-btn-border:         #b5d6c1;
+
+// ── AI skeleton / loader ──
+$ai-skeleton-from:            $c4l-background-gray;
+$ai-skeleton-mid:             #f3f4f6;
+
+// ── Variant toolbar (inner editor iframe) ──
+$variant-bg:                  $c4l-primary-pale;
+$variant-accent:              $c4l-primary;
+$variant-border:              $c4l-primary-light;
