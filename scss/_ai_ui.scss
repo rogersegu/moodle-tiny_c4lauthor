@@ -1,0 +1,343 @@
+// AI Suggest view — rendered inside the existing C4L Author modal.
+// Classes prefixed with c4lauthor-ai- to avoid collision with tiny_c4lai.
+
+.tiny_c4lauthor__ai {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    background: $ai-card-icon-bg;
+}
+
+.tiny_c4lauthor__ai .c4lauthor-ai-pad {
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+@media (min-width: 576px) {
+    .tiny_c4lauthor__ai .c4lauthor-ai-pad {
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+    }
+}
+
+.tiny_c4lauthor__ai > .alert.alert-success {
+    background-color: $ai-alert-bg;
+    border-color: $ai-alert-border;
+    color: $ai-alert-text;
+    padding: 1rem 1.5rem;
+    font-weight: 500;
+}
+
+.tiny_c4lauthor__ai > .alert.alert-success > img.icon {
+    width: 16px;
+    height: 16px;
+    margin-right: 0.45rem;
+    position: relative;
+    top: 1px;
+}
+
+.tiny_c4lauthor__ai > .alert.alert-success .btn-outline-success {
+    color: $ai-alert-text !important;
+    border-color: $ai-alert-btn-border !important;
+    background: transparent !important;
+    border-radius: 10px !important;
+    padding: 0.2rem 0.8rem;
+    font-weight: 600;
+}
+
+.tiny_c4lauthor__ai > .alert.alert-success .btn-outline-success:hover {
+    border-color: $ai-alert-text !important;
+}
+
+.tiny_c4lauthor__ai .c4lauthor-ai-docview {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+    padding-top: 1rem;
+}
+
+// Constrain the central column width to match the main view's inner editor.
+.tiny_c4lauthor__ai .c4lauthor-ai-docview__inner {
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+@media (min-width: 576px) {
+    .tiny_c4lauthor__ai .c4lauthor-ai-docview {
+        padding-top: 1.5rem;
+    }
+}
+
+.tiny_c4lauthor__ai .c4lauthor-ai-docview__inner > p,
+.tiny_c4lauthor__ai .c4lauthor-ai-docview__inner > .c4lauthor-ai-card {
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.tiny_c4lauthor__ai .c4lauthor-ai-docview__inner > p,
+.tiny_c4lauthor__ai .c4lauthor-ai-loader-text,
+.tiny_c4lauthor__ai .c4lauthor-ai-skeleton__group {
+    padding-left: calc(0.5rem + 2px);
+    padding-right: calc(0.5rem + 2px);
+}
+
+// The skeleton heading has a gradient background, so padding would extend
+// the visible bar. Use margin instead to shift it without changing width.
+.tiny_c4lauthor__ai .c4lauthor-ai-skeleton__heading {
+    margin-left: calc(0.5rem + 2px);
+    margin-right: calc(0.5rem + 2px);
+}
+
+// Card base.
+.tiny_c4lauthor__ai .c4lauthor-ai-card {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    padding: 0;
+    border: 2px solid $ai-card-border;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: background-color 0.15s;
+}
+
+@media (max-width: 767.98px) {
+    .tiny_c4lauthor__ai .c4lauthor-ai-card {
+        padding-left: 40px;
+    }
+}
+
+.tiny_c4lauthor__ai .c4lauthor-ai-card--selected {
+    background-color: $ai-card-selected-bg;
+}
+
+.tiny_c4lauthor__ai .c4lauthor-ai-card:not(.c4lauthor-ai-card--selected):hover {
+    background-color: $ai-card-hover;
+}
+
+.tiny_c4lauthor__ai .c4lauthor-ai-card__check {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.tiny_c4lauthor__ai .c4lauthor-ai-card__icon {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    width: 24px;
+    height: 24px;
+    background: $ai-card-icon-bg;
+    border-radius: 6px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid $ai-card-icon-border;
+}
+
+.tiny_c4lauthor__ai .c4lauthor-ai-card__icon img.icon {
+    width: 14px;
+    height: 14px;
+    margin: 0;
+    padding: 0;
+    display: none;
+}
+
+.tiny_c4lauthor__ai .c4lauthor-ai-card--selected .c4lauthor-ai-card__icon img.icon {
+    display: block;
+}
+
+.tiny_c4lauthor__ai .c4lauthor-ai-card__body {
+    flex: 1;
+    min-width: 0;
+}
+
+.tiny_c4lauthor__ai .c4lauthor-ai-card__body p {
+    margin: 0;
+    padding: 8px;
+}
+
+.tiny_c4lauthor__ai .c4lauthor-ai-card:not(.c4lauthor-ai-card--selected) .c4lauthor-ai-card__body p {
+    margin-top: 34px;
+}
+
+.tiny_c4lauthor__ai .c4lauthor-ai-card math {
+    display: block;
+    width: fit-content;
+    margin: 8px auto;
+}
+
+.tiny_c4lauthor__ai .c4lauthor-ai-card__preview [class^="c4lv-"] {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    margin: 12px auto;
+}
+
+// Footer with counter and actions.
+.tiny_c4lauthor__ai .c4lauthor-ai-footer {
+    flex-shrink: 0;
+    background: $ai-card-icon-bg;
+    border-top: 1px solid $ai-footer-border;
+    padding: 0.75rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.tiny_c4lauthor__ai .c4lauthor-ai-footer__count {
+    font-size: 14px;
+    color: $ai-footer-text;
+}
+
+.tiny_c4lauthor__ai .c4lauthor-ai-footer__actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+// Redo label.
+.tiny_c4lauthor__ai .c4lauthor-ai-card__redo-label {
+    position: absolute;
+    top: 11px;
+    left: 40px;
+    font-size: 13px;
+    color: $ai-footer-text;
+    white-space: nowrap;
+}
+
+.tiny_c4lauthor__ai .c4lauthor-ai-card__redo-label img.icon {
+    width: 15px;
+    height: 15px;
+    margin: 0 2px 0 0;
+    padding: 0;
+    vertical-align: middle;
+    position: relative;
+    top: -1px;
+}
+
+.tiny_c4lauthor__ai .c4lauthor-ai-card--selected .c4lauthor-ai-card__redo-label {
+    display: none;
+}
+
+// Headings in document preview.
+.tiny_c4lauthor__ai .c4lauthor-ai-heading {
+    font-weight: 700;
+    line-height: 1.3;
+    padding-left: calc(0.5rem + 2px);
+    padding-right: calc(0.5rem + 2px);
+}
+
+.tiny_c4lauthor__ai .c4lauthor-ai-heading--h1 { font-size: 2.5rem; }
+.tiny_c4lauthor__ai .c4lauthor-ai-heading--h2 { font-size: 2rem; }
+.tiny_c4lauthor__ai .c4lauthor-ai-heading--h3 { font-size: 1.75rem; }
+.tiny_c4lauthor__ai .c4lauthor-ai-heading--h4 { font-size: 1.5rem; }
+.tiny_c4lauthor__ai .c4lauthor-ai-heading--h5 { font-size: 1.25rem; }
+.tiny_c4lauthor__ai .c4lauthor-ai-heading--h6 { font-size: 1rem; }
+
+// Dot loader.
+.tiny_c4lauthor__ai .c4lauthor-ai-loader-dots {
+    display: inline-flex;
+    gap: 4px;
+    align-items: center;
+    margin-right: 0.4rem;
+    position: relative;
+    top: -2px;
+}
+
+.tiny_c4lauthor__ai .c4lauthor-ai-loader-dots span {
+    width: 5px;
+    height: 5px;
+    border-radius: 999px;
+    background: currentColor;
+    opacity: 0.25;
+    animation: c4lauthor-ai-dotPulse 1.2s infinite ease-in-out;
+}
+
+.tiny_c4lauthor__ai .c4lauthor-ai-loader-dots span:nth-child(2) { animation-delay: 0.15s; }
+.tiny_c4lauthor__ai .c4lauthor-ai-loader-dots span:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes c4lauthor-ai-dotPulse {
+    0%, 80%, 100% {
+        opacity: 0.25;
+        transform: scale(0.9);
+    }
+    40% {
+        opacity: 0.9;
+        transform: scale(1);
+    }
+}
+
+// Skeleton loading.
+.tiny_c4lauthor__ai .c4lauthor-ai-skeleton__line,
+.tiny_c4lauthor__ai .c4lauthor-ai-skeleton__heading {
+    height: 12px;
+    border-radius: 4px;
+    background: linear-gradient(90deg, $ai-skeleton-from 25%, $ai-skeleton-mid 50%, $ai-skeleton-from 75%);
+    background-size: 200% 100%;
+    animation: c4lauthor-ai-shimmer 1.5s ease-in-out infinite;
+}
+
+.tiny_c4lauthor__ai .c4lauthor-ai-skeleton__heading {
+    height: 16px;
+    margin-top: 20px;
+    margin-bottom: 1.25rem;
+}
+
+.tiny_c4lauthor__ai .c4lauthor-ai-skeleton__group {
+    margin-bottom: 1.25rem;
+}
+
+.tiny_c4lauthor__ai .c4lauthor-ai-skeleton__group .c4lauthor-ai-skeleton__line {
+    margin-bottom: 10px;
+}
+
+@keyframes c4lauthor-ai-shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+// Reveal animation.
+.tiny_c4lauthor__ai .c4lauthor-ai-reveal {
+    opacity: 0;
+    transform: translateY(4px);
+    animation: c4lauthor-ai-reveal 0.3s ease-out forwards;
+}
+
+@keyframes c4lauthor-ai-reveal {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+// AI suggest button in modal header — pushed to the right with auto margin.
+.tiny_c4lauthor__ai-header-btn {
+    background: $ai-btn-bg;
+    color: $ai-btn-text;
+    border: 1px solid $ai-btn-border;
+    border-radius: 20px;
+    padding: 6px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-left: auto;
+    margin-right: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.15s, color 0.15s;
+}
+
+.tiny_c4lauthor__ai-header-btn:hover {
+    background: $ai-btn-border;
+    color: $c4l-white;
+}
+
+svg.tiny_c4lauthor__ai-header-icon {
+    width: 14px !important;
+    height: 14px !important;
+    color: inherit !important;
+    vertical-align: middle !important;
+}

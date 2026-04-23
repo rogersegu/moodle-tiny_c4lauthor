@@ -1,0 +1,12 @@
+body.mce-content-body,
+.c4l-code-preview {
+    .collapse:not(.show) {
+        display: block !important;
+    }
+}
+
+// Collapse adjacent spacers (trailing spacer of one component
+// followed by leading spacer of the next).
+p.c4l-spacer + p.c4l-spacer {
+    display: none;
+}

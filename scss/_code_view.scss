@@ -1,0 +1,126 @@
+// Code view — edit raw HTML inside the C4L Author modal.
+
+.tiny_c4lauthor__code-container {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.tiny_c4lauthor__code-view {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+}
+
+.tiny_c4lauthor__code-editor-wrap {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.tiny_c4lauthor__code-textarea {
+    flex: 1;
+    width: 100%;
+    min-height: 0;
+    border: none;
+    outline: none;
+    resize: none;
+    padding: 1.5rem;
+    font-family: 'SF Mono', 'Menlo', 'Monaco', 'Consolas',
+        'Liberation Mono', 'Courier New', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    color: $c4l-dark-gray;
+    background: #f8f9fa;
+    tab-size: 2;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+
+    &:focus {
+        background: $c4l-white;
+    }
+
+    &::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 3px;
+    }
+}
+
+.tiny_c4lauthor__code-footer {
+    flex-shrink: 0;
+    background: $more-menu-bg;
+    border-top: 1px solid $footer-border;
+    padding: 0.75rem 1.5rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+
+    .btn-secondary {
+        border: none;
+        background: transparent;
+        color: $c4l-dark-gray;
+        font-weight: 500;
+
+        &:hover {
+            background: $c4l-background-gray;
+        }
+    }
+
+    .btn-primary {
+        border-radius: 6px;
+        font-weight: 600;
+    }
+}
+
+// Code button in modal header (left half of Code|Markdown button group).
+.tiny_c4lauthor__code-header-btn {
+    background: transparent;
+    color: $c4l-dark-gray;
+    border: 1px solid $tab-border;
+    border-radius: 20px;
+    margin-right: 8px;
+    padding: 6px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.15s, color 0.15s;
+
+    &:hover {
+        background: $c4l-background-gray;
+        color: $comp-btn-text;
+    }
+}
+
+// Remove CodeMirror's default dotted focus outline.
+.tiny_c4lauthor__code-editor-wrap,
+.tiny_c4lauthor__md-editor-wrap {
+    .cm-editor,
+    .cm-editor.cm-focused {
+        outline: none !important;
+        border: none !important;
+    }
+}
+
+svg.tiny_c4lauthor__code-header-icon {
+    width: 14px !important;
+    height: 14px !important;
+    color: inherit !important;
+    vertical-align: middle !important;
+}
