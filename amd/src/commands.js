@@ -500,8 +500,11 @@ const formatVariantLabel = (name) => {
  * inner TinyMCE editor.
  *
  * @param {object} ed - The inner TinyMCE editor instance.
+ * @param {string} deleteStr - Localised label for the delete button.
+ * @param {string} moveUpStr - Localised label for the move-up button.
+ * @param {string} moveDownStr - Localised label for the move-down button.
  */
-const setupVariantToolbar = (ed) => {
+const setupVariantToolbar = (ed, deleteStr, moveUpStr, moveDownStr) => {
     const iframeDoc = ed.getDoc();
     const iframeBody = ed.getBody();
     const allVariants = variantsModule.variants;
@@ -528,6 +531,66 @@ const setupVariantToolbar = (ed) => {
     const scheduleHide = () => {
         cancelHide();
         hideTimeout = setTimeout(hideToolbar, 200);
+    };
+
+    const trashIconSvg = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"'
+        + ' stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
+        + '<polyline points="3 6 5 6 21 6"/>'
+        + '<path d="M19 6l-1 14H6L5 6"/>'
+        + '<path d="M10 11v6"/><path d="M14 11v6"/>'
+        + '<path d="M9 6V4h6v2"/></svg>';
+
+    const deleteComponent = (compEl) => {
+        // If wrapped in .c4l-inline-group or .c4l-display-left, target the wrapper.
+        const wrapper = compEl.closest('.c4l-inline-group, .c4l-display-left');
+        const target = wrapper || compEl;
+
+        const prev = target.previousElementSibling;
+        const next = target.nextElementSibling;
+        if (prev && prev.classList.contains('c4l-spacer')) {
+            prev.remove();
+        }
+        if (next && next.classList.contains('c4l-spacer')) {
+            next.remove();
+        }
+        target.remove();
+        hideToolbar();
+        ed.undoManager.add();
+    };
+
+    const chevronUpSvg = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"'
+        + ' stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
+        + '<polyline points="18 15 12 9 6 15"/></svg>';
+
+    const chevronDownSvg = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"'
+        + ' stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
+        + '<polyline points="6 9 12 15 18 9"/></svg>';
+
+    const moveComponent = (compEl, direction) => {
+        const wrapper = compEl.closest('.c4l-inline-group, .c4l-display-left');
+        const target = wrapper || compEl;
+
+        // Walk siblings skipping spacers.
+        let sibling = target;
+        do {
+            sibling = direction === 'up' ? sibling.previousElementSibling : sibling.nextElementSibling;
+        } while (sibling && sibling.classList.contains('c4l-spacer'));
+
+        if (!sibling || sibling === toolbar) {
+            return;
+        }
+
+        if (direction === 'up') {
+            iframeBody.insertBefore(target, sibling);
+        } else {
+            sibling.after(target);
+        }
+
+        currentCompEl = null;
+        showToolbar(compEl, c4lComponents.find(
+            (c) => c.name === getC4lComponentName(compEl)
+        ) || {});
+        ed.undoManager.add();
     };
 
     const toggleVariant = (compEl, varName, btn) => {
@@ -574,7 +637,51 @@ const setupVariantToolbar = (ed) => {
         currentCompEl = compEl;
         toolbar.innerHTML = '';
 
-        comp.variants.forEach((varName) => {
+        // Delete button — always first.
+        const delBtn = iframeDoc.createElement('button');
+        delBtn.className = 'c4lauthor-vt__btn c4lauthor-vt__btn--delete';
+        delBtn.innerHTML = trashIconSvg;
+        delBtn.title = deleteStr;
+        delBtn.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            deleteComponent(compEl);
+        });
+        toolbar.appendChild(delBtn);
+
+        // Move up / move down buttons.
+        const wrapper = compEl.closest('.c4l-inline-group, .c4l-display-left');
+        const target = wrapper || compEl;
+
+        const makeMoveBtn = (direction, svg, title) => {
+            const btn = iframeDoc.createElement('button');
+            btn.className = 'c4lauthor-vt__btn c4lauthor-vt__btn--move c4lauthor-vt__btn--move-' + direction;
+            btn.innerHTML = svg;
+            btn.title = title;
+
+            // Check if at edge.
+            let sib = target;
+            do {
+                sib = direction === 'up' ? sib.previousElementSibling : sib.nextElementSibling;
+            } while (sib && sib.classList.contains('c4l-spacer'));
+            if (!sib || sib === toolbar) {
+                btn.classList.add('c4lauthor-vt__btn--disabled');
+            }
+
+            btn.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (!btn.classList.contains('c4lauthor-vt__btn--disabled')) {
+                    moveComponent(compEl, direction);
+                }
+            });
+            return btn;
+        };
+
+        toolbar.appendChild(makeMoveBtn('up', chevronUpSvg, moveUpStr));
+        toolbar.appendChild(makeMoveBtn('down', chevronDownSvg, moveDownStr));
+
+        (comp.variants || []).forEach((varName) => {
             const btn = iframeDoc.createElement('button');
             btn.className = 'c4lauthor-vt__btn';
             btn.textContent = formatVariantLabel(varName);
@@ -650,8 +757,7 @@ const setupVariantToolbar = (ed) => {
                 const comp = c4lComponents.find(
                     (c) => c.name === compName
                 );
-                if (comp && comp.variants &&
-                    comp.variants.length > 0) {
+                if (comp) {
                     showToolbar(compEl, comp);
                     return;
                 }
@@ -1000,6 +1106,7 @@ export const getSetup = async () => {
            convertToStr, noComponentStr, notConvertibleStr, moreStr, discardStr, discardBtnStr, keepEditingStr,
            overlayOpenStr, overlayRestoreStr, aiButtonStr,
            codeButtonStr, codeBackStr, codeApplyStr,
+           deleteComponentStr, moveUpStr, moveDownStr,
     ] = await Promise.all([
         getString('buttontitle', component),
         getButtonImage('icon-toolbar', component),
@@ -1025,6 +1132,9 @@ export const getSetup = async () => {
         getString('code_button', component),
         getString('code_back', component),
         getString('code_apply', component),
+        getString('delete_component', component),
+        getString('move_up', component),
+        getString('move_down', component),
     ]);
 
     const filterLabels = {
@@ -1321,7 +1431,7 @@ export const getSetup = async () => {
         }
 
         // Set up contextual variant toolbar.
-        setupVariantToolbar(innerEditor);
+        setupVariantToolbar(innerEditor, deleteComponentStr, moveUpStr, moveDownStr);
 
         // When pressing Enter at the end of a C4L component, exit the
         // component and place the cursor in a new paragraph below it.
@@ -1377,11 +1487,12 @@ export const getSetup = async () => {
             // Prevent TinyMCE from inserting a newline inside the component.
             e.preventDefault();
             e.stopImmediatePropagation();
-            // Insert a new paragraph after the component (skip trailing spacer).
+            // Insert a new paragraph after the component (or its wrapper).
             const iframeDoc = innerEditor.getDoc();
             const newP = iframeDoc.createElement('p');
             newP.innerHTML = '<br>';
-            let insertAfter = compEl;
+            const wrapper = compEl.closest('.c4l-inline-group, .c4l-display-left');
+            let insertAfter = wrapper || compEl;
             if (insertAfter.nextSibling &&
                 insertAfter.nextSibling.nodeType === 1 &&
                 insertAfter.nextSibling.classList &&

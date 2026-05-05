@@ -267,3 +267,8 @@ $string['docs_aiusereported_use2'] = 'Transparency and responsible AI practices 
 $string['docs_aiusereported_use3'] = 'Students are expected to critically reflect on their use of AI tools.';
 $string['docs_aiusereported_use4'] = 'Institutional policy requires disclosure of AI assistance.';
 $string['docs_nodocsavailable_desc'] = 'No documentation available for this component.';
+
+// Variant toolbar.
+$string['delete_component'] = 'Delete component';
+$string['move_up'] = 'Move up';
+$string['move_down'] = 'Move down';

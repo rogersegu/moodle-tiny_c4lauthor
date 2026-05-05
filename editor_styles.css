@@ -1180,8 +1180,8 @@ p.c4l-spacer + p.c4l-spacer {
 .c4lauthor-vt {
   position: absolute;
   display: none;
-  align-items: center;
-  background: #fff;
+  align-items: stretch;
+  background: #ecf3ff;
   outline: none;
   border: 1px solid #c0d4f5;
   border-radius: 8px;
@@ -1203,6 +1203,7 @@ p.c4l-spacer + p.c4l-spacer {
 .c4lauthor-vt__btn {
   font-size: 11px;
   padding: 4px 10px;
+  margin: 0;
   border: none;
   outline: none;
   box-shadow: none;
@@ -1226,6 +1227,35 @@ p.c4l-spacer + p.c4l-spacer {
 
 .c4lauthor-vt__btn--active:hover {
   background: #1679f9;
+}
+
+.c4lauthor-vt__btn--delete {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 8px;
+}
+
+.c4lauthor-vt__btn--delete:hover {
+  background: #1679f9;
+  color: #fff;
+}
+
+.c4lauthor-vt__btn--move {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 6px;
+  line-height: 0;
+}
+
+.c4lauthor-vt__btn--disabled {
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.c4lauthor-vt__btn--move-down + .c4lauthor-vt__btn {
+  border-left: 1px solid #c0d4f5;
 }
 
 /*# sourceMappingURL=editor_styles.css.map */
