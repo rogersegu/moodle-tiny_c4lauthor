@@ -25,6 +25,7 @@ import {getButtonImage} from 'editor_tiny/utils';
 import {get_string as getString, get_strings as getStrings} from 'core/str';
 import {getTinyMCE} from 'editor_tiny/loader';
 import Modal from 'core/modal';
+import Templates from 'core/templates';
 import {
     register as registerMoodleOptions,
     getContextId,
@@ -342,16 +343,17 @@ const addCustomComponents = (customComponents) => {
  * @param {string} selectedText - Text currently selected in the editor (may be empty).
  * @returns {string} Ready-to-insert HTML.
  */
-const processComponentCode = (comp, selectedText) => {
+const processComponentCode = async(comp, selectedText) => {
     let placeholder = selectedText || comp.text || '';
     placeholder = applyLangStrings(placeholder);
     const randomId = generateRandomID();
-    const node = document.createElement('span');
-    node.dataset.id = randomId;
-    node.innerHTML = placeholder;
+    const {html: spanHtml} = await Templates.renderForPromise('tiny_c4lauthor/placeholder_span', {
+        id: randomId,
+        placeholder,
+    });
 
     let html = comp.code;
-    html = html.replace('{{PLACEHOLDER}}', node.outerHTML);
+    html = html.replace('{{PLACEHOLDER}}', spanHtml.trim());
 
     // Apply saved variant preferences.
     const variants = getVariantsClass(comp.name);
@@ -1368,9 +1370,9 @@ export const getSetup = async () => {
                                 items.push({
                                     label,
                                     iconHtml: allIcons[iconKey] || '',
-                                    onAction: () => {
+                                    onAction: async() => {
                                         ed.selection.moveToBookmark(bookmark);
-                                        const html = processComponentCode(comp, savedSel);
+                                        const html = await processComponentCode(comp, savedSel);
                                         ed.selection.setContent(html);
                                         ed.focus();
                                     },
@@ -1807,7 +1809,7 @@ export const getSetup = async () => {
         });
 
         // Component button click — insert HTML into inner TinyMCE.
-        root.on('click', '.tiny_c4lauthor__comp-btn', (e) => {
+        root.on('click', '.tiny_c4lauthor__comp-btn', async(e) => {
             e.preventDefault();
             if (!innerEditor) {
                 return;
@@ -1819,7 +1821,7 @@ export const getSetup = async () => {
             }
 
             const selectedText = innerEditor.selection.getContent({format: 'text'});
-            const compHtml = processComponentCode(comp, selectedText);
+            const compHtml = await processComponentCode(comp, selectedText);
             innerEditor.insertContent(compHtml);
             innerEditor.focus();
         });

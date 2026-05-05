@@ -22,6 +22,9 @@
  */
 
 import {getC4LSelector} from './ai_content';
+import Mustache from 'core/mustache';
+
+const PARAGRAPH_TEMPLATE = '<p>{{{content}}}</p>';
 
 const wrapWithComponent = (component, innerHtml, learningOutcomesTitle) => {
     switch (component) {
@@ -42,6 +45,12 @@ const wrapWithComponent = (component, innerHtml, learningOutcomesTitle) => {
     }
 };
 
+const renderParagraph = (content) => {
+    const html = Mustache.render(PARAGRAPH_TEMPLATE, {content});
+    const parsed = new DOMParser().parseFromString(html, 'text/html');
+    return parsed.body.firstChild;
+};
+
 const unwrapC4LDiv = (doc, c4lDiv, component) => {
     const prev = c4lDiv.previousElementSibling;
     if (prev && prev.tagName === 'P' && prev.classList.contains('c4l-spacer')) {
@@ -56,9 +65,7 @@ const unwrapC4LDiv = (doc, c4lDiv, component) => {
         const fragments = [];
         const items = c4lDiv.querySelectorAll('.c4l-learningoutcomes-list li');
         items.forEach((li) => {
-            const p = doc.createElement('p');
-            p.textContent = li.textContent;
-            fragments.push(p);
+            fragments.push(doc.adoptNode(renderParagraph(li.textContent)));
         });
         if (fragments.length) {
             c4lDiv.replaceWith(...fragments);
@@ -76,9 +83,7 @@ const unwrapC4LDiv = (doc, c4lDiv, component) => {
             const remaining = Array.from(c4lDiv.childNodes);
             c4lDiv.replaceWith(p, ...remaining);
         } else {
-            const p = doc.createElement('p');
-            p.innerHTML = c4lDiv.innerHTML;
-            c4lDiv.replaceWith(p);
+            c4lDiv.replaceWith(doc.adoptNode(renderParagraph(c4lDiv.innerHTML)));
         }
     }
 };
