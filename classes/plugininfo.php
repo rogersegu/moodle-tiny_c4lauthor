@@ -30,13 +30,26 @@ use editor_tiny\plugin_with_configuration;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class plugininfo extends plugin implements plugin_with_buttons, plugin_with_configuration {
-
+    /**
+     * Return the list of buttons provided by this plugin.
+     *
+     * @return string[]
+     */
     public static function get_available_buttons(): array {
         return [
             'tiny_c4lauthor/c4lauthor',
         ];
     }
 
+    /**
+     * Return the plugin configuration for the given context.
+     *
+     * @param context $context The context.
+     * @param array $options Options for the editor.
+     * @param array $fpoptions File picker options.
+     * @param ?\editor_tiny\editor $editor The editor instance.
+     * @return array Plugin configuration.
+     */
     public static function get_plugin_configuration_for_context(
         context $context,
         array $options,

@@ -24,7 +24,6 @@ namespace tiny_c4lauthor;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class ai_classifier {
-
     /** @var string[] Valid C4L component types. */
     private const VALID_COMPONENTS = ['attention', 'tip', 'keyconcept', 'reminder'];
 
@@ -230,7 +229,8 @@ class ai_classifier {
      * @return array|null Decoded array or null if parsing failed.
      */
     private static function extract_json(string $text): ?array {
-        if (preg_match('/```(?:json)?\s*(\[[\s\S]*?\])\s*```/', $text, $matches)) {
+        $backticks = '`' . '`' . '`';
+        if (preg_match('/' . $backticks . '(?:json)?\s*(\[[\s\S]*?\])\s*' . $backticks . '/', $text, $matches)) {
             $decoded = json_decode($matches[1], true);
             if (is_array($decoded)) {
                 return $decoded;

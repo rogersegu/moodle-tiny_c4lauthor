@@ -31,7 +31,12 @@ use core_privacy\local\request\writer;
 class provider implements
     \core_privacy\local\metadata\provider,
     \core_privacy\local\request\user_preference_provider {
-
+    /**
+     * Returns metadata about the user data stored by this plugin.
+     *
+     * @param collection $collection The collection to add metadata to.
+     * @return collection The updated collection.
+     */
     public static function get_metadata(collection $collection): collection {
         $collection->add_user_preference(
             'c4lauthor_components_variants',
@@ -40,6 +45,11 @@ class provider implements
         return $collection;
     }
 
+    /**
+     * Export user preferences for this plugin.
+     *
+     * @param int $userid The user ID.
+     */
     public static function export_user_preferences(int $userid) {
         $variants = get_user_preferences('c4lauthor_components_variants', null, $userid);
         if ($variants !== null) {

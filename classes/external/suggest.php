@@ -22,8 +22,6 @@ use core_external\external_value;
 use core_external\external_single_structure;
 use core_external\external_multiple_structure;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Web service for AI-based C4L component suggestions.
  *
@@ -32,7 +30,11 @@ defined('MOODLE_INTERNAL') || die();
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class suggest extends external_api {
-
+    /**
+     * Define the parameters for the execute method.
+     *
+     * @return external_function_parameters
+     */
     public static function execute_parameters(): external_function_parameters {
         return new external_function_parameters([
             'contextid'  => new external_value(PARAM_INT, 'Context id'),
@@ -41,6 +43,11 @@ class suggest extends external_api {
         ]);
     }
 
+    /**
+     * Define the return structure for the execute method.
+     *
+     * @return external_single_structure
+     */
     public static function execute_returns(): external_single_structure {
         return new external_single_structure([
             'suggestions' => new external_multiple_structure(
@@ -62,6 +69,14 @@ class suggest extends external_api {
         ]);
     }
 
+    /**
+     * Execute the AI suggest web service.
+     *
+     * @param int $contextid The context ID.
+     * @param string $paragraphs JSON-encoded paragraphs.
+     * @param string $lang Language code.
+     * @return array Suggestions and warnings.
+     */
     public static function execute(int $contextid, string $paragraphs, string $lang = 'en'): array {
         $params = self::validate_parameters(self::execute_parameters(), [
             'contextid' => $contextid,
