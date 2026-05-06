@@ -30,7 +30,7 @@ import * as Commands from './commands';
 import * as Configuration from './configuration';
 import {register as registerOptions} from './options';
 
-// eslint-disable-next-line no-async-promise-executor
+// eslint-disable-next-line no-async-promise-executor, space-before-function-paren
 export default new Promise(async (resolve) => {
     const [
         tinyMCE,

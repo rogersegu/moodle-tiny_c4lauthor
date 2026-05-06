@@ -66,6 +66,7 @@ export const loadVariantPreferences = async(components) => {
                     }
                 });
             }
+            return undefined;
     }).catch(Notification.exception);
 };
 

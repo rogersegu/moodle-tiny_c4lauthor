@@ -180,13 +180,17 @@ const registerConvertMenu = (ed, convertTooltip, noComponentStr, notConvertibleS
             const found = getComponentFromSelection(ed);
             if (!found) {
                 showCustomDropdown(ed, convertTooltip, [
-                    {label: noComponentStr, enabled: false, onAction: () => { return; }},
+                    {label: noComponentStr, enabled: false, onAction: () => {
+                        return;
+                    }},
                 ]);
                 return;
             }
             if (!found.convertible) {
                 showCustomDropdown(ed, convertTooltip, [
-                    {label: notConvertibleStr, enabled: false, onAction: () => { return; }},
+                    {label: notConvertibleStr, enabled: false, onAction: () => {
+                        return;
+                    }},
                 ]);
                 return;
             }
@@ -1339,6 +1343,7 @@ export const getSetup = async() => {
             body_class: 'tiny_c4lauthor-inner-body',
             height: '100%',
             content_css: contentCss,
+            // eslint-disable-next-line complexity
             setup: (ed) => {
                 // Register Moodle core options so plugins can access contextid, filepickers, etc.
                 registerMoodleOptions(ed, moodleOptions);

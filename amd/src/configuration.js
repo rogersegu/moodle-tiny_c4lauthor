@@ -50,6 +50,7 @@ export const configure = (instanceConfig) => {
         plugins.push('accordion');
     }
 
+    /* eslint-disable camelcase */
     return {
         toolbar: configureToolbar(instanceConfig.toolbar),
         plugins,
@@ -57,4 +58,5 @@ export const configure = (instanceConfig) => {
             instanceConfig.quickbars_selection_toolbar
         ),
     };
+    /* eslint-enable camelcase */
 };

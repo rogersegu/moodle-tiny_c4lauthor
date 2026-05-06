@@ -6,7 +6,7 @@
  * @copyright   2026 Roger Segú <rogersegu@gmail.com>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
+/* stylelint-disable */
 /* Collapse adjacent spacers (e.g. trailing spacer of one component
    followed by leading spacer of the next). */
 p.c4l-spacer + p.c4l-spacer {
@@ -2248,5 +2248,3 @@ p.c4l-spacer + p.c4l-spacer {
   /* 100% - 6% due to the shadow */
   max-width: 94%;
 }
-
-/*# sourceMappingURL=styles.css.map */
