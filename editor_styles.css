@@ -1,4 +1,12 @@
 @charset "UTF-8";
+/**
+ * Editor content styles for the C4L Author plugin.
+ *
+ * @package     tiny_c4lauthor
+ * @copyright   2026 Roger Segú <rogersegu@gmail.com>
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 /* COMPONENT STYLES */
 /* .c4lv prefix instead of .c4l only for the parent class of an element supporting variants */
 /* Utilities */
