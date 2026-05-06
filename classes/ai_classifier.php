@@ -95,6 +95,7 @@ class ai_classifier {
      *
      * @param string $paragraphstext Numbered paragraphs.
      * @param string $lang Language code.
+     * @param int $maxsuggestions Maximum number of suggestions.
      * @return string Complete prompt.
      */
     private static function build_prompt(string $paragraphstext, string $lang, int $maxsuggestions): string {

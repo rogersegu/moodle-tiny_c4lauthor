@@ -22,6 +22,9 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+/**
+ * Post-install hook: set default AI Suggest configuration.
+ */
 function xmldb_tiny_c4lauthor_install() {
     // AI Suggest defaults.
     set_config('ai_enabled', 1, 'tiny_c4lauthor');

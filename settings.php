@@ -69,7 +69,11 @@ if ($ADMIN->fulltree) {
     $name = get_string('aimedatstudents', 'tiny_c4lauthor');
     $desc = get_string('aimedatstudents_desc', 'tiny_c4lauthor');
     $setting = new admin_setting_configmulticheckbox(
-        'tiny_c4lauthor/aimedatstudents', $name, $desc, $components, $components
+        'tiny_c4lauthor/aimedatstudents',
+        $name,
+        $desc,
+        $components,
+        $components
     );
     $settings->add($setting);
 
@@ -88,7 +92,11 @@ if ($ADMIN->fulltree) {
     $name = get_string('notintendedforstudents', 'tiny_c4lauthor');
     $desc = get_string('notintendedforstudents_desc', 'tiny_c4lauthor');
     $setting = new admin_setting_configmulticheckbox(
-        'tiny_c4lauthor/notintendedforstudents', $name, $desc, [], $components
+        'tiny_c4lauthor/notintendedforstudents',
+        $name,
+        $desc,
+        [],
+        $components
     );
     $settings->add($setting);
 
@@ -255,5 +263,4 @@ if ($ADMIN->fulltree) {
         $setting = new admin_setting_configtext($name, $title, $description, $componentindex, PARAM_INT);
         $settings->add($setting);
     }
-
 }
