@@ -75,6 +75,7 @@ export const extractBlocks = (html) => {
     const blocks = [];
     let c4lIndex = 0;
 
+    // eslint-disable-next-line complexity
     const walk = (node) => {
         if (!node || node.nodeType !== 1) {
             return;

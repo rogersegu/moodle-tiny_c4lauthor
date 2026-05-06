@@ -33,7 +33,7 @@ const SELECTABLE_COMPONENTS = new Set([
 let COMPONENT_LABELS = {
     tip: 'Tip',
     attention: 'Attention',
-    learning_outcomes: 'Learning outcomes',
+    learning_outcomes: 'Learning outcomes', // eslint-disable-line camelcase
     keyconcept: 'Key concept',
     reminder: 'Reminder',
 };
@@ -148,6 +148,7 @@ export const mountAiView = async(container, handlers) => {
                         blocks[i].followingText = next.text;
                         blocks[i].hasFollowingHtml = !!next.html;
                         blocks[i].hasFollowingText = true;
+                        // eslint-disable-next-line max-depth
                         if (j + 1 < blocks.length && blocks[j + 1].isP && !blocks[j + 1].suggestion) {
                             blocks[j + 1].isGrouped = true;
                         }

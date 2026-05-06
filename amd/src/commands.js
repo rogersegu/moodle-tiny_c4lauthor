@@ -138,7 +138,8 @@ const convertComponent = (el, oldName, newName) => {
     const toRemove = [];
     el.classList.forEach((cls) => {
         if (cls.startsWith('c4l-') && cls.endsWith('-variant')) {
-            const varName = cls.slice(4, -8); // strip 'c4l-' and '-variant'
+            // Strip 'c4l-' and '-variant'.
+            const varName = cls.slice(4, -8);
             if (supportedVariants.indexOf(varName) === -1) {
                 toRemove.push(cls);
             }
@@ -179,13 +180,13 @@ const registerConvertMenu = (ed, convertTooltip, noComponentStr, notConvertibleS
             const found = getComponentFromSelection(ed);
             if (!found) {
                 showCustomDropdown(ed, convertTooltip, [
-                    {label: noComponentStr, enabled: false, onAction: () => {}},
+                    {label: noComponentStr, enabled: false, onAction: () => { return; }},
                 ]);
                 return;
             }
             if (!found.convertible) {
                 showCustomDropdown(ed, convertTooltip, [
-                    {label: notConvertibleStr, enabled: false, onAction: () => {}},
+                    {label: notConvertibleStr, enabled: false, onAction: () => { return; }},
                 ]);
                 return;
             }
@@ -835,6 +836,7 @@ const registerComponentIcons = async(ed) => {
             if (result && result.html) {
                 ed.ui.registry.addIcon(iconName, result.html);
             }
+            return undefined;
         }).catch(() => {
             // Silently skip icons that fail to load.
         });
@@ -1037,7 +1039,9 @@ const setupTabOverflow = (tabsContainer, moreLabel, root) => {
 
         if (overflowStartIndex >= tabs.length) {
             // Everything fits even with "More" — restore and remove it.
-            tabs.forEach((t) => { t.style.display = ''; });
+            tabs.forEach((t) => {
+                t.style.display = '';
+            });
             tabsContainer.removeChild(moreBtn);
             return;
         }
@@ -1102,7 +1106,7 @@ const setupTabOverflow = (tabsContainer, moreLabel, root) => {
     }, 300);
 };
 
-export const getSetup = async () => {
+export const getSetup = async() => {
     const [buttonText, buttonImage, applyStr, cancelStr,
            allStr, contextualStr, proceduralStr, evaluativeStr, helperStr, templatesStr, customStr,
            convertToStr, noComponentStr, notConvertibleStr, moreStr, discardStr, discardBtnStr, keepEditingStr,
@@ -1149,7 +1153,8 @@ export const getSetup = async () => {
         custom: customStr,
     };
 
-    const openModal = async (editor) => {
+    // eslint-disable-next-line complexity
+    const openModal = async(editor) => {
         // Add custom components from admin settings.
         const customComps = getcustomComponents(editor);
         addCustomComponents(customComps);
@@ -1170,7 +1175,12 @@ export const getSetup = async () => {
 
         // Copy content_css from outer editor so inner TinyMCE has all plugin styles.
         const outerCss = editor.options.get('content_css');
-        const contentCss = Array.isArray(outerCss) ? outerCss : (outerCss ? [outerCss] : []);
+        let contentCss = [];
+        if (Array.isArray(outerCss)) {
+            contentCss = outerCss;
+        } else if (outerCss) {
+            contentCss = [outerCss];
+        }
 
         const modal = await Modal.create({
             title: buttonText,
@@ -1296,6 +1306,7 @@ export const getSetup = async () => {
 
         // Initialize inner TinyMCE instance.
         let innerEditor = null;
+        /* eslint-disable camelcase */
         const editors = await tinyMCE.init({
             selector: '#' + textareaId,
             license_key: 'gpl',
@@ -1427,6 +1438,7 @@ export const getSetup = async () => {
                 });
             },
         });
+        /* eslint-enable camelcase */
 
         if (!innerEditor && editors && editors.length) {
             innerEditor = editors[0];

@@ -51,6 +51,7 @@ export const extractParagraphs = (html) => {
     const allPs = Array.from(root.querySelectorAll('p'));
     const consumed = new Set();
     return allPs
+        // eslint-disable-next-line complexity
         .map((p, i) => {
             if (consumed.has(i)) {
                 return null;
