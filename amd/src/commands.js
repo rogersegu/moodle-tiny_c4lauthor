@@ -1343,7 +1343,6 @@ export const getSetup = async() => {
             body_class: 'tiny_c4lauthor-inner-body',
             height: '100%',
             content_css: contentCss,
-            // eslint-disable-next-line complexity
             setup: (ed) => {
                 // Register Moodle core options so plugins can access contextid, filepickers, etc.
                 registerMoodleOptions(ed, moodleOptions);
@@ -1455,6 +1454,7 @@ export const getSetup = async() => {
         // When pressing Enter at the end of a C4L component, exit the
         // component and place the cursor in a new paragraph below it.
         // Third param `true` = prepend, so this runs before TinyMCE's own handler.
+        // eslint-disable-next-line complexity
         innerEditor.on('keydown', (e) => {
             if (e.keyCode !== 13 || e.shiftKey || e.ctrlKey || e.metaKey) {
                 return;
