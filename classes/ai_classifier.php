@@ -229,7 +229,7 @@ class ai_classifier {
      * @return array|null Decoded array or null if parsing failed.
      */
     private static function extract_json(string $text): ?array {
-        $backticks = '`' . '`' . '`';
+        $backticks = str_repeat(chr(96), 3);
         if (preg_match('/' . $backticks . '(?:json)?\s*(\[[\s\S]*?\])\s*' . $backticks . '/', $text, $matches)) {
             $decoded = json_decode($matches[1], true);
             if (is_array($decoded)) {
