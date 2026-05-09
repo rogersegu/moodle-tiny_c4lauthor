@@ -29,17 +29,18 @@ const PARAGRAPH_TEMPLATE = '<p>{{{content}}}</p>';
 const wrapWithComponent = (component, innerHtml, learningOutcomesTitle) => {
     switch (component) {
         case 'tip':
-            return `<p class="c4l-spacer"></p><div class="c4lv-tip">${innerHtml}</div><p></p>`;
+            return `<p class="c4l-spacer">&nbsp;</p><div class="c4lv-tip">${innerHtml}</div><p class="c4l-spacer">&nbsp;</p>`;
         case 'attention':
-            return `<p class="c4l-spacer"></p><div class="c4lv-attention">${innerHtml}</div><p></p>`;
+            return `<p class="c4l-spacer">&nbsp;</p><div class="c4lv-attention">${innerHtml}</div><p class="c4l-spacer">&nbsp;</p>`;
         case 'learning_outcomes':
-            return `<p class="c4l-spacer"></p><div class="c4lv-learningoutcomes">` +
+            return `<p class="c4l-spacer">&nbsp;</p><div class="c4lv-learningoutcomes">` +
                 `<h6 class="c4l-learningoutcomes-title">${learningOutcomesTitle || 'Learning outcomes'}</h6>` +
-                `<ul class="c4l-learningoutcomes-list"><li>${innerHtml}</li></ul></div><p></p>`;
+                `<ul class="c4l-learningoutcomes-list"><li>${innerHtml}</li></ul></div><p class="c4l-spacer">&nbsp;</p>`;
         case 'keyconcept':
-            return `<p class="c4l-spacer"></p><div class="c4lv-keyconcept">${innerHtml}</div><p></p>`;
+            return `<p class="c4l-spacer">&nbsp;</p><div class="c4lv-keyconcept">${innerHtml}</div>` +
+                `<p class="c4l-spacer">&nbsp;</p>`;
         case 'reminder':
-            return `<p class="c4l-spacer"></p><div class="c4lv-reminder">${innerHtml}</div><p></p>`;
+            return `<p class="c4l-spacer">&nbsp;</p><div class="c4lv-reminder">${innerHtml}</div><p class="c4l-spacer">&nbsp;</p>`;
         default:
             return innerHtml;
     }
