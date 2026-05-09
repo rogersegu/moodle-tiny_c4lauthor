@@ -1388,7 +1388,7 @@ export const getSetup = async() => {
                                     onAction: async() => {
                                         ed.selection.moveToBookmark(bookmark);
                                         const html = await processComponentCode(comp, savedSel);
-                                        ed.selection.setContent(html);
+                                        ed.execCommand('mceInsertContent', false, html);
                                         ed.focus();
                                     },
                                 });
