@@ -160,3 +160,11 @@
 .c4l-inlinetag-icon .c4l-button-text::before {
     content: url([[pix:tiny_c4lauthor|c4l_inlinetag_icon]]);
 }
+
+.c4l-statement-icon .c4l-button-text::before {
+    content: url([[pix:tiny_c4lauthor|c4l-statement-icon]]) !important;
+}
+
+.c4l-assessment-icon .c4l-button-text::before {
+    content: url([[pix:tiny_c4lauthor|c4l-assessment-icon]]) !important;
+}

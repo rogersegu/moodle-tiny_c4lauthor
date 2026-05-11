@@ -503,6 +503,53 @@ const components = [
         },
         variants: ["align-left"],
     },
+    {
+        id: "33",
+        name: "statement",
+        type: "procedural",
+        imageClass: "c4l-statement-icon",
+        wrapperClass: "c4l-statement",
+        code: `<div class="c4l-statement"><section id="task-compound-layout">
+<div class="task-statement">
+<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.
+Duis aute irure dolor in reprehenderit in voluptate velit esse.</p>
+</div>
+</section></div>`,
+        text: "Enunciat de la tasca.",
+        docs: {
+            description: "{{#docs_statement_desc}}",
+            useCases: [],
+        },
+        variants: [],
+    },
+    {
+        id: "37",
+        name: "assessment",
+        type: "evaluative",
+        imageClass: "c4l-assessment-icon",
+        wrapperClass: "c4l-assessment",
+        code: `<div class="c4l-assessment"><section id="task-compound-layout">
+<div class="teacher-assessment">
+<div class="teacher-assessment-frame"></div>
+<div class="teacher-assessment-text">
+<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Sed do eiusmod tempor incididunt ut labore et dolore magna
+aliqua. Ut enim ad minim veniam, quis nostrud exercitation
+ullamco laboris nisi ut aliquip ex ea commodo consequat.
+Duis aute irure dolor in reprehenderit in voluptate velit
+esse cillum dolore eu fugiat nulla pariatur.</p>
+</div>
+</div>
+</section></div>`,
+        text: "Informació sobre la valoració.",
+        docs: {
+            description: "{{#docs_assessment_desc}}",
+            useCases: [],
+        },
+        variants: [],
+    },
 ];
 
 export {components};

@@ -820,6 +820,8 @@ const componentIconMap = {
     aiusereported: 'c4l_aiusereported_icon',
     conceptreview: 'c4l_conceptreview_icon',
     furtherreading: 'c4l_furtherreading_icon',
+    statement: 'c4l-statement-icon',
+    assessment: 'c4l-assessment-icon',
 };
 
 /**

@@ -980,3 +980,77 @@
     }
 }
 
+
+/* Statement / Assessment (task templates) */
+
+#task-compound-layout .task-statement {
+    background: #FFFFFF;
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.12);
+    border-radius: 10px;
+    font-size: 17px;
+    padding: 36px 48px;
+    width: 90%;
+    margin: 36px auto;
+    position: relative;
+}
+#task-compound-layout .task-statement::before {
+    content: url([[pix:tiny_c4lauthor|pestanya-tasca]]);
+    background-repeat: no-repeat;
+    background-size: contain;
+    position: absolute;
+    top: 33px;
+    left: -4px;
+}
+#task-compound-layout .task-statement p:last-child {
+    margin-bottom: 0;
+}
+#task-compound-layout .teacher-assessment {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    justify-content: flex-start;
+    background-color: #fff;
+    padding: 12px;
+    box-shadow: 0 4px 34px rgba(0, 0, 0, 0.12);
+    width: 90%;
+    margin: 24px auto 36px auto;
+    border-radius: 10px;
+}
+#task-compound-layout .teacher-assessment-frame {
+    background-color: #f1f5fe;
+    background-image: url([[pix:tiny_c4lauthor|fi_clipboard]]);
+    background-repeat: no-repeat;
+    background-position: center;
+    min-height: 48px;
+    width: 48px;
+    min-width: 48px;
+    flex-shrink: 0;
+    border-radius: 6px;
+}
+#task-compound-layout .teacher-assessment-text {
+    padding-top: 24px;
+    padding-bottom: 12px;
+    margin-left: 12px;
+    margin-right: 12px;
+}
+#task-compound-layout .teacher-assessment-text p {
+    margin-bottom: 0;
+}
+
+@media (min-width: 576px) {
+    #task-compound-layout .task-statement {
+        margin: 48px auto;
+    }
+    #task-compound-layout .teacher-assessment {
+        margin-top: 36px;
+    }
+    #task-compound-layout .teacher-assessment-frame {
+        min-width: 60px;
+        width: 60px;
+    }
+    #task-compound-layout .teacher-assessment-text {
+        margin-left: 36px;
+        margin-right: 36px;
+        padding-bottom: 24px;
+    }
+}
