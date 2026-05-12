@@ -985,17 +985,29 @@ svg.tiny_c4lauthor__code-header-icon {
 }
 
 .c4l-inline-group {
-  display: flex;
-  flex-direction: row;
-  align-content: flex-end;
-  justify-content: flex-end;
+  display: block;
+  text-align: right;
+}
+
+.c4l-inline-group > * + * {
+  margin-left: 4px;
+}
+
+.c4l-inline-group:has(.c4l-align-left-variant) {
+  text-align: left;
 }
 
 .c4l-display-left {
-  display: flex;
-  flex-direction: row;
-  align-content: flex-start;
-  justify-content: flex-start;
+  display: block;
+  text-align: left;
+}
+
+.c4l-display-left > * + * {
+  margin-left: 4px;
+}
+
+.c4l-display-left:has(.c4l-align-right-variant) {
+  text-align: right;
 }
 
 .c4l-spacer + .c4l-display-left {
@@ -1388,10 +1400,6 @@ svg.tiny_c4lauthor__code-header-icon {
   letter-spacing: 0.2px;
 }
 
-.c4lv-tag.c4l-align-right-variant {
-  margin-left: auto;
-}
-
 /* Estimated Time */
 .c4l-estimatedtime,
 .c4lv-estimatedtime {
@@ -1420,11 +1428,6 @@ svg.tiny_c4lauthor__code-header-icon {
   left: 12px;
 }
 
-.c4lv-estimatedtime.c4l-align-left-variant {
-  margin-right: auto;
-  margin-left: 0;
-}
-
 /* Due date */
 .c4l-duedate,
 .c4lv-duedate {
@@ -1446,11 +1449,6 @@ svg.tiny_c4lauthor__code-header-icon {
   content: url([[pix:tiny_c4lauthor|noun_project_icons/c4l_duedate]]);
   position: absolute;
   left: 12px;
-}
-
-.c4lv-duedate.c4l-align-left-variant {
-  margin-right: auto;
-  margin-left: 0;
 }
 
 /* Procedural Context */
@@ -1493,11 +1491,6 @@ svg.tiny_c4lauthor__code-header-icon {
   top: 6px;
 }
 
-.c4lv-gradingvalue.c4l-align-left-variant {
-  margin-right: auto;
-  margin-left: 0;
-}
-
 /* AI Use Allowed */
 .c4l-aiuseallowed,
 .c4lv-aiuseallowed {
@@ -1525,11 +1518,6 @@ svg.tiny_c4lauthor__code-header-icon {
   position: absolute;
   left: 10px;
   top: 3px;
-}
-
-.c4lv-aiuseallowed.c4l-align-left-variant {
-  margin-right: auto;
-  margin-left: 0;
 }
 
 /* AI Use Not Allowed */
@@ -1561,11 +1549,6 @@ svg.tiny_c4lauthor__code-header-icon {
   top: 3px;
 }
 
-.c4lv-aiusenotallowed.c4l-align-left-variant {
-  margin-right: auto;
-  margin-left: 0;
-}
-
 /* AI Use Reported */
 .c4l-aiusereported,
 .c4lv-aiusereported {
@@ -1593,11 +1576,6 @@ svg.tiny_c4lauthor__code-header-icon {
   position: absolute;
   left: 10px;
   top: 3px;
-}
-
-.c4lv-aiusereported.c4l-align-left-variant {
-  margin-right: auto;
-  margin-left: 0;
 }
 
 /* Expected Feedback */
