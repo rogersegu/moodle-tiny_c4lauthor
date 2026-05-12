@@ -989,6 +989,10 @@ svg.tiny_c4lauthor__code-header-icon {
   text-align: right;
 }
 
+.c4l-inline-group > * {
+  display: inline-block;
+}
+
 .c4l-inline-group > * + * {
   margin-left: 4px;
 }
@@ -1000,6 +1004,10 @@ svg.tiny_c4lauthor__code-header-icon {
 .c4l-display-left {
   display: block;
   text-align: left;
+}
+
+.c4l-display-left > * {
+  display: inline-block;
 }
 
 .c4l-display-left > * + * {
