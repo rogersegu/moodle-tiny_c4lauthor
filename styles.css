@@ -1183,6 +1183,11 @@ svg.tiny_c4lauthor__code-header-icon {
 }
 
 /* Do - Don't cards */
+.c4l-dodontcards,
+.c4lv-dodontcards {
+  margin-left: auto;
+  margin-right: auto;
+}
 .c4l-dodontcards .c4l-dodontcards-do,
 .c4l-dodontcards .c4l-dodontcards-do,
 .c4lv-dodontcards .c4l-dodontcards-do,
@@ -2172,11 +2177,14 @@ p.c4l-spacer + p.c4l-spacer {
     margin-top: 24px;
   }
 
+  .c4l-dodontcards,
+.c4lv-dodontcards {
+    max-width: 90%;
+  }
   .c4l-dodontcards .c4l-dodontcards-do,
 .c4l-dodontcards .c4l-dodontcards-dont,
 .c4lv-dodontcards .c4l-dodontcards-do,
 .c4lv-dodontcards .c4l-dodontcards-dont {
-    max-width: 90%;
     margin: 24px auto;
   }
 
@@ -2212,10 +2220,8 @@ p.c4l-spacer + p.c4l-spacer {
 .c4lv-reminder,
 .c4l-attention,
 .c4lv-attention,
-.c4l-dodontcards-do,
-.c4lv-dodontcards-do,
-.c4l-dodontcards-dont,
-.c4lv-dodontcards-dont,
+.c4l-dodontcards,
+.c4lv-dodontcards,
 .c4l-readingcontext,
 .c4lv-readingcontext,
 .c4l-expectedfeedback,
@@ -2240,10 +2246,8 @@ p.c4l-spacer + p.c4l-spacer {
 .c4lv-reminder.c4l-full-width-variant,
 .c4l-attention.c4l-full-width-variant,
 .c4lv-attention.c4l-full-width-variant,
-.c4l-dodontcards.c4l-full-width-variant .c4l-dodontcards-do,
-.c4lv-dodontcards.c4l-full-width-variant .c4l-dodontcards-do,
-.c4l-dodontcards.c4l-full-width-variant .c4l-dodontcards-dont,
-.c4lv-dodontcards.c4l-full-width-variant .c4l-dodontcards-dont,
+.c4l-dodontcards.c4l-full-width-variant,
+.c4lv-dodontcards.c4l-full-width-variant,
 .c4l-readingcontext.c4l-full-width-variant,
 .c4lv-readingcontext.c4l-full-width-variant,
 .c4l-expectedfeedback.c4l-full-width-variant,
@@ -2287,8 +2291,6 @@ p.c4l-spacer + p.c4l-spacer {
 .c4l-keyconcept.c4l-full-width-variant,
 .c4l-quote.c4l-full-width-variant,
 .c4l-dodontcards.c4l-full-width-variant,
-.c4l-dodontcards-do,
-.c4l-dodontcards.c4l-full-width-variant .c4l-dodontcards-dont,
 .c4l-figure.c4l-full-width-variant,
 .c4l-proceduralcontext.c4l-full-width-variant,
 .c4l-learningoutcomes.c4l-full-width-variant,
@@ -2319,8 +2321,6 @@ p.c4l-spacer + p.c4l-spacer {
 .c4lv-keyconcept.c4l-full-width-variant,
 .c4lv-quote.c4l-full-width-variant,
 .c4lv-dodontcards.c4l-full-width-variant,
-.c4lv-dodontcards-do,
-.c4lv-dodontcards.c4l-full-width-variant .c4l-dodontcards-dont,
 .c4lv-figure.c4l-full-width-variant,
 .c4lv-proceduralcontext.c4l-full-width-variant,
 .c4lv-learningoutcomes.c4l-full-width-variant,

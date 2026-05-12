@@ -54,9 +54,10 @@
 
     .c4l-dodontcards,
     .c4lv-dodontcards {
+        max-width: 90%;
+
         .c4l-dodontcards-do,
         .c4l-dodontcards-dont {
-            max-width: 90%;
             margin: 24px auto;
         }
     }
@@ -94,10 +95,8 @@
     .c4lv-reminder,
     .c4l-attention,
     .c4lv-attention,
-    .c4l-dodontcards-do,
-    .c4lv-dodontcards-do,
-    .c4l-dodontcards-dont,
-    .c4lv-dodontcards-dont,
+    .c4l-dodontcards,
+    .c4lv-dodontcards,
     .c4l-readingcontext,
     .c4lv-readingcontext,
     .c4l-expectedfeedback,
@@ -122,10 +121,8 @@
     .c4lv-reminder.c4l-full-width-variant,
     .c4l-attention.c4l-full-width-variant,
     .c4lv-attention.c4l-full-width-variant,
-    .c4l-dodontcards.c4l-full-width-variant .c4l-dodontcards-do,
-    .c4lv-dodontcards.c4l-full-width-variant .c4l-dodontcards-do,
-    .c4l-dodontcards.c4l-full-width-variant .c4l-dodontcards-dont,
-    .c4lv-dodontcards.c4l-full-width-variant .c4l-dodontcards-dont,
+    .c4l-dodontcards.c4l-full-width-variant,
+    .c4lv-dodontcards.c4l-full-width-variant,
     .c4l-readingcontext.c4l-full-width-variant,
     .c4lv-readingcontext.c4l-full-width-variant,
     .c4l-expectedfeedback.c4l-full-width-variant,
