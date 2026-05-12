@@ -1729,6 +1729,8 @@ svg.tiny_c4lauthor__code-header-icon {
 }
 .c4lv-learningoutcomes.c4l-ordered-list-variant > li:not(.c4l-learningoutcomes-title)::before {
   background-image: none;
+  width: auto;
+  height: auto;
   position: absolute;
   left: 0;
   top: 0;
