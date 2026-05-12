@@ -311,7 +311,7 @@ const components = [
                 "{{#docs_proceduralcontext_use3}}",
             ],
         },
-        variants: ["full-width"],
+        variants: [],
     },
     {
         id: "14",
