@@ -433,12 +433,6 @@
   color: #686d79;
   margin-top: 7px;
 }
-.c4l-figure .c4l-figure-footer::after,
-.c4lv-figure .c4l-figure-footer::after {
-  content: " | ";
-  font-weight: normal;
-  font-style: normal;
-}
 .c4l-figure .c4l-figure-caption,
 .c4lv-figure .c4l-figure-caption {
   font-style: normal;
