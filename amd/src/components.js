@@ -319,13 +319,15 @@ const components = [
         type: "procedural",
         imageClass: "c4l-learningoutcomes-icon",
         code:
-            `<p class="c4l-spacer"></p>
-            <div class="c4lv-learningoutcomes {{VARIANTS}}" role="note" aria-label="{{#learningoutcomes}}">
-            <h6 class="c4l-learningoutcomes-title">{{#learningoutcomes}}</h6>
-            <ul class="c4l-learningoutcomes-list"><li>{{PLACEHOLDER}}</li><li>Curabitur non nulla sit amet
-            nisl tempus convallis quis ac lectus. Praesent sapien massa, convallis a pellentesque nec, egestas non nisi.</li>
-            <li> Nulla porttitor accumsan tincidunt. Curabitur aliquet quam id dui posuere blandit.
-             Curabitur non nulla sit amet nisl tempus convallis quis ac lectus.</li></ul></div><p class="c4l-spacer">&nbsp;</p>`,
+            `<p class="c4l-spacer">&nbsp;</p>` +
+            `<ul class="c4lv-learningoutcomes c4l-learningoutcomes-list {{VARIANTS}}"` +
+            ` role="note" aria-label="{{#learningoutcomes}}">` +
+            `<li class="c4l-learningoutcomes-title" contenteditable="false">{{#learningoutcomes}}</li>` +
+            `<li>{{PLACEHOLDER}}</li>` +
+            `<li>Curabitur non nulla sit amet nisl tempus convallis quis ac lectus.</li>` +
+            `<li>Nulla porttitor accumsan tincidunt. Curabitur aliquet quam id dui posuere blandit.</li>` +
+            `</ul>` +
+            `<p class="c4l-spacer">&nbsp;</p>`,
         text:
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut porta, neque id feugiat consectetur, " +
             "enim ipsum tincidunt nunc, id suscipit mauris urna sit amet lectus.",
@@ -425,13 +427,15 @@ const components = [
         type: "contextual",
         imageClass: "c4l-furtherreading-icon",
         code:
-            `<p class="c4l-spacer"></p>
-            <div class="c4lv-furtherreading {{VARIANTS}}" role="note" aria-label="{{#furtherreading}}">
-            <h6 class="c4l-further-reading-title">{{#furtherreading}}</h6>
-            <ul class="c4l-furtherreading-list"><li>{{PLACEHOLDER}}</li><li>Curabitur non nulla sit amet
-            nisl tempus convallis quis ac lectus. Praesent sapien massa, convallis a pellentesque nec, egestas non nisi.</li>
-            <li> Nulla porttitor accumsan tincidunt. Curabitur aliquet quam id dui posuere blandit.
-             Curabitur non nulla sit amet nisl tempus convallis quis ac lectus.</li></ul></div><p class="c4l-spacer">&nbsp;</p>`,
+            `<p class="c4l-spacer">&nbsp;</p>` +
+            `<ul class="c4lv-furtherreading c4l-furtherreading-list {{VARIANTS}}"` +
+            ` role="note" aria-label="{{#furtherreading}}">` +
+            `<li class="c4l-further-reading-title" contenteditable="false">{{#furtherreading}}</li>` +
+            `<li>{{PLACEHOLDER}}</li>` +
+            `<li>Curabitur non nulla sit amet nisl tempus convallis quis ac lectus.</li>` +
+            `<li>Nulla porttitor accumsan tincidunt. Curabitur aliquet quam id dui posuere blandit.</li>` +
+            `</ul>` +
+            `<p class="c4l-spacer">&nbsp;</p>`,
         text:
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut porta, neque id feugiat consectetur, " +
             "enim ipsum tincidunt nunc, id suscipit mauris urna sit amet lectus.",

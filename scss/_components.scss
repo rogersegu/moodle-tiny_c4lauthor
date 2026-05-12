@@ -775,12 +775,9 @@
     margin: 36px auto;
     position: relative;
     border-radius: 0;
+    list-style: none;
 
-    p:last-of-type {
-        margin-bottom: 0;
-    }
-
-    .c4l-learningoutcomes-title {
+    > .c4l-learningoutcomes-title {
         position: relative;
         top: -11px;
         left: -39px;
@@ -796,10 +793,11 @@
         font-family: inherit;
         display: inline-block;
         margin-top: 0;
+        list-style: none;
         filter: drop-shadow(0 1.55601px 3.11202px rgba(0, 0, 0, 7%));
     }
 
-    .c4l-learningoutcomes-title::before {
+    > .c4l-learningoutcomes-title::before {
         content: url([[pix:tiny_c4lauthor|c4l_learningoutcomes_shadow]]);
         position: absolute;
         width: 3px;
@@ -808,47 +806,40 @@
         left: 0.5px;
     }
 
-    .c4l-learningoutcomes-list {
-        margin-top: 18px;
-        margin-bottom: 18px;
-        padding-left: 32px;
-    }
-
-    .c4l-learningoutcomes-list > li {
+    > li:not(.c4l-learningoutcomes-title) {
         position: relative;
-    }
-
-    .c4l-learningoutcomes-list > li:not(:last-child) {
+        padding-left: 32px;
         margin-bottom: 21px;
     }
 
-    .c4l-learningoutcomes-list li::before {
+    > li:not(.c4l-learningoutcomes-title):last-child {
+        margin-bottom: 0;
+    }
+
+    > li:not(.c4l-learningoutcomes-title)::before {
         background-image: url([[pix:tiny_c4lauthor|c4l_learningoutcomes_list_item]]);
         background-size: 9px 11px;
         display: inline-block;
         width: 9px;
         height: 11px;
         content: "";
-        justify-self: center;
         position: absolute;
-        left: -32px;
+        left: 0;
         top: 7px;
     }
 
-    .c4l-learningoutcomes-list li::marker {
+    > li::marker {
         color: transparent;
     }
 }
 
 .c4lv-learningoutcomes.c4l-ordered-list-variant {
-    .c4l-learningoutcomes-list {
-        counter-reset: section;
-    }
+    counter-reset: section;
 
-    .c4l-learningoutcomes-list li::before {
+    > li:not(.c4l-learningoutcomes-title)::before {
         background-image: none;
         position: absolute;
-        left: -32px;
+        left: 0;
         top: 0;
         counter-increment: section;
         content: counter(section) ". ";
@@ -903,19 +894,7 @@
     position: relative;
     border-radius: 12px;
     box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.13);
-
-    .c4l-further-reading-title {
-        color: #0271BF;
-        font-size: 12px;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        margin: 0 0 16px 0;
-    }
-
-    p:last-of-type {
-        margin-bottom: 0;
-    }
+    list-style: none;
 
     &::before {
         content: url([[pix:tiny_c4lauthor|c4l_furtherreading]]);
@@ -924,34 +903,39 @@
         left: -3px;
     }
 
-    .c4l-furtherreading-list {
-        margin-top: 18px;
-        margin-bottom: 18px;
-        padding-left: 32px;
+    > .c4l-further-reading-title {
+        color: #0271BF;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin: 0 0 16px 0;
+        list-style: none;
     }
 
-    .c4l-furtherreading-list > li {
+    > li:not(.c4l-further-reading-title) {
         position: relative;
-    }
-
-    .c4l-furtherreading-list > li:not(:last-child) {
+        padding-left: 32px;
         margin-bottom: 21px;
     }
 
-    .c4l-furtherreading-list li::before {
+    > li:not(.c4l-further-reading-title):last-child {
+        margin-bottom: 0;
+    }
+
+    > li:not(.c4l-further-reading-title)::before {
         background-image: url([[pix:tiny_c4lauthor|c4l_furtherreading_list_item]]);
         background-size: 9px 11px;
         display: inline-block;
         width: 9px;
         height: 11px;
         content: "";
-        justify-self: center;
         position: absolute;
-        left: -32px;
+        left: 0;
         top: 7px;
     }
 
-    .c4l-furtherreading-list li::marker {
+    > li::marker {
         color: transparent;
     }
 }
