@@ -983,14 +983,16 @@
 
 /* Statement / Assessment (task templates) */
 
+.c4l-statement {
+    margin: 36px auto;
+}
+
 #task-compound-layout .task-statement {
     background: #FFFFFF;
     box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.12);
     border-radius: 10px;
     font-size: 17px;
     padding: 36px 48px;
-    width: 90%;
-    margin: 36px auto;
     position: relative;
 }
 #task-compound-layout .task-statement::before {
@@ -1038,7 +1040,7 @@
 }
 
 @media (min-width: 576px) {
-    #task-compound-layout .task-statement {
+    .c4l-statement {
         margin: 48px auto;
     }
     #task-compound-layout .teacher-assessment {

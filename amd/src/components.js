@@ -509,7 +509,7 @@ const components = [
         type: "procedural",
         imageClass: "c4l-statement-icon",
         wrapperClass: "c4l-statement",
-        code: `<div class="c4l-statement"><section id="task-compound-layout">
+        code: `<div class="c4l-statement {{VARIANTS}}"><section id="task-compound-layout">
 <div class="task-statement">
 <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.
 Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
@@ -522,7 +522,7 @@ Duis aute irure dolor in reprehenderit in voluptate velit esse.</p>
             description: "{{#docs_statement_desc}}",
             useCases: [],
         },
-        variants: [],
+        variants: ["full-width"],
     },
     {
         id: "37",

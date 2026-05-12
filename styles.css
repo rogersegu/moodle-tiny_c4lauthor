@@ -1861,14 +1861,16 @@ svg.tiny_c4lauthor__code-header-icon {
 }
 
 /* Statement / Assessment (task templates) */
+.c4l-statement {
+  margin: 36px auto;
+}
+
 #task-compound-layout .task-statement {
   background: #FFFFFF;
   box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.12);
   border-radius: 10px;
   font-size: 17px;
   padding: 36px 48px;
-  width: 90%;
-  margin: 36px auto;
   position: relative;
 }
 
@@ -1922,7 +1924,7 @@ svg.tiny_c4lauthor__code-header-icon {
 }
 
 @media (min-width: 576px) {
-  #task-compound-layout .task-statement {
+  .c4l-statement {
     margin: 48px auto;
   }
 
@@ -2225,7 +2227,8 @@ p.c4l-spacer + p.c4l-spacer {
 .c4l-conceptreview,
 .c4lv-conceptreview,
 .c4l-furtherreading,
-.c4lv-furtherreading {
+.c4lv-furtherreading,
+.c4l-statement {
     max-width: 75%;
   }
 
@@ -2252,7 +2255,8 @@ p.c4l-spacer + p.c4l-spacer {
 .c4l-quote.c4l-full-width-variant,
 .c4lv-quote.c4l-full-width-variant,
 .c4l-example.c4l-full-width-variant,
-.c4lv-example.c4l-full-width-variant {
+.c4lv-example.c4l-full-width-variant,
+.c4l-statement.c4l-full-width-variant {
     max-width: 100%;
   }
 
@@ -2289,6 +2293,10 @@ p.c4l-spacer + p.c4l-spacer {
 .c4l-proceduralcontext.c4l-full-width-variant,
 .c4l-learningoutcomes.c4l-full-width-variant,
 .c4l-allpurposecard.c4l-full-width-variant {
+  max-width: 100%;
+}
+
+.c4l-statement.c4l-full-width-variant {
   max-width: 100%;
 }
 
