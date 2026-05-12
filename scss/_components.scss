@@ -972,6 +972,10 @@
 #task-compound-layout .task-statement p:last-child {
     margin-bottom: 0;
 }
+.c4l-assessment {
+    margin: 24px auto 36px auto;
+}
+
 #task-compound-layout .teacher-assessment {
     display: flex;
     flex-direction: row;
@@ -980,8 +984,6 @@
     background-color: #fff;
     padding: 12px;
     box-shadow: 0 4px 34px rgba(0, 0, 0, 0.12);
-    width: 90%;
-    margin: 24px auto 36px auto;
     border-radius: 10px;
 }
 #task-compound-layout .teacher-assessment-frame {
@@ -1009,7 +1011,7 @@
     .c4l-statement {
         margin: 48px auto;
     }
-    #task-compound-layout .teacher-assessment {
+    .c4l-assessment {
         margin-top: 36px;
     }
     #task-compound-layout .teacher-assessment-frame {

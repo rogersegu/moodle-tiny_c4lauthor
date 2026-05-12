@@ -936,6 +936,10 @@
   margin-bottom: 0;
 }
 
+.c4l-assessment {
+  margin: 24px auto 36px auto;
+}
+
 #task-compound-layout .teacher-assessment {
   display: flex;
   flex-direction: row;
@@ -944,8 +948,6 @@
   background-color: #fff;
   padding: 12px;
   box-shadow: 0 4px 34px rgba(0, 0, 0, 0.12);
-  width: 90%;
-  margin: 24px auto 36px auto;
   border-radius: 10px;
 }
 
@@ -977,7 +979,7 @@
     margin: 48px auto;
   }
 
-  #task-compound-layout .teacher-assessment {
+  .c4l-assessment {
     margin-top: 36px;
   }
 
@@ -1109,7 +1111,8 @@ p.c4l-spacer + p.c4l-spacer {
 .c4lv-conceptreview,
 .c4l-furtherreading,
 .c4lv-furtherreading,
-.c4l-statement {
+.c4l-statement,
+.c4l-assessment {
     max-width: 75%;
   }
 
@@ -1135,7 +1138,8 @@ p.c4l-spacer + p.c4l-spacer {
 .c4lv-quote.c4l-full-width-variant,
 .c4l-example.c4l-full-width-variant,
 .c4lv-example.c4l-full-width-variant,
-.c4l-statement.c4l-full-width-variant {
+.c4l-statement.c4l-full-width-variant,
+.c4l-assessment.c4l-full-width-variant {
     max-width: 100%;
   }
 

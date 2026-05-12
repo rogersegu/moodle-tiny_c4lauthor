@@ -534,7 +534,7 @@ Duis aute irure dolor in reprehenderit in voluptate velit esse.</p>
         type: "evaluative",
         imageClass: "c4l-assessment-icon",
         wrapperClass: "c4l-assessment",
-        code: `<div class="c4l-assessment"><section id="task-compound-layout">
+        code: `<div class="c4l-assessment {{VARIANTS}}"><section id="task-compound-layout">
 <div class="teacher-assessment">
 <div class="teacher-assessment-frame"></div>
 <div class="teacher-assessment-text">
@@ -552,7 +552,7 @@ esse cillum dolore eu fugiat nulla pariatur.</p>
             description: "{{#docs_assessment_desc}}",
             useCases: [],
         },
-        variants: [],
+        variants: ["full-width"],
     },
 ];
 
