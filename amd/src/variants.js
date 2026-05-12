@@ -70,7 +70,7 @@ const variants = [
         name: "quote",
         html:
             `<div class="c4l-embedded-caption" aria-label="{{#caption}}">` +
-            `<span>Marcus Tullius Cicero</span> ` +
+            `<span>Marcus Tullius Cicero</span>, ` +
             `De Finibus Bonorum et Malorum</div>`,
     },
 ];

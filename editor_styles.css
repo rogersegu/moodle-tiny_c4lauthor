@@ -102,9 +102,6 @@
   text-transform: uppercase;
   font-size: 14px;
 }
-.c4l-embedded-caption span::after {
-  content: ", ";
-}
 
 /* Key concept */
 .c4l-keyconcept,
