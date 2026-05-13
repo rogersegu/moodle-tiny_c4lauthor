@@ -1831,7 +1831,8 @@ svg.tiny_c4lauthor__code-header-icon {
 }
 
 /* Statement / Assessment (task templates) */
-.c4l-statement {
+.c4l-statement,
+.c4lv-statement {
   margin: 36px auto;
 }
 
@@ -1857,7 +1858,8 @@ svg.tiny_c4lauthor__code-header-icon {
   margin-bottom: 0;
 }
 
-.c4l-assessment {
+.c4l-assessment,
+.c4lv-assessment {
   margin: 24px auto 36px auto;
 }
 
@@ -1896,11 +1898,13 @@ svg.tiny_c4lauthor__code-header-icon {
 }
 
 @media (min-width: 576px) {
-  .c4l-statement {
+  .c4l-statement,
+.c4lv-statement {
     margin: 48px auto;
   }
 
-  .c4l-assessment {
+  .c4l-assessment,
+.c4lv-assessment {
     margin-top: 36px;
   }
 
@@ -2202,7 +2206,9 @@ p.c4l-spacer + p.c4l-spacer {
 .c4l-furtherreading,
 .c4lv-furtherreading,
 .c4l-statement,
-.c4l-assessment {
+.c4lv-statement,
+.c4l-assessment,
+.c4lv-assessment {
     max-width: 75%;
   }
 
@@ -2229,7 +2235,9 @@ p.c4l-spacer + p.c4l-spacer {
 .c4l-example.c4l-full-width-variant,
 .c4lv-example.c4l-full-width-variant,
 .c4l-statement.c4l-full-width-variant,
-.c4l-assessment.c4l-full-width-variant {
+.c4lv-statement.c4l-full-width-variant,
+.c4l-assessment.c4l-full-width-variant,
+.c4lv-assessment.c4l-full-width-variant {
     max-width: 100%;
   }
 
@@ -2266,7 +2274,8 @@ p.c4l-spacer + p.c4l-spacer {
   max-width: 100%;
 }
 
-.c4l-statement.c4l-full-width-variant {
+.c4l-statement.c4l-full-width-variant,
+.c4lv-statement.c4l-full-width-variant {
   max-width: 100%;
 }
 

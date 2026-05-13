@@ -110,7 +110,9 @@
     .c4l-furtherreading,
     .c4lv-furtherreading,
     .c4l-statement,
-    .c4l-assessment {
+    .c4lv-statement,
+    .c4l-assessment,
+    .c4lv-assessment {
         max-width: 75%;
     }
 
@@ -137,7 +139,9 @@
     .c4l-example.c4l-full-width-variant,
     .c4lv-example.c4l-full-width-variant,
     .c4l-statement.c4l-full-width-variant,
-    .c4l-assessment.c4l-full-width-variant {
+    .c4lv-statement.c4l-full-width-variant,
+    .c4l-assessment.c4l-full-width-variant,
+    .c4lv-assessment.c4l-full-width-variant {
         max-width: 100%;
     }
 

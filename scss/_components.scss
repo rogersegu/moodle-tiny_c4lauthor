@@ -949,7 +949,8 @@
 
 /* Statement / Assessment (task templates) */
 
-.c4l-statement {
+.c4l-statement,
+.c4lv-statement {
     margin: 36px auto;
 }
 
@@ -972,7 +973,8 @@
 #task-compound-layout .task-statement p:last-child {
     margin-bottom: 0;
 }
-.c4l-assessment {
+.c4l-assessment,
+.c4lv-assessment {
     margin: 24px auto 36px auto;
 }
 
@@ -1008,10 +1010,12 @@
 }
 
 @media (min-width: 576px) {
-    .c4l-statement {
+    .c4l-statement,
+    .c4lv-statement {
         margin: 48px auto;
     }
-    .c4l-assessment {
+    .c4l-assessment,
+    .c4lv-assessment {
         margin-top: 36px;
     }
     #task-compound-layout .teacher-assessment-frame {

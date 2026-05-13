@@ -223,7 +223,7 @@ const components = [
         name: "inlinetag",
         type: "contextual",
         imageClass: "c4l-inlinetag-icon",
-        code: `<span class="c4lv-inlinetag {{VARIANTS}}" role="note" aria-label="{{#inlinetag}}">{{PLACEHOLDER}}</span>`,
+        code: `<span class="c4l-inlinetag" role="note" aria-label="{{#inlinetag}}">{{PLACEHOLDER}}</span>`,
         text: "Text",
         docs: {
             description: "{{#docs_inlinetag_desc}}",
@@ -295,7 +295,7 @@ const components = [
         type: "procedural",
         imageClass: "c4l-proceduralcontext-icon",
         code:
-            `<p class="c4l-spacer">&nbsp;</p><p class="c4lv-proceduralcontext {{VARIANTS}}"
+            `<p class="c4l-spacer">&nbsp;</p><p class="c4l-proceduralcontext"
             role="note" aria-label="{{#proceduralcontext}}" >
             {{PLACEHOLDER}}</p><p class="c4l-spacer">&nbsp;</p>`,
         text:
@@ -512,8 +512,8 @@ const components = [
         name: "statement",
         type: "procedural",
         imageClass: "c4l-statement-icon",
-        wrapperClass: "c4l-statement",
-        code: `<div class="c4l-statement {{VARIANTS}}"><section id="task-compound-layout">
+        wrapperClass: "c4lv-statement",
+        code: `<div class="c4lv-statement {{VARIANTS}}"><section id="task-compound-layout">
 <div class="task-statement">
 <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.
 Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
@@ -533,8 +533,8 @@ Duis aute irure dolor in reprehenderit in voluptate velit esse.</p>
         name: "assessment",
         type: "evaluative",
         imageClass: "c4l-assessment-icon",
-        wrapperClass: "c4l-assessment",
-        code: `<div class="c4l-assessment {{VARIANTS}}"><section id="task-compound-layout">
+        wrapperClass: "c4lv-assessment",
+        code: `<div class="c4lv-assessment {{VARIANTS}}"><section id="task-compound-layout">
 <div class="teacher-assessment">
 <div class="teacher-assessment-frame"></div>
 <div class="teacher-assessment-text">
