@@ -925,7 +925,7 @@
 }
 
 #task-compound-layout .task-statement::before {
-  content: url([[pix:tiny_c4lauthor|pestanya-tasca]]);
+  content: url([[pix:tiny_c4lauthor|statement-tag]]);
   background-repeat: no-repeat;
   background-size: contain;
   position: absolute;
