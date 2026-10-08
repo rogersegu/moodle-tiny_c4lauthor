@@ -27,6 +27,14 @@ namespace tiny_c4lauthor\local;
  */
 final class components_test extends \advanced_testcase {
     /**
+     * Forget components other tests added through the hook.
+     */
+    protected function setUp(): void {
+        parent::setUp();
+        components::reset_caches();
+    }
+
+    /**
      * Render a template the way the editor does, with the ids fixed.
      *
      * @param string $template
@@ -121,6 +129,7 @@ final class components_test extends \advanced_testcase {
         foreach ($components as $name => $component) {
             $this->assertMatchesRegularExpression('/^[a-z0-9]+$/', $name);
             $this->assertContains($component['category'], ['contextual', 'procedural', 'evaluative', 'helper']);
+            $this->assertIsBool($component['students'] ?? false);
             $this->assertTrue($strings->string_exists($name, 'tiny_c4lauthor'), "String $name exists");
             foreach ($component['variants'] as $variant) {
                 $this->assertArrayHasKey($variant, $variants, "Variant $variant of $name is declared");
@@ -149,7 +158,7 @@ final class components_test extends \advanced_testcase {
      * The editor gets the declarations with the strings they use.
      */
     public function test_export_for_editor(): void {
-        $export = components::export_for_editor();
+        $export = components::export_for_editor(\core\context\system::instance());
 
         $this->assertCount(count(components::get_components()), $export['components']);
         $this->assertCount(count(components::get_variants()), $export['variants']);
@@ -159,6 +168,9 @@ final class components_test extends \advanced_testcase {
         $this->assertSame('tiny_c4lauthor/components/keyconcept', $keyconcept['template']);
         $this->assertSame(['full-width'], $keyconcept['variants']);
         $this->assertTrue($keyconcept['precision'][0]['innerhtml']);
+        $this->assertSame('tiny_c4lauthor', $keyconcept['component']);
+        $this->assertSame(0, $keyconcept['id']);
+        $this->assertSame('', $keyconcept['inserter']);
 
         $strings = array_column($export['strings'], 'value', 'key');
         $this->assertSame(get_string('keyconcept', 'tiny_c4lauthor'), $strings['keyconcept']);

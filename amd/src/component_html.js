@@ -145,19 +145,43 @@ export const renderComponent = async(comp, selectedText, catalogue) => {
 };
 
 /**
+ * Get the HTML to insert for a component: from its inserter if it declares one, else its template.
+ *
+ * An inserter is an AMD module of the plugin that added the component. Its insert() gets the
+ * editor, the component, the selected text and render(), which resolves with the component's
+ * own markup. It resolves with the HTML to insert, or null to insert nothing.
+ *
+ * @param {object} comp - The component.
+ * @param {string} selectedText - Text currently selected in the editor (may be empty).
+ * @param {object} catalogue - The components the editor offers.
+ * @param {object} editor - The editor to insert into.
+ * @returns {Promise<string|null>} HTML to insert, or null for nothing.
+ */
+export const buildComponentHtml = async(comp, selectedText, catalogue, editor) => {
+    const render = () => renderComponent(comp, selectedText, catalogue);
+    if (!comp.inserter) {
+        return render();
+    }
+    const inserter = await import(comp.inserter);
+    return inserter.insert({editor, component: comp, selectedText, render});
+};
+
+/**
  * Insert a component's HTML at the cursor.
  *
  * Inserting replaces the selection, which is what we want for a component with a
  * placeholder: the selected text comes back inside it. A component without one has
  * nowhere to put the text, so replacing the selection would delete the author's words
  * and leave the component's own sample in their place. Collapse to the end of the
- * selection first, and insert after it.
+ * selection first, and insert after it. An inserter gets the selected text and decides
+ * itself what becomes of it.
  *
  * @param {object} ed - The TinyMCE editor instance to insert into.
- * @param {string} html - Ready-to-insert HTML from renderComponent().
+ * @param {object} comp - The component.
+ * @param {string} html - Ready-to-insert HTML from buildComponentHtml().
  */
-export const insertComponentHtml = (ed, html) => {
-    if (!html.includes('data-id="')) {
+export const insertComponentHtml = (ed, comp, html) => {
+    if (!comp.inserter && !html.includes('data-id="')) {
         ed.selection.collapse(false);
     }
     ed.execCommand('mceInsertContent', false, html);

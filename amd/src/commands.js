@@ -36,7 +36,7 @@ import {
 } from 'editor_tiny/options';
 import {component, buttonName, buttonIcon, quickInsertMenuName, convertMenuName} from './common';
 import {loadRegistry, createCatalogue} from './registry';
-import {buildCustomComponents, insertComponentHtml, renderComponent} from './component_html';
+import {buildCustomComponents, buildComponentHtml, insertComponentHtml} from './component_html';
 import {registerConvertMenu} from './convert';
 import {showCustomDropdown} from './dropdown';
 import {registerComponentIcons} from './icons';
@@ -49,6 +49,7 @@ import {
     showDocs,
     getallowedComponents,
     getcustomComponents,
+    getEditorCss,
     getpreviewCSS,
     isAiEnabled,
     getAiRates,
@@ -401,7 +402,7 @@ export const getSetup = async() => {
                         const bookmark = ed.selection.getBookmark(2, true);
                         const items = [];
                         const typeOrder = [
-                            'contextual', 'procedural', 'evaluative', 'helper', 'custom'
+                            'contextual', 'procedural', 'evaluative', 'helper', 'templates', 'custom'
                         ];
                         const allIcons = ed.ui.registry.getAll().icons;
                         typeOrder.forEach((type) => {
@@ -413,8 +414,10 @@ export const getSetup = async() => {
                                     iconHtml: allIcons[iconKey] || '',
                                     onAction: async() => {
                                         ed.selection.moveToBookmark(bookmark);
-                                        const html = await renderComponent(comp, savedSel, catalogue);
-                                        insertComponentHtml(ed, html);
+                                        const html = await buildComponentHtml(comp, savedSel, catalogue, ed);
+                                        if (html) {
+                                            insertComponentHtml(ed, comp, html);
+                                        }
                                         ed.focus();
                                     },
                                 });
@@ -1039,8 +1042,15 @@ export const getSetup = async() => {
 
             const pending = new Pending('tiny_c4lauthor/insertComponent');
             const selectedText = innerEditor.selection.getContent({format: 'text'});
-            const compHtml = await renderComponent(comp, selectedText, catalogue);
-            insertComponentHtml(innerEditor, compHtml);
+            const htmlPromise = buildComponentHtml(comp, selectedText, catalogue, innerEditor);
+            if (comp.inserter) {
+                // An inserter may wait for the user, who would keep the page pending.
+                pending.resolve();
+            }
+            const compHtml = await htmlPromise;
+            if (compHtml) {
+                insertComponentHtml(innerEditor, comp, compHtml);
+            }
             innerEditor.focus();
             pending.resolve();
         });
@@ -1202,6 +1212,13 @@ export const getSetup = async() => {
             tooltip: buttonText,
             onAction: () => openModal(editor),
         });
+
+        // Stylesheets other plugins add for their components.
+        const editorCss = getEditorCss(editor);
+        if (editorCss.length) {
+            const contentCss = [editor.options.get('content_css') ?? []].flat();
+            editor.options.set('content_css', [...contentCss, ...editorCss]);
+        }
 
         // Inject the site's brand colour and the custom preview CSS into the outer editor.
         const contentStyle = [brandColourRule(), getpreviewCSS(editor)].filter(Boolean).join('\n');

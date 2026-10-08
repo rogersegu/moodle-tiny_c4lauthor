@@ -20,6 +20,7 @@ use context;
 use editor_tiny\plugin;
 use editor_tiny\plugin_with_buttons;
 use editor_tiny\plugin_with_configuration;
+use tiny_c4lauthor\local\components;
 
 /**
  * Tiny c4lauthor plugin.
@@ -87,12 +88,10 @@ class plugininfo extends plugin implements plugin_with_buttons, plugin_with_conf
         // that anyone can also write in the code view.
         $isstudent = !has_capability('tiny/c4lauthor:useallcomponents', $context);
 
-        $allowedcomps = [];
-        if ($isstudent) {
-            $aimedcomps = explode(',', get_config('tiny_c4lauthor', 'aimedatstudents'));
-            $notintendedcomps = explode(',', get_config('tiny_c4lauthor', 'notintendedforstudents'));
-            $allowedcomps = array_merge($aimedcomps, $notintendedcomps);
-        }
+        $allowedcomps = $isstudent ? components::get_student_components($context) : [];
+
+        // Stylesheets other plugins add for their components, which the editor content needs too.
+        $editorcss = array_map(fn($url) => $url->out(false), components::get_editor_stylesheets($context));
 
         $previewcss = $config->custompreviewcss ?? '';
         $customcomponents = self::get_custom_components($config);
@@ -131,6 +130,7 @@ class plugininfo extends plugin implements plugin_with_buttons, plugin_with_conf
             'showdocs' => $showdocs,
             'previewcss' => $previewcss,
             'customcomps' => $customcomponents,
+            'editorcss' => $editorcss,
             'aienabled' => $aienabled,
             'airates' => json_encode($airates),
             'userid' => (int) $USER->id,
