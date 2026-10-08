@@ -62,6 +62,7 @@ export const variants = [
     {
         id: 6,
         name: "full-width",
+        excludes: ["split"],
         html: "",
     },
     {
@@ -76,6 +77,39 @@ export const variants = [
             `<div class="c4l-embedded-caption" aria-label="{{#caption}}">` +
             `<span class="c4l-caption-author">Marcus Tullius Cicero</span>, ` +
             `De Finibus Bonorum et Malorum</div>`,
+    },
+    {
+        id: 9,
+        name: "checkmarks",
+        group: "list-bullet",
+        html: "",
+    },
+    {
+        id: 18,
+        name: "numbered",
+        group: "list-bullet",
+        html: "",
+    },
+    {
+        id: 19,
+        name: "continuitybefore",
+        html: "",
+    },
+    {
+        id: 20,
+        name: "continuityafter",
+        html: "",
+    },
+    {
+        id: 21,
+        name: "split",
+        excludes: ["full-width"],
+        html: "",
+    },
+    {
+        id: 22,
+        name: "compact",
+        html: "",
     },
 ];
 
