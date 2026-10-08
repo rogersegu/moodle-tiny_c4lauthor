@@ -1285,23 +1285,6 @@ p.c4l-spacer + p.c4l-spacer {
 }
 
 @media (min-width: 576px) {
-    .c4l-combo {
-        grid-template-columns: 1fr 1fr;
-        grid-gap: 24px;
-        align-items: center;
-    }
-    .c4l-combo.c4l-text-image-variant .text {
-        order: 1;
-    }
-    .c4l-combo.c4l-text-image-variant .image {
-        order: 2;
-    }
-    .c4l-combo.c4l-image-text-variant .text {
-        order: 2;
-    }
-    .c4l-combo.c4l-image-text-variant .image {
-        order: 1;
-    }
     .c4l-linkblock .link-stripe {
         width: 60px;
         min-width: 60px;
