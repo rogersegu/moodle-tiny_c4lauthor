@@ -291,4 +291,5 @@ $string['templates'] = 'Templates';
 $string['textplaceholder'] = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.';
 $string['tip'] = 'Tip';
 $string['togglesidebar'] = 'Toggle sidebar';
+$string['unstyle_component'] = 'Remove style';
 $string['view_regular'] = 'Content';

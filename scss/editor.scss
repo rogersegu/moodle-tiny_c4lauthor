@@ -101,6 +101,18 @@ p.c4l-spacer + p.c4l-spacer {
     color: var(--c4l-ui-variant-ink);
 }
 
+.c4lauthor-vt__btn--unstyle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 8px;
+}
+
+.c4lauthor-vt__btn--unstyle:hover {
+    background: var(--c4l-ui-variant-hover-bg);
+    color: var(--c4l-ui-variant-ink);
+}
+
 .c4lauthor-vt__btn--move {
     display: flex;
     align-items: center;

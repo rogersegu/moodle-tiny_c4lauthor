@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- A Remove style button on the component toolbar, next to the delete button. It strips
+  the C4L markup from a component and keeps the authored content as plain HTML: the
+  `c4lv-*` and `c4l-*` classes, the `role` and `aria-label` attributes, the layout
+  containers, the decorative elements that hold no content of their own, the generated
+  titles and the surrounding spacer paragraphs all go. The element stops being a C4L
+  component, so the toolbar no longer applies to it. Deleting a component removes its
+  content; this keeps it.
+
 ## 1.3.0-beta
 
 ### Security

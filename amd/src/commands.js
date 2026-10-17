@@ -568,10 +568,11 @@ const formatVariantLabel = (name) => {
  *
  * @param {object} ed - The inner TinyMCE editor instance.
  * @param {string} deleteStr - Localised label for the delete button.
+ * @param {string} unstyleStr - Localised label for the remove-style button.
  * @param {string} moveUpStr - Localised label for the move-up button.
  * @param {string} moveDownStr - Localised label for the move-down button.
  */
-const setupVariantToolbar = (ed, deleteStr, moveUpStr, moveDownStr) => {
+const setupVariantToolbar = (ed, deleteStr, unstyleStr, moveUpStr, moveDownStr) => {
     const iframeDoc = ed.getDoc();
     const iframeBody = ed.getBody();
     const allVariants = variantsModule.variants;
@@ -625,7 +626,121 @@ const setupVariantToolbar = (ed, deleteStr, moveUpStr, moveDownStr) => {
         ed.undoManager.add();
     };
 
-    const chevronUpSvg = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"'
+    const eraserIconSvg = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"'
+        + ' stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
+        + '<path d="M7 21l-4.3-4.3a2 2 0 0 1 0-2.8l9.6-9.6a2 2 0 0 1 2.8 0l5.6 5.6a2 2 0 0 1 0 2.8L13 21"/>'
+        + '<path d="M22 21H7"/>'
+        + '<path d="M5 11l9 9"/></svg>';
+
+    // Elements that only carry C4L layout: they are dropped and their content kept.
+    const layoutTags = 'div, section, article, aside, header, footer, figure';
+
+    // Elements that can hold content on their own, so loose text next to them
+    // must not be swallowed into the same paragraph.
+    const blockTags = /^(p|h1|h2|h3|h4|h5|h6|ul|ol|dl|li|dt|dd|table|blockquote|pre|hr|figcaption)$/i;
+
+    // Attributes that exist only to style or label a C4L component.
+    const styleAttrs = ['class', 'id', 'style', 'role', 'aria-label', 'contenteditable'];
+
+    // Labels the plugin generates itself, as opposed to content the author wrote:
+    // the non-editable list headings, and the c4l-*-title headings.
+    const chromeSelector = '[contenteditable="false"], [class*="c4l-"][class*="-title"]';
+
+    /**
+     * Wrap the loose text and inline nodes of an element into paragraphs, so that
+     * the block structure survives once its container is dropped.
+     *
+     * @param {HTMLElement} parent - The element whose children are normalised.
+     */
+    const wrapLooseChildren = (parent) => {
+        let paragraph = null;
+        [...parent.childNodes].forEach((node) => {
+            // Layout containers are boundaries too: they get dropped later,
+            // and their own children are normalised at that point.
+            if (node.nodeType === 1 &&
+                    (blockTags.test(node.tagName) || node.matches(layoutTags))) {
+                paragraph = null;
+                return;
+            }
+            if (node.nodeType === 3 && !node.textContent.trim()) {
+                node.remove();
+                return;
+            }
+            if (!paragraph) {
+                paragraph = iframeDoc.createElement('p');
+                node.before(paragraph);
+            }
+            paragraph.appendChild(node);
+        });
+    };
+
+    /**
+     * Strip the C4L markup from a component, keeping its content as plain HTML.
+     * The element stops being a C4L component, so the toolbar no longer applies.
+     *
+     * @param {HTMLElement} compEl - The c4lv-* component element.
+     */
+    const unstyleComponent = (compEl) => {
+        const wrapper = compEl.closest('.c4l-inline-group, .c4l-display-left');
+        const target = wrapper || compEl;
+
+        const holder = iframeDoc.createElement('div');
+        holder.appendChild(compEl.cloneNode(true));
+
+        // Drop the generated titles, which are component chrome rather than content.
+        holder.querySelectorAll(chromeSelector).forEach((el) => el.remove());
+
+        // Drop the decorative elements, which hold no content of their own.
+        [...holder.querySelectorAll('*')].reverse().forEach((el) => {
+            if (el.textContent.trim() ||
+                /^(img|video|audio|iframe|br|input|hr)$/i.test(el.tagName) ||
+                el.querySelector('img, video, audio, iframe, br, input')) {
+                return;
+            }
+            el.remove();
+        });
+
+        // A figcaption is only valid inside a figure, so turn it into a paragraph.
+        holder.querySelectorAll('figcaption').forEach((caption) => {
+            const paragraph = iframeDoc.createElement('p');
+            paragraph.innerHTML = caption.innerHTML;
+            caption.replaceWith(paragraph);
+        });
+
+        // Drop the layout containers, keeping their content in place.
+        let container = holder.querySelector(layoutTags);
+        while (container) {
+            wrapLooseChildren(container);
+            container.replaceWith(...container.childNodes);
+            container = holder.querySelector(layoutTags);
+        }
+        wrapLooseChildren(holder);
+
+        // Remove every presentational attribute left behind.
+        holder.querySelectorAll('*').forEach((el) => {
+            styleAttrs.forEach((attr) => el.removeAttribute(attr));
+        });
+
+        // Swap the component, and its spacers, for the plain content.
+        const prev = target.previousElementSibling;
+        const next = target.nextElementSibling;
+        if (prev && prev.classList.contains('c4l-spacer')) {
+            prev.remove();
+        }
+        if (next && next.classList.contains('c4l-spacer')) {
+            next.remove();
+        }
+        if (holder.childNodes.length) {
+            target.replaceWith(...holder.childNodes);
+        } else {
+            target.remove();
+        }
+
+        hideToolbar();
+        ed.undoManager.add();
+    };
+
+    const chevronUpSvg ='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"'
         + ' stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
         + '<polyline points="18 15 12 9 6 15"/></svg>';
 
@@ -729,6 +844,18 @@ const setupVariantToolbar = (ed, deleteStr, moveUpStr, moveDownStr) => {
             deleteComponent(compEl);
         });
         toolbar.appendChild(delBtn);
+
+        // Remove style button — keeps the content, drops the component.
+        const unstyleBtn = iframeDoc.createElement('button');
+        unstyleBtn.className = 'c4lauthor-vt__btn c4lauthor-vt__btn--unstyle';
+        unstyleBtn.innerHTML = eraserIconSvg;
+        unstyleBtn.title = unstyleStr;
+        unstyleBtn.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            unstyleComponent(compEl);
+        });
+        toolbar.appendChild(unstyleBtn);
 
         // Move up / move down buttons.
         const wrapper = compEl.closest('.c4l-inline-group, .c4l-display-left');
@@ -1193,7 +1320,7 @@ export const getSetup = async() => {
            overlayOpenStr, overlayRestoreStr, aiButtonStr,
            codeButtonStr,
            precisionButtonStr, regularViewStr,
-           deleteComponentStr, moveUpStr, moveDownStr,
+           deleteComponentStr, unstyleComponentStr, moveUpStr, moveDownStr,
     ] = await Promise.all([
         getString('buttontitle', component),
         getButtonImage('icon-toolbar', component),
@@ -1220,6 +1347,7 @@ export const getSetup = async() => {
         getString('precision_button', component),
         getString('view_regular', component),
         getString('delete_component', component),
+        getString('unstyle_component', component),
         getString('move_up', component),
         getString('move_down', component),
     ]);
@@ -1583,7 +1711,7 @@ export const getSetup = async() => {
         }
 
         // Set up contextual variant toolbar.
-        setupVariantToolbar(innerEditor, deleteComponentStr, moveUpStr, moveDownStr);
+        setupVariantToolbar(innerEditor, deleteComponentStr, unstyleComponentStr, moveUpStr, moveDownStr);
 
         // When pressing Enter at the end of a C4L component, exit the
         // component and place the cursor in a new paragraph below it.
