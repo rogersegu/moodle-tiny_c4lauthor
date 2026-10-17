@@ -113,6 +113,24 @@ p.c4l-spacer + p.c4l-spacer {
     color: var(--c4l-ui-variant-ink);
 }
 
+.c4lauthor-vt__btn--convert {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 8px;
+}
+
+// The convert icon is shared with the quickbar, where it renders at 24px.
+.c4lauthor-vt__btn--convert svg {
+    width: 13px;
+    height: 13px;
+}
+
+.c4lauthor-vt__btn--convert:hover {
+    background: var(--c4l-ui-variant-hover-bg);
+    color: var(--c4l-ui-variant-ink);
+}
+
 .c4lauthor-vt__btn--move {
     display: flex;
     align-items: center;

@@ -34,7 +34,7 @@ import {
     getMoodleLang,
     getCurrentLanguage,
 } from 'editor_tiny/options';
-import {component, buttonName, buttonIcon, quickInsertMenuName, convertMenuName} from './common';
+import {component, buttonName, buttonIcon, quickInsertMenuName} from './common';
 import {components as c4lComponents} from './components';
 import variantsModule from './variants';
 import {
@@ -119,9 +119,146 @@ const getComponentFromSelection = (ed) => {
     return null;
 };
 
+// Elements that only carry C4L layout: they are dropped and their content kept.
+const layoutTags = 'div, section, article, aside, header, footer, figure';
+
+// Elements that can hold content on their own, so loose text next to them
+// must not be swallowed into the same paragraph.
+const blockTags = /^(p|h1|h2|h3|h4|h5|h6|ul|ol|dl|li|dt|dd|table|blockquote|pre|hr|figcaption)$/i;
+
+// Attributes that exist only to style or label a C4L component.
+const styleAttrs = ['class', 'id', 'style', 'role', 'aria-label', 'contenteditable'];
+
+// Labels the plugin generates itself, as opposed to content the author wrote:
+// the non-editable list headings, and the c4l-*-title headings.
+const chromeSelector = '[contenteditable="false"], [class*="c4l-"][class*="-title"]';
+
 /**
- * Convert a c4lv-* element from one component type to another.
- * Swaps the class and aria-label, removes incompatible variant classes.
+ * Wrap the loose text and inline nodes of an element into paragraphs, so that
+ * the block structure survives once its container is dropped.
+ *
+ * @param {HTMLElement} parent - The element whose children are normalised.
+ * @param {Document} doc - The document the element belongs to.
+ */
+const wrapLooseChildren = (parent, doc) => {
+    let paragraph = null;
+    [...parent.childNodes].forEach((node) => {
+        // Layout containers are boundaries too: they get dropped later,
+        // and their own children are normalised at that point.
+        if (node.nodeType === 1 &&
+                (blockTags.test(node.tagName) || node.matches(layoutTags))) {
+            paragraph = null;
+            return;
+        }
+        if (node.nodeType === 3 && !node.textContent.trim()) {
+            node.remove();
+            return;
+        }
+        if (!paragraph) {
+            paragraph = doc.createElement('p');
+            node.before(paragraph);
+        }
+        paragraph.appendChild(node);
+    });
+};
+
+/**
+ * Reduce a component to the content the author actually wrote: no C4L classes,
+ * no layout scaffolding, no decoration and no generated labels, normalised into
+ * block-level elements. Used both to remove a component's style and to carry its
+ * content over when converting it to another component.
+ *
+ * @param {HTMLElement} compEl - The component element.
+ * @param {Document} doc - The document the element belongs to.
+ * @returns {HTMLElement} A detached div holding the content.
+ */
+const extractComponentContent = (compEl, doc) => {
+    const holder = doc.createElement('div');
+    holder.appendChild(compEl.cloneNode(true));
+
+    // Drop the generated titles, which are component chrome rather than content.
+    holder.querySelectorAll(chromeSelector).forEach((el) => el.remove());
+
+    // Drop the decorative elements, which hold no content of their own.
+    [...holder.querySelectorAll('*')].reverse().forEach((el) => {
+        if (el.textContent.trim() ||
+            /^(img|video|audio|iframe|br|input|hr)$/i.test(el.tagName) ||
+            el.querySelector('img, video, audio, iframe, br, input')) {
+            return;
+        }
+        el.remove();
+    });
+
+    // A figcaption is only valid inside a figure, so turn it into a paragraph.
+    holder.querySelectorAll('figcaption').forEach((caption) => {
+        const paragraph = doc.createElement('p');
+        paragraph.innerHTML = caption.innerHTML;
+        caption.replaceWith(paragraph);
+    });
+
+    // Drop the layout containers, keeping their content in place.
+    let container = holder.querySelector(layoutTags);
+    while (container) {
+        wrapLooseChildren(container, doc);
+        container.replaceWith(...container.childNodes);
+        container = holder.querySelector(layoutTags);
+    }
+    wrapLooseChildren(holder, doc);
+
+    // Remove every presentational attribute left behind.
+    holder.querySelectorAll('*').forEach((el) => {
+        styleAttrs.forEach((attr) => el.removeAttribute(attr));
+    });
+
+    return holder;
+};
+
+/**
+ * Components whose styling lives in inner markup rather than on the root element,
+ * so converting has to rebuild that markup: swapping the root class alone leaves,
+ * for instance, a quote without its rule, its quote marks or its italics. `wrap`
+ * receives the extracted content and returns what goes inside the root. Anything
+ * missing from this table holds its content directly.
+ */
+const componentShapes = {
+    quote: (content, doc) => {
+        const body = doc.createElement('div');
+        body.className = 'c4l-quote-body';
+        const line = doc.createElement('div');
+        line.className = 'c4l-quote-line';
+        const text = doc.createElement('div');
+        text.className = 'c4l-quote-text';
+        text.append(...content.childNodes);
+        body.append(line, text);
+        return [body];
+    },
+    conceptreview: (content, doc) => {
+        // The title is a generated label, like the one a freshly inserted
+        // Concept review carries.
+        const title = doc.createElement('h6');
+        title.className = 'c4l-concept-review-title';
+        title.textContent = langStrings.get('conceptreview') || 'conceptreview';
+        return [title, ...content.childNodes];
+    },
+    example: (content) => {
+        // The Example title is free text, not a generated label, so it is only
+        // filled when the content already starts with a heading. Promoting a
+        // paragraph would invent a title the author never wrote.
+        const first = content.firstElementChild;
+        if (first && /^h[1-6]$/i.test(first.tagName)) {
+            const title = first.ownerDocument.createElement('h1');
+            title.innerHTML = first.innerHTML;
+            first.remove();
+            return [title, ...content.childNodes];
+        }
+        return [...content.childNodes];
+    },
+};
+
+/**
+ * Convert a c4lv-* element from one component type to another: swaps the class
+ * and aria-label, drops the variant classes the target does not support, and
+ * rebuilds the inner markup the target's styling relies on.
  *
  * @param {HTMLElement} el - The component wrapper element.
  * @param {string} oldName - Current component name.
@@ -152,14 +289,22 @@ const convertComponent = (el, oldName, newName) => {
         }
     });
     toRemove.forEach((cls) => el.classList.remove(cls));
+
+    // Rebuild the inner markup. The source's scaffolding belongs to the shape it
+    // had, so it is reduced to plain content first and then re-wrapped for the
+    // target. Components absent from the table hold their content directly, which
+    // is what their own insert markup does.
+    const doc = el.ownerDocument;
+    const content = extractComponentContent(el, doc);
+    const shape = componentShapes[newName];
+    const nodes = shape ? shape(content, doc) : [...content.childNodes];
+    while (el.firstChild) {
+        el.removeChild(el.firstChild);
+    }
+    nodes.forEach((node) => el.appendChild(node));
 };
 
-/**
- * Register the "Convert to" menu button on a TinyMCE editor instance.
- *
- * @param {object} ed - TinyMCE editor instance.
- * @param {string} convertTooltip - Tooltip text for the button.
- */
+// Icon for the convert action, shown on the variant toolbar.
 const convertIconSvg = '<svg width="24" height="24" viewBox="-4 -3.5 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">'
     + '<path d="M15.5 9.23V10.47C15.5 12.54 13.82 14.22 11.75 14.22H0.75C0.34 14.22 0 13.88 0 '
     + '13.47C0 13.05 0.34 12.72 0.75 12.72H11.75C12.99 12.72 14 11.71 14 10.47V9.23C14 8.82 14.34 '
@@ -174,56 +319,6 @@ const convertIconSvg = '<svg width="24" height="24" viewBox="-4 -3.5 24 24" fill
     + '12.5-0.07 12.8 0.22L15.28 2.7C15.57 3 15.57 3.47 15.28 3.76L12.8 6.25C12.5 6.54 12.03 6.54 '
     + '11.74 6.25C11.44 5.96 11.44 5.48 11.74 5.19Z" fill="currentColor"/>'
     + '</svg>';
-
-const registerConvertMenu = (ed, convertTooltip, noComponentStr, notConvertibleStr) => {
-    ed.ui.registry.addIcon('c4l-convert', convertIconSvg);
-    ed.ui.registry.addButton(convertMenuName, {
-        icon: 'c4l-convert',
-        tooltip: convertTooltip,
-        onAction: () => {
-            // Save selection before showing the dropdown.
-            const bookmark = ed.selection.getBookmark(2, true);
-            const found = getComponentFromSelection(ed);
-            if (!found) {
-                showCustomDropdown(ed, convertTooltip, [
-                    {label: noComponentStr, enabled: false, onAction: () => {
-                        return;
-                    }},
-                ]);
-                return;
-            }
-            if (!found.convertible) {
-                showCustomDropdown(ed, convertTooltip, [
-                    {label: notConvertibleStr, enabled: false, onAction: () => {
-                        return;
-                    }},
-                ]);
-                return;
-            }
-            const items = [];
-            const allIcons = ed.ui.registry.getAll().icons;
-            convertibleComponents.forEach((targetName) => {
-                if (targetName === found.name) {
-                    return;
-                }
-                const label = langStrings.get(targetName) || targetName;
-                const iconKey = 'c4l-' + targetName;
-                items.push({
-                    label,
-                    iconHtml: allIcons[iconKey] || '',
-                    onAction: () => {
-                        ed.selection.moveToBookmark(bookmark);
-                        ed.undoManager.transact(() => {
-                            convertComponent(found.el, found.name, targetName);
-                        });
-                        ed.nodeChanged();
-                    },
-                });
-            });
-            showCustomDropdown(ed, convertTooltip, items);
-        },
-    });
-};
 
 /**
  * Generate a random ID for inserted components.
@@ -569,10 +664,11 @@ const formatVariantLabel = (name) => {
  * @param {object} ed - The inner TinyMCE editor instance.
  * @param {string} deleteStr - Localised label for the delete button.
  * @param {string} unstyleStr - Localised label for the remove-style button.
+ * @param {string} convertStr - Localised label for the convert button.
  * @param {string} moveUpStr - Localised label for the move-up button.
  * @param {string} moveDownStr - Localised label for the move-down button.
  */
-const setupVariantToolbar = (ed, deleteStr, unstyleStr, moveUpStr, moveDownStr) => {
+const setupVariantToolbar = (ed, deleteStr, unstyleStr, convertStr, moveUpStr, moveDownStr) => {
     const iframeDoc = ed.getDoc();
     const iframeBody = ed.getBody();
     const allVariants = variantsModule.variants;
@@ -598,7 +694,15 @@ const setupVariantToolbar = (ed, deleteStr, unstyleStr, moveUpStr, moveDownStr) 
 
     const scheduleHide = () => {
         cancelHide();
-        hideTimeout = setTimeout(hideToolbar, 200);
+        hideTimeout = setTimeout(() => {
+            // The convert dropdown renders outside the iframe, so reaching it means
+            // leaving the editor body. Keep the toolbar up while it is open, rather
+            // than pulling the anchor out from under it.
+            if (document.querySelector('.c4l-custom-dropdown')) {
+                return;
+            }
+            hideToolbar();
+        }, 200);
     };
 
     const trashIconSvg = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"'
@@ -632,48 +736,6 @@ const setupVariantToolbar = (ed, deleteStr, unstyleStr, moveUpStr, moveDownStr) 
         + '<path d="M22 21H7"/>'
         + '<path d="M5 11l9 9"/></svg>';
 
-    // Elements that only carry C4L layout: they are dropped and their content kept.
-    const layoutTags = 'div, section, article, aside, header, footer, figure';
-
-    // Elements that can hold content on their own, so loose text next to them
-    // must not be swallowed into the same paragraph.
-    const blockTags = /^(p|h1|h2|h3|h4|h5|h6|ul|ol|dl|li|dt|dd|table|blockquote|pre|hr|figcaption)$/i;
-
-    // Attributes that exist only to style or label a C4L component.
-    const styleAttrs = ['class', 'id', 'style', 'role', 'aria-label', 'contenteditable'];
-
-    // Labels the plugin generates itself, as opposed to content the author wrote:
-    // the non-editable list headings, and the c4l-*-title headings.
-    const chromeSelector = '[contenteditable="false"], [class*="c4l-"][class*="-title"]';
-
-    /**
-     * Wrap the loose text and inline nodes of an element into paragraphs, so that
-     * the block structure survives once its container is dropped.
-     *
-     * @param {HTMLElement} parent - The element whose children are normalised.
-     */
-    const wrapLooseChildren = (parent) => {
-        let paragraph = null;
-        [...parent.childNodes].forEach((node) => {
-            // Layout containers are boundaries too: they get dropped later,
-            // and their own children are normalised at that point.
-            if (node.nodeType === 1 &&
-                    (blockTags.test(node.tagName) || node.matches(layoutTags))) {
-                paragraph = null;
-                return;
-            }
-            if (node.nodeType === 3 && !node.textContent.trim()) {
-                node.remove();
-                return;
-            }
-            if (!paragraph) {
-                paragraph = iframeDoc.createElement('p');
-                node.before(paragraph);
-            }
-            paragraph.appendChild(node);
-        });
-    };
-
     /**
      * Strip the C4L markup from a component, keeping its content as plain HTML.
      * The element stops being a C4L component, so the toolbar no longer applies.
@@ -684,42 +746,7 @@ const setupVariantToolbar = (ed, deleteStr, unstyleStr, moveUpStr, moveDownStr) 
         const wrapper = compEl.closest('.c4l-inline-group, .c4l-display-left');
         const target = wrapper || compEl;
 
-        const holder = iframeDoc.createElement('div');
-        holder.appendChild(compEl.cloneNode(true));
-
-        // Drop the generated titles, which are component chrome rather than content.
-        holder.querySelectorAll(chromeSelector).forEach((el) => el.remove());
-
-        // Drop the decorative elements, which hold no content of their own.
-        [...holder.querySelectorAll('*')].reverse().forEach((el) => {
-            if (el.textContent.trim() ||
-                /^(img|video|audio|iframe|br|input|hr)$/i.test(el.tagName) ||
-                el.querySelector('img, video, audio, iframe, br, input')) {
-                return;
-            }
-            el.remove();
-        });
-
-        // A figcaption is only valid inside a figure, so turn it into a paragraph.
-        holder.querySelectorAll('figcaption').forEach((caption) => {
-            const paragraph = iframeDoc.createElement('p');
-            paragraph.innerHTML = caption.innerHTML;
-            caption.replaceWith(paragraph);
-        });
-
-        // Drop the layout containers, keeping their content in place.
-        let container = holder.querySelector(layoutTags);
-        while (container) {
-            wrapLooseChildren(container);
-            container.replaceWith(...container.childNodes);
-            container = holder.querySelector(layoutTags);
-        }
-        wrapLooseChildren(holder);
-
-        // Remove every presentational attribute left behind.
-        holder.querySelectorAll('*').forEach((el) => {
-            styleAttrs.forEach((attr) => el.removeAttribute(attr));
-        });
+        const holder = extractComponentContent(compEl, iframeDoc);
 
         // Swap the component, and its spacers, for the plain content.
         const prev = target.previousElementSibling;
@@ -738,6 +765,54 @@ const setupVariantToolbar = (ed, deleteStr, unstyleStr, moveUpStr, moveDownStr) 
 
         hideToolbar();
         ed.undoManager.add();
+    };
+
+    /**
+     * Offer the compatible components, and convert on pick. Replaces the quickbar
+     * "Convert to" button: inside a component the quickbar no longer offers it,
+     * because the component is already known here.
+     *
+     * @param {HTMLElement} compEl - The c4lv-* component element.
+     * @param {HTMLElement} btn - The toolbar button the dropdown hangs from.
+     */
+    const showConvertDropdown = (compEl, btn) => {
+        const compName = getC4lComponentName(compEl);
+        const allIcons = ed.ui.registry.getAll().icons;
+        const items = [];
+
+        convertibleComponents.forEach((targetName) => {
+            if (targetName === compName) {
+                return;
+            }
+            items.push({
+                label: langStrings.get(targetName) || targetName,
+                iconHtml: allIcons['c4l-' + targetName] || '',
+                onAction: () => {
+                    ed.undoManager.transact(() => {
+                        convertComponent(compEl, compName, targetName);
+                    });
+                    ed.nodeChanged();
+                    // Drop the stale variant buttons; the next hover rebuilds them.
+                    hideToolbar();
+                },
+            });
+        });
+
+        // The button sits inside the iframe, so its rect is relative to the iframe
+        // viewport. Offset it by the frame to get page coordinates.
+        const frame = ed.iframeElement;
+        const frameRect = frame
+            ? frame.getBoundingClientRect()
+            : {top: 0, left: 0};
+        const btnRect = btn.getBoundingClientRect();
+        showCustomDropdown(ed, convertStr, items, {
+            top: frameRect.top + btnRect.top,
+            bottom: frameRect.top + btnRect.bottom,
+            left: frameRect.left + btnRect.left,
+            right: frameRect.left + btnRect.right,
+            width: btnRect.width,
+            height: btnRect.height,
+        });
     };
 
     const chevronUpSvg ='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"'
@@ -856,6 +931,27 @@ const setupVariantToolbar = (ed, deleteStr, unstyleStr, moveUpStr, moveDownStr) 
             unstyleComponent(compEl);
         });
         toolbar.appendChild(unstyleBtn);
+
+        // Convert button — only for the components that have compatible targets.
+        if (convertibleComponents.indexOf(comp.name) !== -1) {
+            const convertBtn = iframeDoc.createElement('button');
+            convertBtn.className = 'c4lauthor-vt__btn c4lauthor-vt__btn--convert';
+            convertBtn.innerHTML = convertIconSvg;
+            convertBtn.title = convertStr;
+            convertBtn.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+            });
+            // Opened on click rather than mousedown: the dropdown closes itself on
+            // the next click inside the editor, so it has to open after this very
+            // click has been dispatched, not before it.
+            convertBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                showConvertDropdown(compEl, convertBtn);
+            });
+            toolbar.appendChild(convertBtn);
+        }
 
         // Move up / move down buttons.
         const wrapper = compEl.closest('.c4l-inline-group, .c4l-display-left');
@@ -1067,31 +1163,36 @@ const registerComponentIcons = async(ed) => {
  * @param {object} ed - TinyMCE editor instance.
  * @param {string} btnTooltip - The tooltip of the button (used to locate it in the DOM).
  * @param {Array} items - Array of {label, icon, onAction} objects.
+ * @param {DOMRect|object} [anchorRect] - Page-relative rect to anchor the dropdown to.
+ *     Pass this for buttons the aria-label lookup cannot reach, such as the variant
+ *     toolbar, which lives inside the editor iframe.
  */
-const showCustomDropdown = (ed, btnTooltip, items) => {
+const showCustomDropdown = (ed, btnTooltip, items, anchorRect) => {
     // Close any existing custom dropdown.
     document.querySelectorAll('.c4l-custom-dropdown').forEach((el) => el.remove());
 
-    // Find the button by its aria-label.  The quickbar lives in
-    // .tox-tinymce-aux which is a sibling of .tox-tinymce, so we
-    // search the modal (or the whole document as fallback).
-    const edContainer = ed.getContainer();
-    const searchRoot = edContainer
-        ? (edContainer.closest('.tiny_c4lauthor') || edContainer.parentNode)
-        : document;
-    let btn = searchRoot.querySelector(
-        '.tox-tinymce-aux button[aria-label="' + btnTooltip + '"]'
-    );
-    if (!btn) {
-        btn = document.querySelector(
+    let btnRect = anchorRect;
+    if (!btnRect) {
+        // Find the button by its aria-label.  The quickbar lives in
+        // .tox-tinymce-aux which is a sibling of .tox-tinymce, so we
+        // search the modal (or the whole document as fallback).
+        const edContainer = ed.getContainer();
+        const searchRoot = edContainer
+            ? (edContainer.closest('.tiny_c4lauthor') || edContainer.parentNode)
+            : document;
+        let btn = searchRoot.querySelector(
             '.tox-tinymce-aux button[aria-label="' + btnTooltip + '"]'
         );
+        if (!btn) {
+            btn = document.querySelector(
+                '.tox-tinymce-aux button[aria-label="' + btnTooltip + '"]'
+            );
+        }
+        if (!btn) {
+            return;
+        }
+        btnRect = btn.getBoundingClientRect();
     }
-    if (!btn) {
-        return;
-    }
-
-    const btnRect = btn.getBoundingClientRect();
 
     // Build dropdown element.
     const dropdown = document.createElement('div');
@@ -1316,7 +1417,7 @@ const setupTabOverflow = (tabsContainer, moreLabel, root) => {
 export const getSetup = async() => {
     const [buttonText, buttonImage, applyStr, cancelStr,
            allStr, contextualStr, proceduralStr, evaluativeStr, helperStr, templatesStr, customStr,
-           convertToStr, noComponentStr, notConvertibleStr, moreStr, discardStr, discardBtnStr, keepEditingStr,
+           convertToStr, moreStr, discardStr, discardBtnStr, keepEditingStr,
            overlayOpenStr, overlayRestoreStr, aiButtonStr,
            codeButtonStr,
            precisionButtonStr, regularViewStr,
@@ -1334,8 +1435,6 @@ export const getSetup = async() => {
         getString('templates', component),
         getString('custom', component),
         getString('convertto', component),
-        getString('convert_nocomponent', component),
-        getString('convert_notconvertible', component),
         getString('more', component),
         getString('discardconfirm', component),
         getString('discardclose', component),
@@ -1571,7 +1670,7 @@ export const getSetup = async() => {
             quickbars_insert_toolbar: '',
             quickbars_selection_toolbar:
                 (editor.options.get('quickbars_selection_toolbar') || 'bold italic | h3 h4 h5 h6 blockquote')
-                + ' | ' + quickInsertMenuName + ' ' + convertMenuName,
+                + ' | ' + quickInsertMenuName,
             block_formats:
                 editor.options.get('block_formats'),
             xss_sanitization: false,
@@ -1646,9 +1745,6 @@ export const getSetup = async() => {
                     },
                 });
 
-                // Register "Convert to" menu on inner editor.
-                registerConvertMenu(ed, convertToStr, noComponentStr, notConvertibleStr);
-
                 ed.on('init', () => {
                     innerEditor = ed;
 
@@ -1659,14 +1755,17 @@ export const getSetup = async() => {
                         '1.2L5.7 7.8c-.3.3-.9.3-1.2 0L.2 3.4a.8.8 0 ' +
                         '0 1 0-1.2c.3-.3.8-.3 1.1 0L5 6l3.7-3.8Z" ' +
                         'fill-rule="nonzero"></path></svg></div>';
-                    const addChevrons = () => {
+                    // Inside a component, inserting another component makes no
+                    // sense, so the quick-insert button is hidden there. Nothing
+                    // is left in its quickbar group, so the group goes too,
+                    // otherwise its separator would hang off the end.
+                    const refreshQuickbar = () => {
                         const wrap = (ed.getContainer() || document)
                             .closest('.tiny_c4lauthor') || document;
+                        const inComponent = !!getComponentFromSelection(ed);
                         wrap.querySelectorAll(
                             '.tox-tinymce-aux [data-mce-name="' +
-                            quickInsertMenuName + '"], ' +
-                            '.tox-tinymce-aux [data-mce-name="' +
-                            convertMenuName + '"]'
+                            quickInsertMenuName + '"]'
                         ).forEach((btn) => {
                             if (!btn.querySelector(
                                 '.tox-tbtn__select-chevron'
@@ -1676,17 +1775,32 @@ export const getSetup = async() => {
                                 );
                                 btn.style.marginRight = '6px';
                             }
+                            const group = btn.closest('.tox-toolbar__group');
+                            const alone = group && !group.querySelector(
+                                '.tox-tbtn:not([data-mce-name="' +
+                                quickInsertMenuName + '"])'
+                            );
+                            btn.style.display = '';
+                            if (group) {
+                                group.style.display = '';
+                            }
+                            if (inComponent) {
+                                (alone ? group : btn).style.display = 'none';
+                            }
                         });
                     };
                     const edWrap = (ed.getContainer() || document)
                         .closest('.tiny_c4lauthor__editor-wrap');
                     if (edWrap) {
-                        const chObs = new MutationObserver(addChevrons);
+                        const chObs = new MutationObserver(refreshQuickbar);
                         chObs.observe(edWrap, {
                             childList: true, subtree: true,
                         });
                         ed.on('remove', () => chObs.disconnect());
                     }
+                    // The observer catches the quickbar appearing; this catches the
+                    // caret moving into or out of a component while it is up.
+                    ed.on('NodeChange', refreshQuickbar);
                 });
             },
         });
@@ -1711,7 +1825,8 @@ export const getSetup = async() => {
         }
 
         // Set up contextual variant toolbar.
-        setupVariantToolbar(innerEditor, deleteComponentStr, unstyleComponentStr, moveUpStr, moveDownStr);
+        setupVariantToolbar(innerEditor, deleteComponentStr, unstyleComponentStr, convertToStr,
+            moveUpStr, moveDownStr);
 
         // When pressing Enter at the end of a C4L component, exit the
         // component and place the cursor in a new paragraph below it.

@@ -12,6 +12,24 @@
   component, so the toolbar no longer applies to it. Deleting a component removes its
   content; this keeps it.
 
+### Changed
+
+- Convert to has moved from the selection quickbar to the component toolbar, beside
+  delete and remove style. It only appears on components that have compatible targets,
+  so it no longer has to report that there is nothing to convert.
+- The component picker no longer appears in the quickbar while the selection sits
+  inside a component, where inserting a component into a component made no sense. It
+  behaves as before on content that carries no component yet.
+
+### Fixed
+
+- Converting a component now rebuilds the inner markup the target's styling relies on.
+  Only the root class was swapped before, so a Tip converted to a Quote lost the rule,
+  the quote marks and the italics, all of which are styled through `.c4l-quote-body`,
+  `.c4l-quote-line` and `.c4l-quote-text` rather than through the root. Concept review
+  likewise regains its title, Example its heading slot, and scaffolding belonging to the
+  component being converted away from is no longer left behind.
+
 ## 1.3.0-beta
 
 ### Security
