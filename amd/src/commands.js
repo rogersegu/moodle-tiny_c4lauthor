@@ -533,6 +533,19 @@ const insertComponentHtml = (ed, comp, html) => {
 };
 
 /**
+ * The components the current user may insert: all of them for staff, and only the
+ * ones the admin allows for students. Every place that offers components to insert
+ * has to go through here, so that they cannot disagree about what is allowed.
+ *
+ * @param {boolean} userIsStudent - Whether the current user counts as a student.
+ * @param {Array} allowedComps - Component names the admin allows students to use.
+ * @returns {Array} The component definitions on offer.
+ */
+const getInsertableComponents = (userIsStudent, allowedComps) => c4lComponents.filter(
+    (comp) => !userIsStudent || allowedComps.includes(comp.name)
+);
+
+/**
  * Build the sidebar HTML with C4L component buttons.
  *
  * @param {object} filterLabels - Translated filter labels keyed by type.
@@ -545,13 +558,7 @@ const buildSidebar = (filterLabels, userIsStudent, allowedComps, enableTooltips)
     // Collect visible types.
     const typeOrder = ['contextual', 'procedural', 'evaluative', 'helper', 'custom'];
 
-    // Filter components based on student/allowed.
-    const visibleComponents = c4lComponents.filter((comp) => {
-        if (!userIsStudent) {
-            return true;
-        }
-        return allowedComps.includes(comp.name);
-    });
+    const visibleComponents = getInsertableComponents(userIsStudent, allowedComps);
 
     // Determine which types have visible components.
     const visibleTypes = new Set(visibleComponents.map((c) => c.type));
@@ -1723,8 +1730,9 @@ export const getSetup = async() => {
                             'contextual', 'procedural', 'evaluative', 'helper', 'custom'
                         ];
                         const allIcons = ed.ui.registry.getAll().icons;
+                        const insertable = getInsertableComponents(userIsStudent, allowedComps);
                         typeOrder.forEach((type) => {
-                            c4lComponents.filter((c) => c.type === type).forEach((comp) => {
+                            insertable.filter((c) => c.type === type).forEach((comp) => {
                                 const label = comp.type === 'custom'
                                     ? comp.buttonname
                                     : (langStrings.get(comp.name) || comp.name);
@@ -1755,14 +1763,18 @@ export const getSetup = async() => {
                         '1.2L5.7 7.8c-.3.3-.9.3-1.2 0L.2 3.4a.8.8 0 ' +
                         '0 1 0-1.2c.3-.3.8-.3 1.1 0L5 6l3.7-3.8Z" ' +
                         'fill-rule="nonzero"></path></svg></div>';
-                    // Inside a component, inserting another component makes no
-                    // sense, so the quick-insert button is hidden there. Nothing
-                    // is left in its quickbar group, so the group goes too,
+                    // The quick-insert button is hidden inside a component, where
+                    // inserting another component makes no sense, and when the
+                    // admin leaves the user nothing to insert. Nothing is left in
+                    // its quickbar group either way, so the group goes too,
                     // otherwise its separator would hang off the end.
+                    const nothingToInsert =
+                        !getInsertableComponents(userIsStudent, allowedComps).length;
                     const refreshQuickbar = () => {
                         const wrap = (ed.getContainer() || document)
                             .closest('.tiny_c4lauthor') || document;
-                        const inComponent = !!getComponentFromSelection(ed);
+                        const hide = nothingToInsert ||
+                            !!getComponentFromSelection(ed);
                         wrap.querySelectorAll(
                             '.tox-tinymce-aux [data-mce-name="' +
                             quickInsertMenuName + '"]'
@@ -1784,7 +1796,7 @@ export const getSetup = async() => {
                             if (group) {
                                 group.style.display = '';
                             }
-                            if (inComponent) {
+                            if (hide) {
                                 (alone ? group : btn).style.display = 'none';
                             }
                         });

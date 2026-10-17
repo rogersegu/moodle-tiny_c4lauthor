@@ -29,6 +29,12 @@
   `.c4l-quote-line` and `.c4l-quote-text` rather than through the root. Concept review
   likewise regains its title, Example its heading slot, and scaffolding belonging to the
   component being converted away from is no longer left behind.
+- The quickbar's component picker now honours *Components aimed at students*. The setting
+  was enforced only where the modal's sidebar is built, so a student opening the modal
+  could insert any component from the quickbar, including every one the admin had left
+  unchecked. Both now go through one shared gate. Note that neither is a security
+  boundary: the markup can still be typed by hand in the source view, which no role
+  restriction covers.
 
 ## 1.3.0-beta
 
