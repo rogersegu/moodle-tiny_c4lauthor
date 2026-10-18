@@ -40,7 +40,6 @@ import variantsModule from './variants';
 import {
     isShowOverlay,
     isC4LVisible,
-    isStudent,
     showDocs,
     getallowedComponents,
     getcustomComponents,
@@ -533,32 +532,30 @@ const insertComponentHtml = (ed, comp, html) => {
 };
 
 /**
- * The components the current user may insert: all of them for staff, and only the
- * ones the admin allows for students. Every place that offers components to insert
- * has to go through here, so that they cannot disagree about what is allowed.
+ * The components the current user may insert. The server decides who gets what, so
+ * this is a plain membership test with no role logic of its own. Every place that
+ * offers components to insert goes through here, so they cannot disagree.
  *
- * @param {boolean} userIsStudent - Whether the current user counts as a student.
- * @param {Array} allowedComps - Component names the admin allows students to use.
+ * @param {Array} allowedComps - Component names the server allows this user.
  * @returns {Array} The component definitions on offer.
  */
-const getInsertableComponents = (userIsStudent, allowedComps) => c4lComponents.filter(
-    (comp) => !userIsStudent || allowedComps.includes(comp.name)
+const getInsertableComponents = (allowedComps) => c4lComponents.filter(
+    (comp) => allowedComps.includes(comp.name)
 );
 
 /**
  * Build the sidebar HTML with C4L component buttons.
  *
  * @param {object} filterLabels - Translated filter labels keyed by type.
- * @param {boolean} userIsStudent - Whether the current user is a student.
- * @param {Array} allowedComps - Allowed component names for students.
+ * @param {Array} allowedComps - Component names the server allows this user.
  * @param {boolean} enableTooltips - Whether to add docs tooltips to component buttons.
  * @returns {string} Sidebar HTML.
  */
-const buildSidebar = (filterLabels, userIsStudent, allowedComps, enableTooltips) => {
+const buildSidebar = (filterLabels, allowedComps, enableTooltips) => {
     // Collect visible types.
     const typeOrder = ['contextual', 'procedural', 'evaluative', 'helper', 'custom'];
 
-    const visibleComponents = getInsertableComponents(userIsStudent, allowedComps);
+    const visibleComponents = getInsertableComponents(allowedComps);
 
     // Determine which types have visible components.
     const visibleTypes = new Set(visibleComponents.map((c) => c.type));
@@ -1480,12 +1477,11 @@ export const getSetup = async() => {
         // Load variant preferences.
         await loadVariantPreferences(c4lComponents).catch(Notification.exception);
 
-        const userIsStudent = isStudent(editor);
         const allowedComps = getallowedComponents(editor);
 
         const tinyMCE = await getTinyMCE();
         const html = editor.getContent({format: 'html'}) || '';
-        const sidebarHtml = buildSidebar(filterLabels, userIsStudent, allowedComps, showDocs(editor));
+        const sidebarHtml = buildSidebar(filterLabels, allowedComps, showDocs(editor));
         const textareaId = 'tiny_c4lauthor_inner_' + Date.now();
         const toggleSidebarStr = await getString('togglesidebar', component);
 
@@ -1730,7 +1726,7 @@ export const getSetup = async() => {
                             'contextual', 'procedural', 'evaluative', 'helper', 'custom'
                         ];
                         const allIcons = ed.ui.registry.getAll().icons;
-                        const insertable = getInsertableComponents(userIsStudent, allowedComps);
+                        const insertable = getInsertableComponents(allowedComps);
                         typeOrder.forEach((type) => {
                             insertable.filter((c) => c.type === type).forEach((comp) => {
                                 const label = comp.type === 'custom'
@@ -1768,8 +1764,7 @@ export const getSetup = async() => {
                     // admin leaves the user nothing to insert. Nothing is left in
                     // its quickbar group either way, so the group goes too,
                     // otherwise its separator would hang off the end.
-                    const nothingToInsert =
-                        !getInsertableComponents(userIsStudent, allowedComps).length;
+                    const nothingToInsert = !getInsertableComponents(allowedComps).length;
                     const refreshQuickbar = () => {
                         const wrap = (ed.getContainer() || document)
                             .closest('.tiny_c4lauthor') || document;

@@ -63,17 +63,21 @@ class plugininfo extends plugin implements plugin_with_buttons, plugin_with_conf
         $showoverlay = $config->showoverlay ?? '';
         $viewc4l = has_capability('tiny/c4lauthor:viewplugin', $context);
         $showdocs = isset($config->enabledocs) && $config->enabledocs !== '' ? (bool) $config->enabledocs : false;
-        $isstudent = !has_capability('gradereport/grader:view', $context);
-
-        $allowedcomps = [];
-        if ($isstudent) {
-            $aimedcomps = explode(',', get_config('tiny_c4lauthor', 'aimedatstudents'));
-            $notintendedcomps = explode(',', get_config('tiny_c4lauthor', 'notintendedforstudents'));
-            $allowedcomps = array_merge($aimedcomps, $notintendedcomps);
-        }
+        $isstudent = !has_capability(components::STAFF_CAPABILITY, $context);
 
         $previewcss = $config->custompreviewcss ?? '';
         $customcomponents = self::get_custom_components($config);
+
+        // The components this user may insert, worked out here rather than in the
+        // editor: withdrawing a component applies to staff too, so the client is
+        // left with no role logic of its own to get wrong. Custom components are
+        // governed by their own enable checkbox, so they are appended untouched.
+        $allowedcomps = components::usable_by($isstudent, $config->{components::SETTING} ?? false);
+        foreach ($customcomponents as $customcomp) {
+            if (!empty($customcomp['name'])) {
+                $allowedcomps[] = $customcomp['name'];
+            }
+        }
 
         // AI availability. The site switch is only the first of four gates: the user
         // needs the capability, a provider must offer generate_text, and the course

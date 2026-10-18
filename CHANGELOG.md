@@ -14,6 +14,33 @@
 
 ### Changed
 
+- *Component availability* replaces *Aimed at students* and *Not intended for students*
+  with one table: every component on a row, and a choice of **Everyone**, **Staff only**
+  or **Nobody**. Nobody withdraws a component from the plugin for all users, which the
+  old pair could not express — they only ever restricted students. Content that already
+  uses a withdrawn component keeps rendering and can still be edited, converted or
+  stripped of its style; only inserting a new one stops being offered.
+
+  Staff means whoever can view the gradebook, which is the check the plugin has always
+  used to tell staff from students. It is a capability rather than a role, so a role
+  such as course creator does not qualify. The column heading lists the roles that hold
+  it on this site rather than naming roles in a fixed label, which would stop being
+  true as soon as the site's permissions differ from the stock ones.
+
+  Nothing changes on upgrade. An upgrade step translates the stored settings — a
+  component either list named becomes Everyone, one in neither becomes Staff only —
+  so an admin who had withheld a component from students keeps that. Without it the
+  new defaults would have applied and the component would have been offered to
+  students again, silently.
+
+  The component list now comes from `tiny_c4lauthor\components` rather than being
+  written out in `settings.php`, where it had drifted: Concept review, Further reading,
+  Statement and Assessment were in neither setting, which left them unusable for
+  students with no way for an admin to turn them on. They appear in the table as Staff
+  only, which is what they were in practice, and can now be changed.
+
+  Which components a user may insert is decided on the server and sent to the editor as
+  one list, so the editor no longer carries any role logic of its own.
 - Convert to has moved from the selection quickbar to the component toolbar, beside
   delete and remove style. It only appears on components that have compatible targets,
   so it no longer has to report that there is nothing to convert.
