@@ -692,6 +692,12 @@ export const mountPreciseView = async(container, handlers) => {
     const iframe = document.createElement('iframe');
     iframe.className = 'tiny_c4lauthor__precision-iframe';
 
+    // The preview renders editor content verbatim, so any script in it would otherwise
+    // run with the editing user's session. Sandbox it: allow-same-origin keeps
+    // contentDocument reachable from here, and the absence of allow-scripts is what
+    // stops the content from executing.
+    iframe.setAttribute('sandbox', 'allow-same-origin');
+
     let linkTags = '';
     cssUrls.forEach((url) => {
         linkTags += '<link rel="stylesheet" href="' + escapeAttr(url) + '">';
@@ -720,11 +726,6 @@ export const mountPreciseView = async(container, handlers) => {
         if (!iDoc) {
             return;
         }
-
-        // Index all C4L components.
-        iDoc.querySelectorAll('[class*="c4lv-"]').forEach((el, idx) => {
-            el.setAttribute('data-c4l-idx', idx);
-        });
 
         iDoc.addEventListener('click', (e) => {
             e.preventDefault();
@@ -763,10 +764,32 @@ export const mountPreciseView = async(container, handlers) => {
             return;
         }
 
-        showForm(iDoc);
+        showForm();
     };
 
     let syncTimer = null;
+
+    /**
+     * Serialise the preview body for writing back to the editor.
+     *
+     * The selection outline and any stale index attribute are presentation state of
+     * this preview, not content, so they are stripped from a clone before the HTML
+     * leaves the iframe.
+     *
+     * @returns {?string} The cleaned HTML, or null if the preview is gone.
+     */
+    const serialiseBody = () => {
+        const body = iframe.contentDocument?.body;
+        if (!body) {
+            return null;
+        }
+        const clone = body.cloneNode(true);
+        clone.querySelectorAll('[data-c4l-selected], [data-c4l-idx]').forEach((el) => {
+            el.removeAttribute('data-c4l-selected');
+            el.removeAttribute('data-c4l-idx');
+        });
+        return clone.innerHTML;
+    };
 
     /**
      * Flush any pending debounced sync immediately.
@@ -775,7 +798,10 @@ export const mountPreciseView = async(container, handlers) => {
         if (syncTimer) {
             clearTimeout(syncTimer);
             syncTimer = null;
-            handlers.setEditorContent(iframe.contentDocument.body.innerHTML);
+            const html = serialiseBody();
+            if (html !== null) {
+                handlers.setEditorContent(html);
+            }
         }
     };
 
@@ -797,10 +823,8 @@ export const mountPreciseView = async(container, handlers) => {
 
     /**
      * Show the form for the currently selected component.
-     *
-     * @param {Document} iDoc
      */
-    const showForm = (iDoc) => {
+    const showForm = () => {
         if (placeholder) {
             placeholder.style.display = 'none';
         }
@@ -825,7 +849,10 @@ export const mountPreciseView = async(container, handlers) => {
             clearTimeout(syncTimer);
             syncTimer = setTimeout(() => {
                 syncTimer = null;
-                handlers.setEditorContent(iDoc.body.innerHTML);
+                const html = serialiseBody();
+                if (html !== null) {
+                    handlers.setEditorContent(html);
+                }
             }, 300);
         };
 
@@ -850,8 +877,9 @@ export const mountPreciseView = async(container, handlers) => {
             clearTimeout(syncTimer);
             syncTimer = null;
         }
-        if (iframe && iframe.contentDocument) {
-            handlers.setEditorContent(iframe.contentDocument.body.innerHTML);
+        const html = serialiseBody();
+        if (html !== null) {
+            handlers.setEditorContent(html);
         }
         container.innerHTML = '';
         currentCompEl = null;
