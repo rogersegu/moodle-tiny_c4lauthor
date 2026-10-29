@@ -261,7 +261,8 @@ const components = [
             `<p class="c4l-spacer">&nbsp;</p><div class="c4l-inline-group">` +
             `<div class="c4lv-estimatedtime {{VARIANTS}}"` +
             ` role="note" aria-label="{{#estimatedtime}}">` +
-            `{{PLACEHOLDER}} <span>{{#min}}</span></div></div><p class="c4l-spacer">&nbsp;</p>`,
+            `{{PLACEHOLDER}} <span class="c4l-estimatedtime-unit">{{#min}}</span>` +
+            `</div></div><p class="c4l-spacer">&nbsp;</p>`,
         text: "15",
         docs: {
             description: "{{#docs_estimatedtime_desc}}",
@@ -348,7 +349,8 @@ const components = [
         code:
             `<p class="c4l-spacer">&nbsp;</p><div class="c4l-inline-group">` +
             `<div class="c4lv-gradingvalue {{VARIANTS}}"` +
-            ` role="note" aria-label="{{#gradingvalue}}"><span>{{#gradingvalue}}: </span>` +
+            ` role="note" aria-label="{{#gradingvalue}}">` +
+            `<span class="c4l-gradingvalue-label">{{#gradingvalue}}: </span>` +
             `{{PLACEHOLDER}}</div></div><p class="c4l-spacer">&nbsp;</p>`,
         text: "33.3%",
         docs: {

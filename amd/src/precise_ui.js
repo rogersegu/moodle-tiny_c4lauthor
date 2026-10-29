@@ -35,6 +35,35 @@ const extractCaptionText = (comp) => extractDirectText(comp.querySelector('.c4l-
 const applyCaptionText = (comp, val) => applyDirectText(comp.querySelector('.c4l-embedded-caption'), val);
 
 /**
+ * The fixed label estimatedtime and gradingvalue carry beside their value.
+ *
+ * It used to be an attribute-less span, which TinyMCE unwraps when the content
+ * is saved, so content written by earlier versions has lost it. Look for the
+ * class first and fall back to any span that is not the placeholder.
+ *
+ * @param {HTMLElement} comp - The component element.
+ * @param {string} cls - The affix class to look for.
+ * @returns {HTMLElement|null}
+ */
+const findAffixSpan = (comp, cls) =>
+    comp.querySelector('span.' + cls) || comp.querySelector('span:not([data-id])');
+
+/**
+ * Rebuild the affix span, keeping the class so the next save does not drop it.
+ *
+ * @param {Document} doc - Owner document of the component.
+ * @param {string} cls - The affix class to set.
+ * @param {string} text - Text content for the span.
+ * @returns {HTMLElement}
+ */
+const makeAffixSpan = (doc, cls, text) => {
+    const span = doc.createElement('span');
+    span.className = cls;
+    span.textContent = text;
+    return span;
+};
+
+/**
  * Field registry — maps component names to arrays of field descriptors.
  *
  * type: 'textarea' | 'input' | 'list' | 'image-src' | 'image-alt'
@@ -93,38 +122,34 @@ const FIELD_REGISTRY = {
     estimatedtime: [
         {selector: null, label: 'precision_field_value', type: 'input',
             extract: (comp) => {
-                const span = comp.querySelector('span:not([data-id])');
+                const span = findAffixSpan(comp, 'c4l-estimatedtime-unit');
                 const suffix = span ? span.textContent : '';
                 const full = comp.textContent.trim();
                 return suffix ? full.replace(new RegExp('\\s*' + escapeRegExp(suffix) + '\\s*$'), '').trim() : full;
             },
             apply: (comp, val) => {
-                const span = comp.querySelector('span:not([data-id])');
+                const span = findAffixSpan(comp, 'c4l-estimatedtime-unit');
                 const suffixText = span ? span.textContent : '';
                 const doc = comp.ownerDocument;
                 comp.innerHTML = '';
                 comp.appendChild(doc.createTextNode(val + ' '));
-                const newSpan = doc.createElement('span');
-                newSpan.textContent = suffixText;
-                comp.appendChild(newSpan);
+                comp.appendChild(makeAffixSpan(doc, 'c4l-estimatedtime-unit', suffixText));
             }},
     ],
     gradingvalue: [
         {selector: null, label: 'precision_field_value', type: 'input',
             extract: (comp) => {
-                const span = comp.querySelector('span:not([data-id])');
+                const span = findAffixSpan(comp, 'c4l-gradingvalue-label');
                 const prefix = span ? span.textContent : '';
                 const full = comp.textContent.trim();
                 return prefix ? full.replace(new RegExp('^\\s*' + escapeRegExp(prefix) + '\\s*'), '').trim() : full;
             },
             apply: (comp, val) => {
-                const span = comp.querySelector('span:not([data-id])');
+                const span = findAffixSpan(comp, 'c4l-gradingvalue-label');
                 const prefixText = span ? span.textContent : '';
                 const doc = comp.ownerDocument;
                 comp.innerHTML = '';
-                const newSpan = doc.createElement('span');
-                newSpan.textContent = prefixText;
-                comp.appendChild(newSpan);
+                comp.appendChild(makeAffixSpan(doc, 'c4l-gradingvalue-label', prefixText));
                 comp.appendChild(doc.createTextNode(val));
             }},
     ],
