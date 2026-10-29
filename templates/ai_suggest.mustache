@@ -126,8 +126,7 @@
                                     <div class="{{componentClass}}">
                                         <p>{{text}}</p>
                                         {{#hasListItems}}<ul>{{#listItems}}<li>{{text}}</li>{{/listItems}}</ul>{{/hasListItems}}
-                                        {{#hasFollowingHtml}}{{{followingHtml}}}{{/hasFollowingHtml}}
-                                        {{^hasFollowingHtml}}{{#hasFollowingText}}<p>{{followingText}}</p>{{/hasFollowingText}}{{/hasFollowingHtml}}
+                                        {{#hasFollowingText}}<p>{{followingText}}</p>{{/hasFollowingText}}
                                     </div>
                                 {{/isLearningOutcomes}}
                                 </div>
@@ -176,10 +175,10 @@
                         {{#isDisplayOnly}}
                         <div class="c4lauthor-ai-reveal" style="animation-delay:{{animDelay}}ms">
                             {{#hasInlineGroup}}
-                            <div class="c4l-inline-group">{{{c4lHtml}}}</div>
+                            <div class="c4l-inline-group"><p>{{text}}</p></div>
                             {{/hasInlineGroup}}
                             {{^hasInlineGroup}}
-                            <div class="{{componentClass}}">{{{c4lHtml}}}</div>
+                            <div class="{{componentClass}}"><p>{{text}}</p></div>
                             {{/hasInlineGroup}}
                         </div>
                         {{/isDisplayOnly}}

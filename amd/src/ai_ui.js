@@ -117,7 +117,6 @@ export const mountAiView = async(container, handlers) => {
                 isC4L,
                 isDisplayOnly,
                 componentClass: isC4L ? 'c4lv-' + (b.c4lComponent || '').replace(/_/g, '') : null,
-                c4lHtml: isDisplayOnly ? (b.html || '') : '',
                 animDelay: (animIdx++) * 40,
                 suggestion: sug ? {
                     ...sug,
@@ -144,9 +143,7 @@ export const mountAiView = async(container, handlers) => {
                     const next = blocks[j];
                     if (next.isMath) {
                         next.isGrouped = true;
-                        blocks[i].followingHtml = next.html || '';
                         blocks[i].followingText = next.text;
-                        blocks[i].hasFollowingHtml = !!next.html;
                         blocks[i].hasFollowingText = true;
                         // eslint-disable-next-line max-depth
                         if (j + 1 < blocks.length && blocks[j + 1].isP && !blocks[j + 1].suggestion) {

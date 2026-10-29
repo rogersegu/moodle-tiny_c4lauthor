@@ -1203,7 +1203,7 @@ export const getSetup = async() => {
                             `stroke-linecap="round" stroke-linejoin="round"/></svg>` +
                         `</button>
                         <div class="tiny_c4lauthor__editor-wrap">
-                            <textarea id="${textareaId}" style="visibility:hidden">${html}</textarea>
+                            <textarea id="${textareaId}" style="visibility:hidden"></textarea>
                         </div>
                     </div>
                 </div>
@@ -1225,6 +1225,16 @@ export const getSetup = async() => {
         });
 
         const root = modal.getRoot();
+
+        // The editor content is assigned through the DOM rather than interpolated into
+        // the markup above. As a string it would be parsed as part of the modal body,
+        // so a '</textarea>' sequence inside it — inside an HTML comment, say — would
+        // close the field early and the rest would become live markup in this page.
+        // Assigning .value sets text, not markup, and TinyMCE picks it up from there.
+        const innerTextarea = root[0].querySelector('#' + textareaId);
+        if (innerTextarea) {
+            innerTextarea.value = html;
+        }
 
         // Inject the unified view switcher into the modal header.
         const headerEl = root[0].querySelector('.modal-header');
