@@ -34,6 +34,18 @@ class ai_classifier {
     /** @var int Minimum paragraph length to send to LLM. */
     private const MIN_PARAGRAPH_LENGTH = 10;
 
+    /** @var int Maximum size in bytes of the raw paragraphs payload accepted by the web service. */
+    public const MAX_PAYLOAD_BYTES = 1048576;
+
+    /** @var int Default maximum characters kept from a single paragraph; the rest is not sent to the LLM. */
+    private const DEFAULT_MAX_PARAGRAPH_LENGTH = 1500;
+
+    /** @var int Default maximum number of paragraphs sent to the LLM. */
+    private const DEFAULT_MAX_PARAGRAPHS = 80;
+
+    /** @var int Default maximum total characters of paragraph text sent to the LLM. */
+    private const DEFAULT_MAX_TOTAL_CHARS = 40000;
+
     /** @var array AI-specific definitions with inline use cases. No lang string dependencies. */
     private const COMPONENT_DEFS = [
         'attention' => [
@@ -148,16 +160,60 @@ class ai_classifier {
 
         $warnings = [];
 
-        // Filter out items too short for the LLM.
+        // Upper bounds on what is sent to the provider, so a large document cannot
+        // produce an unbounded prompt. Admin-configurable, with sane fallbacks.
+        $maxparagraphs = (int) get_config('tiny_c4lauthor', 'ai_max_paragraphs');
+        if ($maxparagraphs <= 0) {
+            $maxparagraphs = self::DEFAULT_MAX_PARAGRAPHS;
+        }
+        $maxtotalchars = (int) get_config('tiny_c4lauthor', 'ai_max_total_chars');
+        if ($maxtotalchars <= 0) {
+            $maxtotalchars = self::DEFAULT_MAX_TOTAL_CHARS;
+        }
+        $maxparagraphchars = (int) get_config('tiny_c4lauthor', 'ai_max_paragraph_chars');
+        if ($maxparagraphchars <= 0) {
+            $maxparagraphchars = self::DEFAULT_MAX_PARAGRAPH_LENGTH;
+        }
+        // A single paragraph must never be allowed to exhaust the whole budget.
+        $maxparagraphchars = min($maxparagraphchars, $maxtotalchars);
+
+        // Filter out items too short for the LLM, and cap the total payload.
         $eligible = [];
         $indexmap = [];
         $seq = 0;
+        $totalchars = 0;
+        $candidates = 0;
+        $truncated = 0;
+        $dropped = false;
         foreach ($items as $item) {
             $text = $item['text'] ?? '';
             $origindex = (int) ($item['index'] ?? -1);
             if ($origindex < 0 || $text === '' || mb_strlen($text) < self::MIN_PARAGRAPH_LENGTH) {
                 continue;
             }
+            $candidates++;
+
+            if ($seq >= $maxparagraphs) {
+                $dropped = true;
+                continue;
+            }
+
+            // Classifying a paragraph does not need all of it; keep the opening.
+            $wastruncated = mb_strlen($text) > $maxparagraphchars;
+            if ($wastruncated) {
+                $text = mb_substr($text, 0, $maxparagraphchars);
+            }
+
+            if ($totalchars + mb_strlen($text) > $maxtotalchars) {
+                $dropped = true;
+                continue;
+            }
+
+            // Only count a paragraph as truncated once it is actually sent.
+            if ($wastruncated) {
+                $truncated++;
+            }
+            $totalchars += mb_strlen($text);
             $eligible[$seq] = $text;
             $indexmap[$seq] = $origindex;
             $seq++;
@@ -167,6 +223,19 @@ class ai_classifier {
             return ['suggestions' => [], 'warnings' => []];
         }
 
+        if ($dropped) {
+            $warnings[] = get_string('ai_payload_capped', 'tiny_c4lauthor', (object) [
+                'analysed' => count($eligible),
+                'total' => $candidates,
+            ]);
+        }
+        if ($truncated > 0) {
+            $warnings[] = get_string('ai_payload_truncated', 'tiny_c4lauthor', (object) [
+                'count' => $truncated,
+                'chars' => $maxparagraphchars,
+            ]);
+        }
+
         // Build numbered paragraph list for the prompt.
         $numbered = [];
         foreach ($eligible as $s => $text) {
@@ -174,9 +243,7 @@ class ai_classifier {
         }
         $paragraphstext = implode("\n", $numbered);
 
-        // Cap: 1 per paragraph, with configurable minimum.
-        $minsuggestions = (int) (get_config('tiny_c4lauthor', 'ai_min_suggestions') ?: 12);
-        $maxsuggestions = max($minsuggestions, count($eligible));
+        $maxsuggestions = self::max_suggestions(count($eligible));
 
         // Build the classification prompt.
         $prompttext = self::build_prompt($paragraphstext, $lang, $maxsuggestions);
@@ -320,8 +387,23 @@ class ai_classifier {
             return $b['confidence'] <=> $a['confidence'];
         });
 
+        return array_slice($suggestions, 0, self::max_suggestions(count($eligible)));
+    }
+
+    /**
+     * Largest number of suggestions worth asking for, and worth keeping.
+     *
+     * The editor never displays more than half as many suggestions as there are
+     * paragraphs: filterSuggestions() in amd/src/ai_guards.js caps the list at
+     * ceil(totalContent / 2). Asking the provider for one suggestion per paragraph
+     * would pay for output the UI discards before the user ever sees it, so the
+     * ask is aligned with that ceiling. Short documents keep the configurable floor.
+     *
+     * @param int $eligiblecount Number of paragraphs sent to the LLM.
+     * @return int Maximum suggestions.
+     */
+    private static function max_suggestions(int $eligiblecount): int {
         $minsuggestions = (int) (get_config('tiny_c4lauthor', 'ai_min_suggestions') ?: 12);
-        $maxsuggestions = max($minsuggestions, count($eligible));
-        return array_slice($suggestions, 0, $maxsuggestions);
+        return max($minsuggestions, (int) ceil($eligiblecount / 2));
     }
 }

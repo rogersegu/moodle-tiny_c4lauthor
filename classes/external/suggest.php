@@ -88,6 +88,14 @@ class suggest extends external_api {
         self::validate_context($context);
         require_capability('tiny/c4lauthor:aisuggest', $context);
 
+        // Reject an oversized payload before decoding it.
+        if (strlen($params['paragraphs']) > \tiny_c4lauthor\ai_classifier::MAX_PAYLOAD_BYTES) {
+            return [
+                'suggestions' => [],
+                'warnings' => [get_string('ai_payload_too_large', 'tiny_c4lauthor')],
+            ];
+        }
+
         $items = json_decode($params['paragraphs'], true);
         if (!is_array($items)) {
             return ['suggestions' => [], 'warnings' => ['Invalid paragraphs JSON.']];

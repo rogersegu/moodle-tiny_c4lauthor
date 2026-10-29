@@ -147,6 +147,33 @@ if ($ADMIN->fulltree) {
         ));
     }
 
+    // Maximum paragraphs sent to the provider in one analysis.
+    $settings->add(new admin_setting_configtext(
+        'tiny_c4lauthor/ai_max_paragraphs',
+        get_string('ai_max_paragraphs', 'tiny_c4lauthor'),
+        get_string('ai_max_paragraphs_desc', 'tiny_c4lauthor'),
+        80,
+        PARAM_INT
+    ));
+
+    // Maximum characters sent to the provider in one analysis.
+    $settings->add(new admin_setting_configtext(
+        'tiny_c4lauthor/ai_max_total_chars',
+        get_string('ai_max_total_chars', 'tiny_c4lauthor'),
+        get_string('ai_max_total_chars_desc', 'tiny_c4lauthor'),
+        40000,
+        PARAM_INT
+    ));
+
+    // Maximum characters kept from a single paragraph.
+    $settings->add(new admin_setting_configtext(
+        'tiny_c4lauthor/ai_max_paragraph_chars',
+        get_string('ai_max_paragraph_chars', 'tiny_c4lauthor'),
+        get_string('ai_max_paragraph_chars_desc', 'tiny_c4lauthor'),
+        1500,
+        PARAM_INT
+    ));
+
     // Minimum suggestions.
     $settings->add(new admin_setting_configtext(
         'tiny_c4lauthor/ai_min_suggestions',
