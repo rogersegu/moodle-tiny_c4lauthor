@@ -126,7 +126,10 @@
                                     <div class="{{componentClass}}">
                                         <p>{{text}}</p>
                                         {{#hasListItems}}<ul>{{#listItems}}<li>{{text}}</li>{{/listItems}}</ul>{{/hasListItems}}
-                                        {{#hasFollowingText}}<p>{{followingText}}</p>{{/hasFollowingText}}
+                                        {{#hasFollowingText}}
+                                        {{#followingIsMath}}<p><code>{{followingText}}</code></p>{{/followingIsMath}}
+                                        {{^followingIsMath}}<p>{{followingText}}</p>{{/followingIsMath}}
+                                        {{/hasFollowingText}}
                                     </div>
                                 {{/isLearningOutcomes}}
                                 </div>

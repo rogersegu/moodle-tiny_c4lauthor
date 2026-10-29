@@ -145,6 +145,9 @@ export const mountAiView = async(container, handlers) => {
                         next.isGrouped = true;
                         blocks[i].followingText = next.text;
                         blocks[i].hasFollowingText = true;
+                        // For a math block this text is the application/x-tex annotation,
+                        // so the card presents it as notation rather than as prose.
+                        blocks[i].followingIsMath = true;
                         // eslint-disable-next-line max-depth
                         if (j + 1 < blocks.length && blocks[j + 1].isP && !blocks[j + 1].suggestion) {
                             blocks[j + 1].isGrouped = true;
