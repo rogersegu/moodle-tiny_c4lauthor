@@ -675,6 +675,17 @@ const setupVariantToolbar = (ed, deleteStr, moveUpStr, moveDownStr) => {
             }
         }
 
+        // Both branches above operate straight on the DOM, which leaves TinyMCE
+        // with a selection that may point at a node that is no longer there — the
+        // mousedown handler calls preventDefault(), so the click never set one.
+        // Give it a caret just after the component before telling it the content
+        // changed: an editor asked to scroll to an invalid caret falls back to the
+        // top of the body. deleteComponent and moveComponent already register their
+        // change this way; this one did not, so applying a variant was also the one
+        // toolbar action that could not be undone.
+        ed.selection.select(compEl);
+        ed.selection.collapse(false);
+        ed.undoManager.add();
     };
 
     const showToolbar = (compEl, comp) => {
