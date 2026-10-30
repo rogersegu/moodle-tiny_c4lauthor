@@ -46,7 +46,8 @@ export const variants = [
         html:
             `<figcaption><em class="c4l-figure-footer">Consectetur adipiscing elit.</em>
             <span class="c4l-figure-caption" aria-label="{{#caption}}">
-            <strong>{{#source}}: </strong>Phasellus a posuere nibh.</span></figcaption>`,
+            <strong class="c4l-figure-source-label">{{#source}}: </strong>` +
+            `Phasellus a posuere nibh.</span></figcaption>`,
     },
     {
         id: 4,

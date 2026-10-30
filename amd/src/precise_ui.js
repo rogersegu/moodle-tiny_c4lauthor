@@ -203,7 +203,39 @@ const FIELD_REGISTRY = {
     figure: [
         {selector: 'img', label: 'precision_field_image_alt', type: 'image-alt'},
         {selector: '.c4l-figure-footer', label: 'precision_field_caption', type: 'input', optional: true},
-        {selector: '.c4l-figure-caption', label: 'precision_field_source', type: 'input', optional: true},
+        {selector: '.c4l-figure-caption', label: 'precision_field_source', type: 'input', optional: true,
+            // "Source:" is a fixed label, not part of the source the author types.
+            // Default handling would show it inside the field and then destroy the
+            // <strong> on save, the same trap gradingvalue already works around.
+            extract: (comp) => {
+                const el = comp.querySelector('.c4l-figure-caption');
+                if (!el) {
+                    return '';
+                }
+                const labelEl = el.querySelector('.c4l-figure-source-label');
+                const label = labelEl ? labelEl.textContent : '';
+                const full = el.textContent.trim();
+                return label
+                    ? full.replace(new RegExp('^\\s*' + escapeRegExp(label.trim()) + '\\s*'), '').trim()
+                    : full;
+            },
+            apply: (comp, val) => {
+                const el = comp.querySelector('.c4l-figure-caption');
+                if (!el) {
+                    return;
+                }
+                const labelEl = el.querySelector('.c4l-figure-source-label');
+                const labelText = labelEl ? labelEl.textContent : '';
+                const doc = el.ownerDocument;
+                el.innerHTML = '';
+                if (labelText !== '') {
+                    const strong = doc.createElement('strong');
+                    strong.className = 'c4l-figure-source-label';
+                    strong.textContent = labelText;
+                    el.appendChild(strong);
+                }
+                el.appendChild(doc.createTextNode(val));
+            }},
     ],
 };
 
