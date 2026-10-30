@@ -284,6 +284,7 @@ $string['sample_inlinetag'] = 'Text';
 $string['sample_statement'] = 'Task statement.';
 $string['setting_showoverlay'] = 'Show overlay';
 $string['setting_showoverlay_desc'] = 'When enabled, a clickable overlay is displayed on top of the TinyMCE editor. Clicking it opens the C4L Author modal. The overlay can be dismissed to access the original editor.';
+$string['source'] = 'Source';
 $string['statement'] = 'Statement';
 $string['tag'] = 'Tag';
 $string['templates'] = 'Templates';
