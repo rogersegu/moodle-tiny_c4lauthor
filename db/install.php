@@ -26,8 +26,10 @@
  * Post-install hook: set default AI Suggest configuration.
  */
 function xmldb_tiny_c4lauthor_install() {
-    // AI Suggest defaults.
-    set_config('ai_enabled', 1, 'tiny_c4lauthor');
+    // AI Suggest defaults. Off until an administrator turns it on: the feature
+    // sends course content to a third-party provider and spends the site's
+    // credit, which is not a thing to start doing because a plugin was installed.
+    set_config('ai_enabled', 0, 'tiny_c4lauthor');
     set_config('ai_comp_enabled_attention', 1, 'tiny_c4lauthor');
     set_config('ai_comp_enabled_tip', 1, 'tiny_c4lauthor');
     set_config('ai_comp_enabled_keyconcept', 1, 'tiny_c4lauthor');

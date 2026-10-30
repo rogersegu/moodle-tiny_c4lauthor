@@ -29,7 +29,9 @@ $functions = [
         'classname'    => 'tiny_c4lauthor\external\suggest',
         'methodname'   => 'execute',
         'description'  => 'Return C4L component suggestions for a fragment of editor content.',
-        'type'         => 'read',
+        // Not 'read': the call sends content to an AI provider, costs the site money
+        // and makes core_ai record the action in ai_action_register.
+        'type'         => 'write',
         'ajax'         => true,
         'capabilities' => 'tiny/c4lauthor:aisuggest',
     ],
