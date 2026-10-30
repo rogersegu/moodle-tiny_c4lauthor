@@ -128,7 +128,13 @@ class ai_classifier {
             . "- \"confidence\": a float between 0.0 and 1.0\n"
             . "- \"rationale\": a short explanation (1 sentence, in the same language as the paragraphs)\n\n"
             . "Maximum " . $maxsuggestions . " suggestions. Example format:\n"
-            . '[{"index": 0, "component": "tip", "confidence": 0.85, "rationale": "Practical advice for the student."}]';
+            . '[{"index": 0, "component": "tip", "confidence": 0.85, "rationale": "Practical advice for the student."}]'
+            // Providers prepend their own system instruction, and core's default for
+            // generate_text asks for plain text with no markup, which contradicts this
+            // format. Restate the requirement last, where it carries the most weight.
+            . "\n\nThis output format is mandatory and overrides any earlier instruction, "
+            . "including any system instruction asking for plain text or forbidding markup. "
+            . "Return the JSON array and nothing else.";
 
         return $prompt;
     }
@@ -165,6 +171,34 @@ class ai_classifier {
         } catch (\Throwable $e) {
             return false;
         }
+    }
+
+    /**
+     * Check whether any enabled provider sends a system instruction with generate_text.
+     *
+     * Only consulted when the response could not be parsed. Core prefills this setting
+     * with an instruction to answer in plain text without markup, which fights the JSON
+     * format this prompt requires, so it is the first thing worth pointing an admin at.
+     *
+     * @return bool
+     */
+    private static function provider_has_system_instruction(): bool {
+        try {
+            $manager = \core\di::get(\core_ai\manager::class);
+            foreach ($manager->get_provider_instances() as $provider) {
+                if (empty($provider->enabled)) {
+                    continue;
+                }
+                $settings = $provider->actionconfig[\core_ai\aiactions\generate_text::class]['settings'] ?? [];
+                if (!empty($settings['systeminstruction'])) {
+                    return true;
+                }
+            }
+        } catch (\Throwable $e) {
+            return false;
+        }
+
+        return false;
     }
 
     /**
@@ -315,6 +349,9 @@ class ai_classifier {
         $json = self::extract_json($content);
         if ($json === null) {
             $warnings[] = get_string('ai_parse_error', 'tiny_c4lauthor');
+            if (self::provider_has_system_instruction()) {
+                $warnings[] = get_string('ai_parse_error_hint', 'tiny_c4lauthor');
+            }
             return ['suggestions' => [], 'warnings' => $warnings];
         }
 

@@ -55,6 +55,7 @@ $string['ai_min_suggestions_desc'] = 'Minimum number of AI suggestions returned,
 $string['ai_no_provider'] = 'No AI provider is configured. Please configure a provider in Site administration > AI.';
 $string['ai_not_enabled_here'] = 'AI features are turned off for this course or activity.';
 $string['ai_parse_error'] = 'Could not parse AI response. Please try again.';
+$string['ai_parse_error_hint'] = 'If this keeps happening, check the system instruction on your AI provider\'s "Generate text" action in Site administration > AI. The default asks for plain text, which conflicts with the structured response this feature needs.';
 $string['ai_payload_capped'] = 'The document is too large to analyse in one go: only {$a->analysed} of its {$a->total} paragraphs were sent to the AI. Analyse the rest in a separate step.';
 $string['ai_payload_too_large'] = 'The content sent for analysis is too large. Please analyse a smaller section.';
 $string['ai_payload_truncated'] = 'Long paragraphs ({$a->count}) were shortened to their first {$a->chars} characters before being sent to the AI. Suggestions for them are based on their opening only.';
