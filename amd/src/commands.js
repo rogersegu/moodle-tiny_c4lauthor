@@ -293,6 +293,17 @@ const getAllStrings = async() => {
         }
     });
 
+    // Lang strings from the variant markup itself. Collected from the definitions
+    // rather than the variant names, so a tag only ever referenced inside a
+    // variant's html still gets fetched.
+    variantsModule.variants.forEach(variant => {
+        [...(variant.html || '').matchAll(compRegex)].forEach(strLang => {
+            if (keys.indexOf(strLang[1]) === -1) {
+                keys.push(strLang[1]);
+            }
+        });
+    });
+
     const stringValues = await getStrings(keys.map((key) => ({key, component})));
     return new Map(keys.map((key, index) => ([key, stringValues[index]])));
 };
@@ -654,7 +665,10 @@ const setupVariantToolbar = (ed, deleteStr, moveUpStr, moveDownStr) => {
             );
             if (vDef && vDef.html) {
                 const tmp = iframeDoc.createElement('div');
-                tmp.innerHTML = vDef.html;
+                // Variant markup carries {{#key}} tags like every other template here.
+                // processComponentCode resolves them on insert; this path has to as well,
+                // or the literal tag is written into the author's content.
+                tmp.innerHTML = applyLangStrings(vDef.html);
                 while (tmp.firstChild) {
                     compEl.appendChild(tmp.firstChild);
                 }
