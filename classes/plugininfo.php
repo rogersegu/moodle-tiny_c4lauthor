@@ -56,6 +56,8 @@ class plugininfo extends plugin implements plugin_with_buttons, plugin_with_conf
         array $fpoptions,
         ?\editor_tiny\editor $editor = null
     ): array {
+        global $USER;
+
         $config = get_config('tiny_c4lauthor');
 
         $showoverlay = $config->showoverlay ?? '';
@@ -73,9 +75,15 @@ class plugininfo extends plugin implements plugin_with_buttons, plugin_with_conf
         $previewcss = $config->custompreviewcss ?? '';
         $customcomponents = self::get_custom_components($config);
 
-        // AI global enable.
+        // AI availability. The site switch is only the first of four gates: the user
+        // needs the capability, a provider must offer generate_text, and the course
+        // and activity must both still allow it.
         $aienabled = isset($config->ai_enabled) && $config->ai_enabled !== ''
             ? (bool) $config->ai_enabled : true;
+        $aienabled = $aienabled
+            && has_capability('tiny/c4lauthor:aisuggest', $context)
+            && \tiny_c4lauthor\ai_classifier::is_available()
+            && \tiny_c4lauthor\ai_classifier::is_enabled_in_context($context);
 
         // AI rate limits per component (max per 10 paragraphs).
         // Disabled components get rate 0.
@@ -105,6 +113,8 @@ class plugininfo extends plugin implements plugin_with_buttons, plugin_with_conf
             'customcomps' => $customcomponents,
             'aienabled' => $aienabled,
             'airates' => json_encode($airates),
+            'userid' => (int) $USER->id,
+            'policyagreed' => \tiny_c4lauthor\ai_classifier::policy_accepted((int) $USER->id),
         ];
     }
 

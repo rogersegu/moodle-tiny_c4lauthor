@@ -34,6 +34,8 @@ const previewCSSName = getPluginOptionName(pluginName, 'previewcss');
 const customCompsName = getPluginOptionName(pluginName, 'customcomps');
 const aienabledName = getPluginOptionName(pluginName, 'aienabled');
 const airatesName = getPluginOptionName(pluginName, 'airates');
+const useridName = getPluginOptionName(pluginName, 'userid');
+const policyagreedName = getPluginOptionName(pluginName, 'policyagreed');
 
 export const register = (editor) => {
     const registerOption = editor.options.register;
@@ -82,6 +84,16 @@ export const register = (editor) => {
         processor: 'string',
         "default": '{}',
     });
+
+    registerOption(useridName, {
+        processor: 'number',
+        "default": 0,
+    });
+
+    registerOption(policyagreedName, {
+        processor: 'boolean',
+        "default": false,
+    });
 };
 
 export const isShowOverlay = (editor) => editor.options.get(clickToOpenName);
@@ -92,6 +104,8 @@ export const getallowedComponents = (editor) => editor.options.get(allowedcompsN
 export const getcustomComponents = (editor) => editor.options.get(customCompsName);
 export const getpreviewCSS = (editor) => editor.options.get(previewCSSName);
 export const isAiEnabled = (editor) => editor.options.get(aienabledName);
+export const getUserId = (editor) => editor.options.get(useridName);
+export const isPolicyAgreed = (editor) => editor.options.get(policyagreedName);
 export const getAiRates = (editor) => {
     const raw = editor.options.get(airatesName);
     if (!raw || typeof raw !== 'string') {

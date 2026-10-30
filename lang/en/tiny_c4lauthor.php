@@ -53,10 +53,12 @@ $string['ai_maxrate_desc'] = 'Maximum suggestions of this component type per 10 
 $string['ai_min_suggestions'] = 'Minimum suggestions';
 $string['ai_min_suggestions_desc'] = 'Minimum number of AI suggestions returned, so that short documents still get a useful set. Longer documents use half their paragraph count instead, which is the most the editor will ever display.';
 $string['ai_no_provider'] = 'No AI provider is configured. Please configure a provider in Site administration > AI.';
+$string['ai_not_enabled_here'] = 'AI features are turned off for this course or activity.';
 $string['ai_parse_error'] = 'Could not parse AI response. Please try again.';
 $string['ai_payload_capped'] = 'The document is too large to analyse in one go: only {$a->analysed} of its {$a->total} paragraphs were sent to the AI. Analyse the rest in a separate step.';
 $string['ai_payload_too_large'] = 'The content sent for analysis is too large. Please analyse a smaller section.';
 $string['ai_payload_truncated'] = 'Long paragraphs ({$a->count}) were shortened to their first {$a->chars} characters before being sent to the AI. Suggestions for them are based on their opening only.';
+$string['ai_policy_not_accepted'] = 'You need to accept the AI policy before using AI suggestions.';
 $string['ai_prompt_extra'] = 'AI prompt extension';
 $string['ai_prompt_extra_desc'] = '<div class="alert alert-warning"><strong>Warning:</strong> This field is intended for adding custom component definitions to the AI classification prompt. Modifying this content may alter the AI behaviour in unexpected ways. <strong>Correct operation of the AI Suggest feature is not guaranteed</strong> if this field is changed.</div>Use this field to describe additional component types that the AI should recognise. For example:<br><code>- <strong>mycomponent</strong>: A brief description of when this component should be suggested.</code>';
 $string['ai_reanalyse'] = 'Re-analyse';

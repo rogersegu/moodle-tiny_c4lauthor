@@ -148,6 +148,40 @@ class ai_classifier {
     }
 
     /**
+     * Check whether generate_text is enabled for this course and activity.
+     *
+     * A provider being configured site-wide is not enough: AI tools can be turned off
+     * for a course, and individual actions can be turned off for an activity. Core
+     * placements gate on this before offering an action, and so must we, since calling
+     * core_ai directly bypasses every placement-level check.
+     *
+     * @param \context $context The context the content is being edited in.
+     * @return bool
+     */
+    public static function is_enabled_in_context(\context $context): bool {
+        try {
+            $manager = \core\di::get(\core_ai\manager::class);
+            return $manager->is_action_enabled_in_context($context, \core_ai\aiactions\generate_text::class);
+        } catch (\Throwable $e) {
+            return false;
+        }
+    }
+
+    /**
+     * Check whether the user has accepted the site's AI policy.
+     *
+     * @param int $userid The user id.
+     * @return bool
+     */
+    public static function policy_accepted(int $userid): bool {
+        try {
+            return (bool) \core_ai\manager::get_user_policy_status($userid);
+        } catch (\Throwable $e) {
+            return false;
+        }
+    }
+
+    /**
      * Classify paragraphs using core_ai generate_text.
      *
      * @param int $contextid The context id.

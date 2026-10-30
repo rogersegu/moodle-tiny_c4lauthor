@@ -47,7 +47,12 @@ import {
     getpreviewCSS,
     isAiEnabled,
     getAiRates,
+    getUserId,
+    isPolicyAgreed,
 } from './options';
+import Policy from 'core_ai/policy';
+import PolicyModal from 'core_ai/policymodal';
+import CustomEvents from 'core/custom_interaction_events';
 import {
     loadVariantPreferences,
     saveVariantPreferences,
@@ -1837,6 +1842,24 @@ export const getSetup = async() => {
             if (!innerEditor || !aiContainer) {
                 return;
             }
+
+            // The site's AI policy has to be accepted before any content leaves the
+            // browser. Checked here, before the current view is torn down, so that
+            // declining leaves the modal exactly as it was.
+            const userid = getUserId(editor);
+            Policy.preconfigurePolicyState(userid, isPolicyAgreed(editor));
+            if (!await Policy.getPolicyStatus(userid)) {
+                const policyModal = await PolicyModal.create();
+                policyModal.getModal().on(
+                    CustomEvents.events.activate,
+                    policyModal.getActionSelector('save'),
+                    () => {
+                        openAiView();
+                    }
+                );
+                return;
+            }
+
             // Apply, destroy & hide current view — we'll rebuild on return.
             applyCurrentView();
             destroyCurrentView();

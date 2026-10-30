@@ -78,6 +78,8 @@ class suggest extends external_api {
      * @return array Suggestions and warnings.
      */
     public static function execute(int $contextid, string $paragraphs, string $lang = 'en'): array {
+        global $USER;
+
         $params = self::validate_parameters(self::execute_parameters(), [
             'contextid' => $contextid,
             'paragraphs' => $paragraphs,
@@ -106,6 +108,22 @@ class suggest extends external_api {
             return [
                 'suggestions' => [],
                 'warnings' => [get_string('ai_no_provider', 'tiny_c4lauthor')],
+            ];
+        }
+
+        // Respect the course and activity AI settings, which a direct core_ai call bypasses.
+        if (!\tiny_c4lauthor\ai_classifier::is_enabled_in_context($context)) {
+            return [
+                'suggestions' => [],
+                'warnings' => [get_string('ai_not_enabled_here', 'tiny_c4lauthor')],
+            ];
+        }
+
+        // Require the user to have accepted the site's AI policy.
+        if (!\tiny_c4lauthor\ai_classifier::policy_accepted($USER->id)) {
+            return [
+                'suggestions' => [],
+                'warnings' => [get_string('ai_policy_not_accepted', 'tiny_c4lauthor')],
             ];
         }
 
