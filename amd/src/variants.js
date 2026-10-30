@@ -21,7 +21,10 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-const variants = [
+// Exported both ways on purpose: variantslib imports the name, commands imports
+// the default. The name was missing, which left every lookup in variantslib
+// reading undefined.
+export const variants = [
     {
         id: 0,
         name: "align-center",
