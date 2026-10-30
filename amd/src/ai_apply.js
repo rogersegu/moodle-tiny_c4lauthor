@@ -66,7 +66,12 @@ const unwrapC4LDiv = (doc, c4lDiv, component) => {
         const fragments = [];
         const items = c4lDiv.querySelectorAll('.c4l-learningoutcomes-list li');
         items.forEach((li) => {
-            fragments.push(doc.adoptNode(renderParagraph(li.textContent)));
+            // innerHTML, not textContent: renderParagraph puts this into an
+            // unescaped slot and parses the result, so plain text containing
+            // something tag-shaped ("<array>", "</div>") would be swallowed.
+            // It also keeps the item's own bold, italics and links, which
+            // textContent flattens away.
+            fragments.push(doc.adoptNode(renderParagraph(li.innerHTML)));
         });
         if (fragments.length) {
             c4lDiv.replaceWith(...fragments);
