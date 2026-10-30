@@ -516,7 +516,7 @@ const buildListFieldHtml = (field, fIdx, strings) => {
     });
     html += '<button type="button" class="tiny_c4lauthor__precision-add-btn"' +
         ' data-field="' + fIdx + '">' +
-        (strings.get('precision_add_item') || 'Add item') + '</button>';
+        strings.get('precision_add_item') + '</button>';
     return html;
 };
 
@@ -534,7 +534,7 @@ const buildListItemHtml = (fIdx, itemIdx, strings) => {
         ' data-field="' + fIdx + '" data-item="' + itemIdx + '"></textarea>' +
         '<button type="button" class="tiny_c4lauthor__precision-remove-btn"' +
         ' data-field="' + fIdx + '" data-item="' + itemIdx + '" title="' +
-        (strings.get('precision_remove_item') || 'Remove') + '">&times;</button></div>';
+        strings.get('precision_remove_item') + '">&times;</button></div>';
 };
 
 // ── Applying form values ──

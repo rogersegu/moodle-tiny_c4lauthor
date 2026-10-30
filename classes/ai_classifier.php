@@ -335,13 +335,24 @@ class ai_classifier {
             $response = $manager->process_action($action);
 
             if (!$response->get_success()) {
-                $warnings[] = get_string('ai_error', 'tiny_c4lauthor', $response->get_errormessage());
+                // The provider's own wording, usually English and sometimes an internal
+                // detail. Core already records it in ai_action_register for the admin,
+                // so the user gets a translated message and the detail goes to debugging.
+                debugging(
+                    'tiny_c4lauthor: AI provider returned an error: ' . $response->get_errormessage(),
+                    DEBUG_DEVELOPER
+                );
+                $warnings[] = get_string('ai_error', 'tiny_c4lauthor');
                 return ['suggestions' => [], 'warnings' => $warnings];
             }
 
             $content = $response->get_response_data()['generatedcontent'] ?? '';
         } catch (\Throwable $e) {
-            $warnings[] = get_string('ai_error', 'tiny_c4lauthor', $e->getMessage());
+            debugging(
+                'tiny_c4lauthor: AI classification threw ' . get_class($e) . ': ' . $e->getMessage(),
+                DEBUG_DEVELOPER
+            );
+            $warnings[] = get_string('ai_error', 'tiny_c4lauthor');
             return ['suggestions' => [], 'warnings' => $warnings];
         }
 

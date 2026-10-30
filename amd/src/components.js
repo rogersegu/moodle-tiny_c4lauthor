@@ -187,7 +187,7 @@ const components = [
         imageClass: "c4l-figure-icon",
         code:
             `<p class="c4l-spacer">&nbsp;</p><figure class="c4lv-figure {{VARIANTS}}"
-            role="note" aria-label="{{#figure}}"><img src="" alt="Lorem ipsum dolor sit amet">
+            role="note" aria-label="{{#figure}}"><img src="" alt="{{#sample_figure_alt}}">
             {{VARIANTSHTML}}</figure><p class="c4l-spacer">&nbsp;</p>`,
         text: "Consectetur adipiscing elit.",
         docs: {
@@ -224,7 +224,7 @@ const components = [
         type: "contextual",
         imageClass: "c4l-inlinetag-icon",
         code: `<span class="c4l-inlinetag" role="note" aria-label="{{#inlinetag}}">{{PLACEHOLDER}}</span>`,
-        text: "Text",
+        text: "{{#sample_inlinetag}}",
         docs: {
             description: "{{#docs_inlinetag_desc}}",
             useCases: [
@@ -281,7 +281,7 @@ const components = [
         code:
             `<p class="c4l-spacer">&nbsp;</p><div class="c4l-inline-group"><div class="c4lv-duedate {{VARIANTS}}"
             role="note" aria-label="{{#duedate}}">{{PLACEHOLDER}}</div></div><p class="c4l-spacer">&nbsp;</p>`,
-        text: "November 17th",
+        text: "{{#sample_duedate}}",
         docs: {
             description: "{{#docs_duedate_desc}}",
             useCases: [
@@ -460,7 +460,7 @@ const components = [
         code:
             `<p class="c4l-spacer">&nbsp;</p><div class="c4l-inline-group"><div class="c4lv-aiuseallowed {{VARIANTS}}"
              role="note" aria-label="{{#aiuseallowed}}">{{PLACEHOLDER}}</div></div><p class="c4l-spacer">&nbsp;</p>`,
-        text: "Use of AI is <strong>allowed</strong>",
+        text: "{{#sample_aiuseallowed}}",
         docs: {
             description: "{{#docs_aiuseallowed_desc}}",
             useCases: [
@@ -478,7 +478,7 @@ const components = [
         code:
             `<p class="c4l-spacer">&nbsp;</p><div class="c4l-inline-group"><div class="c4lv-aiusenotallowed {{VARIANTS}}"
              role="note" aria-label="{{#aiusenotallowed}}">{{PLACEHOLDER}}</div></div><p class="c4l-spacer">&nbsp;</p>`,
-        text: "Use of AI is <strong>not allowed</strong>",
+        text: "{{#sample_aiusenotallowed}}",
         docs: {
             description: "{{#docs_aiusenotallowed_desc}}",
             useCases: [
@@ -497,7 +497,7 @@ const components = [
         code:
             `<p class="c4l-spacer">&nbsp;</p><div class="c4l-inline-group"><div class="c4lv-aiusereported {{VARIANTS}}"
              role="note" aria-label="{{#aiusereported}}">{{PLACEHOLDER}}</div></div><p class="c4l-spacer">&nbsp;</p>`,
-        text: "Use of AI must be <strong>reported</strong>",
+        text: "{{#sample_aiusereported}}",
         docs: {
             description: "{{#docs_aiusereported_desc}}",
             useCases: [
@@ -523,7 +523,7 @@ Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.
 Duis aute irure dolor in reprehenderit in voluptate velit esse.</p>
 </div>
 </section></div><p class="c4l-spacer">&nbsp;</p>`,
-        text: "Task statement.",
+        text: "{{#sample_statement}}",
         docs: {
             description: "{{#docs_statement_desc}}",
             useCases: [],
@@ -549,7 +549,7 @@ esse cillum dolore eu fugiat nulla pariatur.</p>
 </div>
 </div>
 </section></div><p class="c4l-spacer">&nbsp;</p>`,
-        text: "Information about the assessment.",
+        text: "{{#sample_assessment}}",
         docs: {
             description: "{{#docs_assessment_desc}}",
             useCases: [],

@@ -100,7 +100,10 @@ class suggest extends external_api {
 
         $items = json_decode($params['paragraphs'], true);
         if (!is_array($items)) {
-            return ['suggestions' => [], 'warnings' => ['Invalid paragraphs JSON.']];
+            return [
+                'suggestions' => [],
+                'warnings' => [get_string('ai_invalid_request', 'tiny_c4lauthor')],
+            ];
         }
 
         // Require a configured AI provider.

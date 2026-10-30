@@ -1185,6 +1185,7 @@ export const getSetup = async() => {
         const html = editor.getContent({format: 'html'}) || '';
         const sidebarHtml = buildSidebar(filterLabels, userIsStudent, allowedComps, showDocs(editor));
         const textareaId = 'tiny_c4lauthor_inner_' + Date.now();
+        const toggleSidebarStr = await getString('togglesidebar', component);
 
         // Copy content_css from outer editor so inner TinyMCE has all plugin styles.
         const outerCss = editor.options.get('content_css');
@@ -1201,8 +1202,8 @@ export const getSetup = async() => {
                 <div class="tiny_c4lauthor__main-view">
                     <div class="tiny_c4lauthor__body">
                         ${sidebarHtml}
-                        <button class="tiny_c4lauthor__sidebar-toggle" title="Toggle sidebar" ` +
-                            `aria-label="Toggle sidebar">` +
+                        <button class="tiny_c4lauthor__sidebar-toggle" title="${toggleSidebarStr}" ` +
+                            `aria-label="${toggleSidebarStr}">` +
                             `<svg width="16" height="16" viewBox="0 0 16 16" fill="none">` +
                             `<path d="M10 4l-4 4 4 4" stroke="currentColor" stroke-width="1.5" ` +
                             `stroke-linecap="round" stroke-linejoin="round"/></svg>` +
@@ -1916,8 +1917,11 @@ export const getSetup = async() => {
                 try {
                     result = await callSuggest({contextid, paragraphs, lang});
                 } catch (e) {
+                    // Notification.exception already surfaces the detail for debugging;
+                    // the panel gets a translated message rather than the raw text.
                     Notification.exception(e);
-                    await aiController.setSuggestions([], [e.message || 'Error']);
+                    const msg = await getString('ai_error', component);
+                    await aiController.setSuggestions([], [msg]);
                     return;
                 }
                 const protectedIdx = aiGetProtectedIndices(activeHtml);
