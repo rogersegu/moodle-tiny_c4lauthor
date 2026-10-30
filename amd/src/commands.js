@@ -384,6 +384,26 @@ const processComponentCode = async(comp, selectedText) => {
 };
 
 /**
+ * Insert a component's HTML at the cursor.
+ *
+ * Inserting replaces the selection, which is what we want for a component that
+ * carries {{PLACEHOLDER}}: the selected text comes back inside it. A component
+ * without that marker has nowhere to put the text, so replacing the selection
+ * would delete the author's words and leave the component's own sample in their
+ * place. Collapse to the end of the selection first, and insert after it.
+ *
+ * @param {object} ed - The TinyMCE editor instance to insert into.
+ * @param {object} comp - Component definition from c4l/components.
+ * @param {string} html - Ready-to-insert HTML.
+ */
+const insertComponentHtml = (ed, comp, html) => {
+    if (!(comp.code || '').includes('{{PLACEHOLDER}}')) {
+        ed.selection.collapse(false);
+    }
+    ed.execCommand('mceInsertContent', false, html);
+};
+
+/**
  * Build the sidebar HTML with C4L component buttons.
  *
  * @param {object} filterLabels - Translated filter labels keyed by type.
@@ -1440,7 +1460,7 @@ export const getSetup = async() => {
                                     onAction: async() => {
                                         ed.selection.moveToBookmark(bookmark);
                                         const html = await processComponentCode(comp, savedSel);
-                                        ed.execCommand('mceInsertContent', false, html);
+                                        insertComponentHtml(ed, comp, html);
                                         ed.focus();
                                     },
                                 });
@@ -2065,7 +2085,7 @@ export const getSetup = async() => {
 
             const selectedText = innerEditor.selection.getContent({format: 'text'});
             const compHtml = await processComponentCode(comp, selectedText);
-            innerEditor.insertContent(compHtml);
+            insertComponentHtml(innerEditor, comp, compHtml);
             innerEditor.focus();
         });
 
