@@ -158,12 +158,21 @@ class ai_classifier {
      * placements gate on this before offering an action, and so must we, since calling
      * core_ai directly bypasses every placement-level check.
      *
+     * Per-course and per-activity AI settings arrived in Moodle 5.1, along with the
+     * course and course_modules columns they live in. This plugin supports 4.5, where
+     * there is no such setting, so a missing method means there is nothing to respect
+     * rather than something to refuse — without that distinction the catch below turns
+     * every 4.5 and 5.0 site into one where AI suggest silently never appears.
+     *
      * @param \context $context The context the content is being edited in.
      * @return bool
      */
     public static function is_enabled_in_context(\context $context): bool {
         try {
             $manager = \core\di::get(\core_ai\manager::class);
+            if (!method_exists($manager, 'is_action_enabled_in_context')) {
+                return true;
+            }
             return $manager->is_action_enabled_in_context($context, \core_ai\aiactions\generate_text::class);
         } catch (\Throwable $e) {
             return false;
