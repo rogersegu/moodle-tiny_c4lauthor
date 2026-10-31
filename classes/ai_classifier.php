@@ -34,9 +34,6 @@ class ai_classifier {
     /** @var int Minimum paragraph length to send to LLM. */
     private const MIN_PARAGRAPH_LENGTH = 10;
 
-    /** @var int Maximum size in bytes of the raw paragraphs payload accepted by the web service. */
-    public const MAX_PAYLOAD_BYTES = 1048576;
-
     /** @var int Default maximum characters kept from a single paragraph; the rest is not sent to the LLM. */
     private const DEFAULT_MAX_PARAGRAPH_LENGTH = 1500;
 

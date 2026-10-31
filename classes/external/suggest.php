@@ -38,7 +38,18 @@ class suggest extends external_api {
     public static function execute_parameters(): external_function_parameters {
         return new external_function_parameters([
             'contextid'  => new external_value(PARAM_INT, 'Context id'),
-            'paragraphs' => new external_value(PARAM_RAW, 'JSON: [{index, text}, ...]'),
+            'paragraphs' => new external_multiple_structure(
+                new external_single_structure([
+                    'index' => new external_value(PARAM_INT, 'Zero-based index of the paragraph in the editor'),
+                    // PARAM_RAW, not a cleaning type: external_value rejects a value
+                    // that cleaning would alter, so PARAM_TEXT turns a paragraph that
+                    // happens to mention "<array>" into a failed request. The text is
+                    // only ever used to build the prompt and echoed back as the
+                    // suggestion preview, which the editor renders as text.
+                    'text'  => new external_value(PARAM_RAW, 'Paragraph text, already stripped of markup by the client'),
+                ]),
+                'Paragraphs to classify'
+            ),
             'lang'       => new external_value(PARAM_ALPHANUMEXT, 'Language code', VALUE_DEFAULT, 'en'),
         ]);
     }
@@ -73,11 +84,11 @@ class suggest extends external_api {
      * Execute the AI suggest web service.
      *
      * @param int $contextid The context ID.
-     * @param string $paragraphs JSON-encoded paragraphs.
+     * @param array $paragraphs List of ['index' => int, 'text' => string].
      * @param string $lang Language code.
      * @return array Suggestions and warnings.
      */
-    public static function execute(int $contextid, string $paragraphs, string $lang = 'en'): array {
+    public static function execute(int $contextid, array $paragraphs, string $lang = 'en'): array {
         global $USER;
 
         $params = self::validate_parameters(self::execute_parameters(), [
@@ -90,21 +101,9 @@ class suggest extends external_api {
         self::validate_context($context);
         require_capability('tiny/c4lauthor:aisuggest', $context);
 
-        // Reject an oversized payload before decoding it.
-        if (strlen($params['paragraphs']) > \tiny_c4lauthor\ai_classifier::MAX_PAYLOAD_BYTES) {
-            return [
-                'suggestions' => [],
-                'warnings' => [get_string('ai_payload_too_large', 'tiny_c4lauthor')],
-            ];
-        }
-
-        $items = json_decode($params['paragraphs'], true);
-        if (!is_array($items)) {
-            return [
-                'suggestions' => [],
-                'warnings' => [get_string('ai_invalid_request', 'tiny_c4lauthor')],
-            ];
-        }
+        // Shape and types are guaranteed by execute_parameters(); how much of it
+        // reaches the provider is bounded in ai_classifier::classify().
+        $items = $params['paragraphs'];
 
         // Require a configured AI provider.
         if (!\tiny_c4lauthor\ai_classifier::is_available()) {
