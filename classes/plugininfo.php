@@ -78,9 +78,7 @@ class plugininfo extends plugin implements plugin_with_buttons, plugin_with_conf
         // AI availability. The site switch is only the first of four gates: the user
         // needs the capability, a provider must offer generate_text, and the course
         // and activity must both still allow it.
-        $aienabled = isset($config->ai_enabled) && $config->ai_enabled !== ''
-            ? (bool) $config->ai_enabled : false;
-        $aienabled = $aienabled
+        $aienabled = \tiny_c4lauthor\ai_classifier::is_enabled_for_site()
             && has_capability('tiny/c4lauthor:aisuggest', $context)
             && \tiny_c4lauthor\ai_classifier::is_available()
             && \tiny_c4lauthor\ai_classifier::is_enabled_in_context($context);

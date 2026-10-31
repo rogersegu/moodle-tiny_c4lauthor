@@ -104,6 +104,16 @@ class suggest extends external_api {
         // reaches the provider is bounded in ai_classifier::classify().
         $items = $params['paragraphs'];
 
+        // The administrator's own switch, first. It used to be read only when building
+        // the editor's configuration, so it hid the button without stopping anyone from
+        // calling this and spending the site's AI credit on a feature left switched off.
+        if (!\tiny_c4lauthor\ai_classifier::is_enabled_for_site()) {
+            return [
+                'suggestions' => [],
+                'warnings' => [get_string('ai_not_enabled', 'tiny_c4lauthor')],
+            ];
+        }
+
         // Require a configured AI provider.
         if (!\tiny_c4lauthor\ai_classifier::is_available()) {
             return [

@@ -84,11 +84,15 @@ class ai_classifier {
     /**
      * Build the component category descriptions for the prompt.
      *
+     * @param string[] $components The component types to describe.
      * @return string Formatted category list for the AI prompt.
      */
-    private static function build_category_descriptions(): string {
+    private static function build_category_descriptions(array $components): string {
         $lines = [];
         foreach (self::COMPONENT_DEFS as $comp => $def) {
+            if (!in_array($comp, $components, true)) {
+                continue;
+            }
             $line = "- **{$comp}**: {$def['desc']}";
             if (!empty($def['uses'])) {
                 $line .= " Typical use cases: " . implode('; ', $def['uses']);
@@ -104,10 +108,16 @@ class ai_classifier {
      * @param string $paragraphstext Numbered paragraphs.
      * @param string $lang Language code.
      * @param int $maxsuggestions Maximum number of suggestions.
+     * @param string[] $components The component types the AI may suggest.
      * @return string Complete prompt.
      */
-    private static function build_prompt(string $paragraphstext, string $lang, int $maxsuggestions): string {
-        $categories = self::build_category_descriptions();
+    private static function build_prompt(
+        string $paragraphstext,
+        string $lang,
+        int $maxsuggestions,
+        array $components
+    ): string {
+        $categories = self::build_category_descriptions($components);
 
         $prompt = "You are an educational content classifier. Analyse the following numbered paragraphs "
             . "and classify each one that clearly fits one of these categories:\n\n"
@@ -121,19 +131,66 @@ class ai_classifier {
             . "Paragraphs (language: {$lang}):\n{$paragraphstext}\n\n"
             . "Respond ONLY with a JSON array (no extra text). Each element must have exactly these fields:\n"
             . "- \"index\": the paragraph number (integer, as shown in brackets)\n"
-            . "- \"component\": one of \"" . implode('", "', self::VALID_COMPONENTS) . "\"\n"
+            . "- \"component\": one of \"" . implode('", "', $components) . "\"\n"
             . "- \"confidence\": a float between 0.0 and 1.0\n"
             . "- \"rationale\": a short explanation (1 sentence, in the same language as the paragraphs)\n\n"
             . "Maximum " . $maxsuggestions . " suggestions. Example format:\n"
             . '[{"index": 0, "component": "tip", "confidence": 0.85, "rationale": "Practical advice for the student."}]'
             // Providers prepend their own system instruction, and core's default for
             // generate_text asks for plain text with no markup, which contradicts this
-            // format. Restate the requirement last, where it carries the most weight.
-            . "\n\nThis output format is mandatory and overrides any earlier instruction, "
-            . "including any system instruction asking for plain text or forbidding markup. "
-            . "Return the JSON array and nothing else.";
+            // format. Restate the requirement last, where it carries the most weight —
+            // but scoped to formatting, so it cannot be read as licence to ignore the
+            // language the rationale is asked for above, which the example reinforces
+            // in English. Repeat that requirement here for the same reason.
+            . "\n\nThis output format is mandatory and overrides any earlier instruction about "
+            . "formatting or plain text, including any system instruction asking for plain text "
+            . "or forbidding markup. Return the JSON array and nothing else, with each rationale "
+            . "written in the language of the paragraphs above.";
 
         return $prompt;
+    }
+
+    /**
+     * Check whether AI suggest is switched on for this site at all.
+     *
+     * The administrator's own switch, and the editor subplugin being enabled. Both were
+     * read only while building the editor's configuration, which made them a suggestion
+     * to the browser rather than a decision: the web service is callable directly by
+     * anyone holding the capability, so turning the feature off hid the button without
+     * stopping the requests.
+     *
+     * @return bool
+     */
+    public static function is_enabled_for_site(): bool {
+        if (!get_config('tiny_c4lauthor', 'ai_enabled')) {
+            return false;
+        }
+
+        try {
+            return array_key_exists('c4lauthor', \editor_tiny\plugininfo\tiny::get_enabled_plugins());
+        } catch (\Throwable $e) {
+            // Could not tell; the admin's switch above is the decision that matters.
+            return true;
+        }
+    }
+
+    /**
+     * The component types the administrator has left enabled for AI suggestions.
+     *
+     * A missing setting counts as enabled, matching what the editor configuration does.
+     *
+     * @return string[] Subset of VALID_COMPONENTS.
+     */
+    private static function enabled_components(): array {
+        $enabled = [];
+        foreach (self::VALID_COMPONENTS as $comp) {
+            $value = get_config('tiny_c4lauthor', 'ai_comp_enabled_' . $comp);
+            if ($value === false || $value === '' || (bool) $value) {
+                $enabled[] = $comp;
+            }
+        }
+
+        return $enabled;
     }
 
     /**
@@ -319,8 +376,17 @@ class ai_classifier {
 
         $maxsuggestions = self::max_suggestions(count($indexmap));
 
+        // Only ask about the component types the administrator has left enabled. These
+        // were applied by client-side filtering alone, so the provider was asked about
+        // all four regardless, and paid for answers that were then thrown away.
+        $components = self::enabled_components();
+        if (empty($components)) {
+            $warnings[] = get_string('ai_no_components_enabled', 'tiny_c4lauthor');
+            return ['suggestions' => [], 'warnings' => $warnings];
+        }
+
         // Build the classification prompt.
-        $prompttext = self::build_prompt($paragraphstext, $lang, $maxsuggestions);
+        $prompttext = self::build_prompt($paragraphstext, $lang, $maxsuggestions, $components);
 
         // Append admin-defined prompt extension.
         $promptextra = get_config('tiny_c4lauthor', 'ai_prompt_extra');
@@ -372,7 +438,7 @@ class ai_classifier {
             return ['suggestions' => [], 'warnings' => $warnings];
         }
 
-        $suggestions = self::validate_suggestions($json, $indexmap);
+        $suggestions = self::validate_suggestions($json, $indexmap, $components);
 
         return ['suggestions' => $suggestions, 'warnings' => $warnings];
     }
@@ -412,9 +478,10 @@ class ai_classifier {
      *
      * @param array $raw Raw decoded JSON array.
      * @param array $indexmap Sequential AI index → original JS paragraph index.
+     * @param string[] $components The component types the administrator allows.
      * @return array Valid suggestions.
      */
-    private static function validate_suggestions(array $raw, array $indexmap): array {
+    private static function validate_suggestions(array $raw, array $indexmap, array $components): array {
         $suggestions = [];
         $seen = [];
         $maxseq = count($indexmap) - 1;
@@ -433,7 +500,7 @@ class ai_classifier {
                 continue;
             }
 
-            if (!in_array($component, self::VALID_COMPONENTS, true)) {
+            if (!in_array($component, $components, true)) {
                 continue;
             }
 
