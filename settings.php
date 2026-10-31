@@ -25,10 +25,10 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-// $settings is created for us by editor_tiny\plugininfo\tiny::load_settings(), already
-// named tiny_c4lauthor_settings, already requiring moodle/site:config, and already
-// marked hidden when this subplugin is disabled. It is added to the admin tree after
-// this file returns. Creating our own would throw all three of those away.
+// Core creates $settings for us in editor_tiny\plugininfo\tiny::load_settings(): already
+// named tiny_c4lauthor_settings, already requiring moodle/site:config, and already marked
+// hidden when this subplugin is disabled. It is added to the admin tree after this file
+// returns. Creating our own page here would throw all three of those away.
 
 if ($ADMIN->fulltree) {
     // General settings heading.
