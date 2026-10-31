@@ -1,5 +1,85 @@
 # Changelog
 
+## 1.3.0-beta
+
+### Security
+
+- The plugin wrote editor content into the page in four places without treating it as
+  untrusted: the precision preview's iframe was not sandboxed, the modal body was built
+  by interpolating the content into a `<textarea>`, and the AI cards rendered it
+  unescaped. It relied on the content having been cleaned before it arrived. On a
+  default site that held — Moodle cleans content on its way into an editor, and the
+  payloads tested did not survive that journey — but relying on the caller was the
+  wrong design. The preview iframe is now sandboxed without `allow-scripts`, the
+  textarea takes its content through `.value`, and the cards render text. No action is
+  needed beyond upgrading, and there is nothing to look for in existing content.
+- AI suggest called Moodle's AI subsystem directly, which bypassed the checks a core AI
+  placement makes: whether AI is enabled for the course and the activity, and whether
+  the user has accepted the site's AI policy. It now follows the same chain core uses,
+  and the policy dialog appears before the first analysis. Sites with AI switched off
+  for a course were still being offered the button there; they no longer are.
+- **Enable AI suggest**, and the four per-component toggles beside it, only decided
+  whether the browser drew the button. The web service never read them, so anyone
+  holding *Use AI suggestions* could call it directly and have course content sent to
+  the configured provider at the site's expense with the feature switched off. Both are
+  now enforced on the server, and the enabled component types shape the prompt.
+
+### Added
+
+- Three settings that bound one AI analysis: the number of paragraphs analysed, the
+  characters kept from a single paragraph, and the total characters sent. Previously a
+  long page went to the provider whole, so the cost of a click was unpredictable and a
+  large response could be cut short, which loses the whole analysis rather than its
+  tail. Defaults are 80 paragraphs, 1500 characters per paragraph and 40000 in total;
+  when a cap trims the document the user is told.
+- A declared dependency on `tiny_html`. The code view imports its CodeMirror module, so
+  it never worked on a site without that plugin, and now says so.
+
+### Changed
+
+- **AI suggest is off on new installs.** Existing sites keep whatever they have set.
+  Analysing content sends it to the provider configured for the site and uses its
+  credit, so it should be switched on deliberately. The button also stays hidden unless
+  the user holds *Use AI suggestions*, a provider offers text generation, and AI is
+  enabled for the course and activity.
+- An analysis asks for half as many suggestions as there are paragraphs, which is the
+  most the editor ever displayed. With the new defaults the worst case fell from 5012
+  input and 6601 output tokens to 3203 and 1761.
+- Internal error text no longer reaches the user. A failed provider response and a
+  caught exception were both shown verbatim, so people saw things like a PHP TypeError
+  from inside the provider. The message is now translated, and the detail goes to
+  developer debugging; core already records it for the administrator.
+- The suggest web service takes structured parameters instead of a JSON string, is
+  declared a write rather than a read, and no longer returns a preview field that
+  nothing read.
+- Component sample text, the sidebar toggle and the figure caption's *Source* label are
+  translatable. The figure's placeholder alt text is now *Describe the image here*
+  rather than lorem ipsum, which said nothing useful to a screen reader.
+- The settings page is the one core provides rather than a second page built over the
+  top of it, so the admin tree no longer lists this plugin twice. The section name is
+  unchanged.
+- `tiny/c4lauthor:viewplugin` is declared a read capability. It decides whether the
+  toolbar button is offered and nothing else.
+- The mobile app styles version in `db/mobile.php` was left behind when the stylesheets
+  were expanded, so devices that had cached the styles never received those changes.
+
+### Fixed
+
+- Inserting *statement*, *assessment* or *figure* while text was selected deleted that
+  text and left the component's own sample in its place.
+- Text that looks like a tag — `<array>`, `</div>` — was swallowed when a component was
+  applied to a selection, and when a learning outcomes component was unwrapped. The
+  unwrap also flattened bold, italics and links in each item.
+- Applying a variant from the toolbar wrote the literal text `{{#caption}}` into the
+  content, could not be undone, and could scroll the editor to the top of the document.
+- In precision mode, the figure's source field included the *Source:* label in the
+  editable value and dropped its markup on save.
+- A stored variant preference was overwritten with an empty one on the next save,
+  because the lookup behind it had been reading an undefined value since the variants
+  module stopped exporting it by name.
+- The estimated time, grading value and quote author labels lost their wrapper when the
+  content was saved, because an attribute-less span is unwrapped by the editor.
+
 ## 1.2.0-beta
 
 ### Added
