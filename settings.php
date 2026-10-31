@@ -25,9 +25,10 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$ADMIN->add('editortiny', new admin_category('tiny_c4lauthor', new lang_string('pluginname', 'tiny_c4lauthor')));
-
-$settings = new admin_settingpage('tiny_c4lauthor_settings', new lang_string('pluginname', 'tiny_c4lauthor'));
+// $settings is created for us by editor_tiny\plugininfo\tiny::load_settings(), already
+// named tiny_c4lauthor_settings, already requiring moodle/site:config, and already
+// marked hidden when this subplugin is disabled. It is added to the admin tree after
+// this file returns. Creating our own would throw all three of those away.
 
 if ($ADMIN->fulltree) {
     // General settings heading.
