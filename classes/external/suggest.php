@@ -68,7 +68,6 @@ class suggest extends external_api {
                     'targetindex' => new external_value(PARAM_INT, '0-based index'),
                     'confidence'  => new external_value(PARAM_FLOAT, '0..1'),
                     'rationale'   => new external_value(PARAM_TEXT, 'Short rationale'),
-                    'preview'     => new external_value(PARAM_RAW, 'Preview text'),
                 ])
             ),
             'warnings' => new external_multiple_structure(

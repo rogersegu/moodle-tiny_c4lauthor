@@ -308,7 +308,7 @@ class ai_classifier {
         }
         $paragraphstext = implode("\n", $numbered);
 
-        $maxsuggestions = self::max_suggestions(count($eligible));
+        $maxsuggestions = self::max_suggestions(count($indexmap));
 
         // Build the classification prompt.
         $prompttext = self::build_prompt($paragraphstext, $lang, $maxsuggestions);
@@ -363,7 +363,7 @@ class ai_classifier {
             return ['suggestions' => [], 'warnings' => $warnings];
         }
 
-        $suggestions = self::validate_suggestions($json, $eligible, $indexmap);
+        $suggestions = self::validate_suggestions($json, $indexmap);
 
         return ['suggestions' => $suggestions, 'warnings' => $warnings];
     }
@@ -402,11 +402,10 @@ class ai_classifier {
      * Validate and filter suggestions from the LLM response.
      *
      * @param array $raw Raw decoded JSON array.
-     * @param array $eligible Sequential-indexed texts (for preview).
      * @param array $indexmap Sequential AI index → original JS paragraph index.
      * @return array Valid suggestions.
      */
-    private static function validate_suggestions(array $raw, array $eligible, array $indexmap): array {
+    private static function validate_suggestions(array $raw, array $indexmap): array {
         $suggestions = [];
         $seen = [];
         $maxseq = count($indexmap) - 1;
@@ -449,16 +448,12 @@ class ai_classifier {
             }
             $seen[$key] = true;
 
-            $text = $eligible[$seqindex] ?? '';
-            $preview = mb_strlen($text) > 140 ? mb_substr($text, 0, 139) . '…' : $text;
-
             $suggestions[] = [
                 'component' => $component,
                 'targettype' => 'p',
                 'targetindex' => $origindex,
                 'confidence' => round($confidence, 2),
                 'rationale' => clean_param($rationale, PARAM_TEXT),
-                'preview' => $preview,
             ];
         }
 
@@ -466,7 +461,7 @@ class ai_classifier {
             return $b['confidence'] <=> $a['confidence'];
         });
 
-        return array_slice($suggestions, 0, self::max_suggestions(count($eligible)));
+        return array_slice($suggestions, 0, self::max_suggestions(count($indexmap)));
     }
 
     /**
