@@ -309,6 +309,21 @@ const getAllStrings = async() => {
 };
 
 /**
+ * Escape text so it survives being placed into an HTML string.
+ *
+ * Done through the DOM rather than by hand, so the set of characters that need
+ * escaping is the browser's problem and not ours.
+ *
+ * @param {string} text
+ * @returns {string}
+ */
+const escapeText = (text) => {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+};
+
+/**
  * Replace all localized {{#word}} tags with resolved strings.
  *
  * @param {string} text
@@ -366,8 +381,16 @@ const addCustomComponents = (customComponents) => {
  * @returns {string} Ready-to-insert HTML.
  */
 const processComponentCode = async(comp, selectedText) => {
-    let placeholder = selectedText || comp.text || '';
-    placeholder = applyLangStrings(placeholder);
+    // The template renders this with a triple stash, because a component's own
+    // sample text is markup on purpose — the AI-use ones are deliberately bold.
+    // The author's selection is not markup: it is plain text out of
+    // getContent({format: 'text'}), so anything tag-shaped in it ("<array>",
+    // "</div>") has to be escaped or the parser swallows it. Resolving lang
+    // strings belongs to our own templates too; the author's words should not
+    // have {{#key}} substituted in them.
+    const placeholder = selectedText
+        ? escapeText(selectedText)
+        : applyLangStrings(comp.text || '');
     const randomId = generateRandomID();
     const {html: spanHtml} = await Templates.renderForPromise('tiny_c4lauthor/placeholder_span', {
         id: randomId,
