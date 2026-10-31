@@ -34,7 +34,8 @@ $capabilities = [
         ],
     ],
     'tiny/c4lauthor:viewplugin' => [
-        'captype' => 'write',
+        // Read: it decides whether the toolbar button is offered, nothing more.
+        'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,
         'archetypes' => [
             'student' => CAP_ALLOW,
