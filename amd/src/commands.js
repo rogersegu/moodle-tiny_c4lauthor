@@ -58,6 +58,7 @@ import {
 } from './options';
 import Policy from 'core_ai/policy';
 import PolicyModal from 'core_ai/policymodal';
+import {getPolicyStatus as fetchPolicyStatus} from 'core_ai/repository';
 import CustomEvents from 'core/custom_interaction_events';
 import {loadVariantPreferences, saveVariantPreferences} from './variantslib';
 import Notification from 'core/notification';
@@ -831,8 +832,17 @@ export const getSetup = async() => {
                 policyModal.getModal().on(
                     CustomEvents.events.activate,
                     policyModal.getActionSelector('save'),
-                    () => {
-                        openAiView();
+                    async() => {
+                        // Core records the acceptance without waiting for the server, and
+                        // the suggest service checks it there, so wait until it is stored.
+                        for (let attempt = 0; attempt < 10; attempt++) {
+                            const {status} = await fetchPolicyStatus(userid);
+                            if (status) {
+                                openAiView();
+                                return;
+                            }
+                            await new Promise((resolve) => setTimeout(resolve, 300));
+                        }
                     }
                 );
                 return;
