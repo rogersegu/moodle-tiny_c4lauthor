@@ -24,313 +24,11 @@
 import {get_string as getString} from 'core/str';
 import {component} from './common';
 import {brandColourRule} from './brand';
+import {buildFieldRegistry} from './precise_handlers';
 import Templates from 'core/templates';
 
-// ── Shared apply/extract helpers for the registry ──
-
-const setTextContent = (el, val) => {
-    el.textContent = val;
-};
-
-const extractCaptionText = (comp) => extractDirectText(comp.querySelector('.c4l-embedded-caption'));
-const applyCaptionText = (comp, val) => applyDirectText(comp.querySelector('.c4l-embedded-caption'), val);
-
-/**
- * The fixed label estimatedtime and gradingvalue carry beside their value.
- *
- * It used to be an attribute-less span, which TinyMCE unwraps when the content
- * is saved, so content written by earlier versions has lost it. Look for the
- * class first and fall back to any span that is not the placeholder.
- *
- * @param {HTMLElement} comp - The component element.
- * @param {string} cls - The affix class to look for.
- * @returns {HTMLElement|null}
- */
-const findAffixSpan = (comp, cls) =>
-    comp.querySelector('span.' + cls) || comp.querySelector('span:not([data-id])');
-
-/**
- * Rebuild the affix span, keeping the class so the next save does not drop it.
- *
- * @param {Document} doc - Owner document of the component.
- * @param {string} cls - The affix class to set.
- * @param {string} text - Text content for the span.
- * @returns {HTMLElement}
- */
-const makeAffixSpan = (doc, cls, text) => {
-    const span = doc.createElement('span');
-    span.className = cls;
-    span.textContent = text;
-    return span;
-};
-
-/**
- * Field registry — maps component names to arrays of field descriptors.
- *
- * type: 'textarea' | 'input' | 'list' | 'image-src' | 'image-alt'
- * extract: custom function(compEl) => string (overrides default extraction)
- * apply: custom function(compEl, value) (overrides default apply)
- */
-const FIELD_REGISTRY = {
-    keyconcept: [
-        {selector: 'span[data-id]', label: 'precision_field_text', type: 'textarea', innerHTML: true, fallback: true},
-    ],
-    tip: [
-        {selector: 'span[data-id]', label: 'precision_field_text', type: 'textarea', innerHTML: true, fallback: true},
-    ],
-    reminder: [
-        {selector: 'span[data-id]', label: 'precision_field_text', type: 'textarea', innerHTML: true, fallback: true},
-    ],
-    attention: [
-        {selector: 'span[data-id]', label: 'precision_field_text', type: 'textarea', innerHTML: true, fallback: true},
-    ],
-    conceptreview: [
-        {selector: '.c4l-concept-review-title', label: 'precision_field_title', type: 'input'},
-        {selector: 'span[data-id]', label: 'precision_field_text', type: 'textarea', innerHTML: true, fallback: true},
-    ],
-    expectedfeedback: [
-        {selector: 'span[data-id]', label: 'precision_field_text', type: 'textarea', innerHTML: true, fallback: true},
-    ],
-    allpurposecard: [
-        {selector: 'span[data-id]', label: 'precision_field_text', type: 'textarea', innerHTML: true, fallback: true},
-    ],
-    proceduralcontext: [
-        {selector: null, label: 'precision_field_text', type: 'textarea',
-            extract: (comp) => comp.textContent,
-            apply: setTextContent},
-    ],
-    statement: [
-        {selector: '.task-statement p', label: 'precision_field_text', type: 'textarea'},
-    ],
-    assessment: [
-        {selector: '.teacher-assessment-text p', label: 'precision_field_text', type: 'textarea'},
-    ],
-    tag: [
-        {selector: null, label: 'precision_field_text', type: 'input',
-            extract: (comp) => comp.textContent.trim(),
-            apply: setTextContent},
-    ],
-    inlinetag: [
-        {selector: null, label: 'precision_field_text', type: 'input',
-            extract: (comp) => comp.textContent,
-            apply: setTextContent},
-    ],
-    duedate: [
-        {selector: null, label: 'precision_field_value', type: 'input',
-            extract: (comp) => comp.textContent.trim(),
-            apply: setTextContent},
-    ],
-    estimatedtime: [
-        {selector: null, label: 'precision_field_value', type: 'input',
-            extract: (comp) => {
-                const span = findAffixSpan(comp, 'c4l-estimatedtime-unit');
-                const suffix = span ? span.textContent : '';
-                const full = comp.textContent.trim();
-                return suffix ? full.replace(new RegExp('\\s*' + escapeRegExp(suffix) + '\\s*$'), '').trim() : full;
-            },
-            apply: (comp, val) => {
-                const span = findAffixSpan(comp, 'c4l-estimatedtime-unit');
-                const suffixText = span ? span.textContent : '';
-                const doc = comp.ownerDocument;
-                comp.innerHTML = '';
-                comp.appendChild(doc.createTextNode(val + ' '));
-                comp.appendChild(makeAffixSpan(doc, 'c4l-estimatedtime-unit', suffixText));
-            }},
-    ],
-    gradingvalue: [
-        {selector: null, label: 'precision_field_value', type: 'input',
-            extract: (comp) => {
-                const span = findAffixSpan(comp, 'c4l-gradingvalue-label');
-                const prefix = span ? span.textContent : '';
-                const full = comp.textContent.trim();
-                return prefix ? full.replace(new RegExp('^\\s*' + escapeRegExp(prefix) + '\\s*'), '').trim() : full;
-            },
-            apply: (comp, val) => {
-                const span = findAffixSpan(comp, 'c4l-gradingvalue-label');
-                const prefixText = span ? span.textContent : '';
-                const doc = comp.ownerDocument;
-                comp.innerHTML = '';
-                comp.appendChild(makeAffixSpan(doc, 'c4l-gradingvalue-label', prefixText));
-                comp.appendChild(doc.createTextNode(val));
-            }},
-    ],
-    aiuseallowed: [
-        {selector: null, label: 'precision_field_text', type: 'input',
-            extract: (comp) => comp.textContent.trim(),
-            apply: setTextContent},
-    ],
-    aiusenotallowed: [
-        {selector: null, label: 'precision_field_text', type: 'input',
-            extract: (comp) => comp.textContent.trim(),
-            apply: setTextContent},
-    ],
-    aiusereported: [
-        {selector: null, label: 'precision_field_text', type: 'input',
-            extract: (comp) => comp.textContent.trim(),
-            apply: setTextContent},
-    ],
-    quote: [
-        {selector: '.c4l-quote-text p', label: 'precision_field_text', type: 'textarea'},
-        {selector: '.c4l-embedded-caption span', label: 'precision_field_author', type: 'input', optional: true},
-        {selector: '.c4l-embedded-caption', label: 'precision_field_source', type: 'input', optional: true,
-            extract: extractCaptionText,
-            apply: applyCaptionText},
-    ],
-    readingcontext: [
-        {selector: 'p', label: 'precision_field_text', type: 'textarea'},
-        {selector: '.c4l-embedded-caption span', label: 'precision_field_author', type: 'input', optional: true},
-        {selector: '.c4l-embedded-caption', label: 'precision_field_source', type: 'input', optional: true,
-            extract: extractCaptionText,
-            apply: applyCaptionText},
-    ],
-    example: [
-        {selector: 'h1', label: 'precision_field_title', type: 'input'},
-        {selector: 'p', label: 'precision_field_text', type: 'textarea'},
-    ],
-    dodontcards: [
-        {selector: '.c4l-dodontcards-do', label: 'precision_field_do', type: 'textarea'},
-        {selector: '.c4l-dodontcards-dont', label: 'precision_field_dont', type: 'textarea'},
-    ],
-    learningoutcomes: [
-        {selector: '.c4l-learningoutcomes-title', label: 'precision_field_title', type: 'input'},
-        {selector: '.c4l-learningoutcomes-list > li:not(.c4l-learningoutcomes-title)',
-            label: 'precision_field_item', type: 'list'},
-    ],
-    furtherreading: [
-        {selector: '.c4l-further-reading-title', label: 'precision_field_title', type: 'input'},
-        {selector: '.c4l-furtherreading-list > li:not(.c4l-further-reading-title)',
-            label: 'precision_field_item', type: 'list'},
-    ],
-    figure: [
-        {selector: 'img', label: 'precision_field_image_alt', type: 'image-alt'},
-        {selector: '.c4l-figure-footer', label: 'precision_field_caption', type: 'input', optional: true},
-        {selector: '.c4l-figure-caption', label: 'precision_field_source', type: 'input', optional: true,
-            // "Source:" is a fixed label, not part of the source the author types.
-            // Default handling would show it inside the field and then destroy the
-            // <strong> on save, the same trap gradingvalue already works around.
-            extract: (comp) => {
-                const el = comp.querySelector('.c4l-figure-caption');
-                if (!el) {
-                    return '';
-                }
-                const labelEl = el.querySelector('.c4l-figure-source-label');
-                const label = labelEl ? labelEl.textContent : '';
-                const full = el.textContent.trim();
-                return label
-                    ? full.replace(new RegExp('^\\s*' + escapeRegExp(label.trim()) + '\\s*'), '').trim()
-                    : full;
-            },
-            apply: (comp, val) => {
-                const el = comp.querySelector('.c4l-figure-caption');
-                if (!el) {
-                    return;
-                }
-                const labelEl = el.querySelector('.c4l-figure-source-label');
-                const labelText = labelEl ? labelEl.textContent : '';
-                const doc = el.ownerDocument;
-                el.innerHTML = '';
-                if (labelText !== '') {
-                    const strong = doc.createElement('strong');
-                    strong.className = 'c4l-figure-source-label';
-                    strong.textContent = labelText;
-                    el.appendChild(strong);
-                }
-                el.appendChild(doc.createTextNode(val));
-            }},
-    ],
-    panellist: [
-        {selector: 'li', label: 'precision_field_item', type: 'list'},
-    ],
-    timeline: [
-        {selector: '.c4l-timeline-event',
-            label: 'precision_field_event', type: 'list',
-            subfields: [
-                {key: 'year', selector: '.c4l-timeline-year', type: 'input',
-                    label: 'precision_field_year'},
-                {key: 'text', selector: '.c4l-timeline-text', type: 'textarea',
-                    label: 'precision_field_text'},
-            ],
-            apply: (compEl, values) => {
-                const doc = compEl.ownerDocument;
-                const eventsContainer = compEl.querySelector('.c4l-timeline-events');
-                if (!eventsContainer) {
-                    return;
-                }
-                const existing = [...compEl.querySelectorAll('.c4l-timeline-event')];
-                values.forEach((row, i) => {
-                    let ev = existing[i];
-                    if (!ev) {
-                        ev = doc.createElement('div');
-                        ev.className = 'c4l-timeline-event';
-                        const pill = doc.createElement('div');
-                        pill.className = 'c4l-timeline-pill';
-                        const marker = doc.createElement('div');
-                        marker.className = 'c4l-timeline-marker';
-                        marker.setAttribute('contenteditable', 'false');
-                        const yearSpan = doc.createElement('span');
-                        yearSpan.className = 'c4l-timeline-year';
-                        pill.appendChild(marker);
-                        pill.appendChild(yearSpan);
-                        ev.appendChild(pill);
-                        const textP = doc.createElement('p');
-                        textP.className = 'c4l-timeline-text';
-                        ev.appendChild(textP);
-                        eventsContainer.appendChild(ev);
-                    }
-                    const yearEl = ev.querySelector('.c4l-timeline-year');
-                    if (yearEl) {
-                        yearEl.textContent = row.year || '';
-                    }
-                    const textEl = ev.querySelector('.c4l-timeline-text');
-                    if (textEl) {
-                        textEl.textContent = row.text || '';
-                    }
-                });
-                for (let i = values.length; i < existing.length; i++) {
-                    existing[i].remove();
-                }
-            }},
-    ],
-};
-
-/**
- * Extract only direct text nodes from an element (skip child elements).
- *
- * @param {HTMLElement} el
- * @returns {string}
- */
-const extractDirectText = (el) => {
-    if (!el) {
-        return '';
-    }
-    let text = '';
-    for (const child of el.childNodes) {
-        if (child.nodeType === 3) {
-            text += child.textContent;
-        }
-    }
-    return text.trim();
-};
-
-/**
- * Replace direct text nodes in an element.
- *
- * @param {HTMLElement} el
- * @param {string} val
- */
-const applyDirectText = (el, val) => {
-    if (!el) {
-        return;
-    }
-    const toRemove = [];
-    for (const child of el.childNodes) {
-        if (child.nodeType === 3) {
-            toRemove.push(child);
-        }
-    }
-    toRemove.forEach((n) => n.remove());
-    el.appendChild(el.ownerDocument.createTextNode(val));
-};
+/** @type {Object} Field descriptors by component name, built from the declarations on mount. */
+let fieldRegistry = {};
 
 // ── Component identification ──
 
@@ -351,11 +49,11 @@ const identifyComponent = (el) => {
     }
     // Fallback for components that use the legacy `c4l-` wrapper prefix
     // (e.g. statement, assessment). Only match when the name corresponds to
-    // an entry in FIELD_REGISTRY so we don't pick up utility classes.
+    // an entry in fieldRegistry so we don't pick up utility classes.
     for (const cls of el.classList) {
         if (cls.startsWith('c4l-')) {
             const name = cls.substring(4);
-            if (FIELD_REGISTRY[name]) {
+            if (fieldRegistry[name]) {
                 return name;
             }
         }
@@ -408,7 +106,7 @@ const getStandardValue = (el, desc) => {
  * @returns {Array<{descriptor: Object, value: string, values?: Array, elements: NodeList|Array}>}
  */
 const extractFields = (compEl, compName) => {
-    const registry = FIELD_REGISTRY[compName];
+    const registry = fieldRegistry[compName];
     if (!registry) {
         return [];
     }
@@ -562,8 +260,6 @@ const autoResizeAll = (panel) => {
  * @param {string} str
  * @returns {string}
  */
-const escapeRegExp = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
 const escapeAttr = (str) => {
     return str.replace(/&/g, '&amp;').replace(/"/g, '&quot;')
         .replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -851,9 +547,12 @@ const wireListButtons = (formPanel, strings, onFieldInput, fields) => {
  * @param {Function} handlers.getEditorContent — returns innerHTML from inner editor
  * @param {Function} handlers.setEditorContent — writes HTML back to inner editor
  * @param {Function} handlers.getContentCss — returns array of CSS URLs
+ * @param {Object} catalogue — the components the editor offers, from registry.createCatalogue()
  * @returns {Promise<{destroy: Function}>}
  */
-export const mountPreciseView = async(container, handlers) => {
+export const mountPreciseView = async(container, handlers, catalogue) => {
+    fieldRegistry = buildFieldRegistry(catalogue.components);
+
     const templateHtml = await Templates.render('tiny_c4lauthor/precision_mode', {});
     container.innerHTML = templateHtml;
 
@@ -861,27 +560,14 @@ export const mountPreciseView = async(container, handlers) => {
     const formPanel = container.querySelector('.tiny_c4lauthor__precision-form');
     const placeholder = container.querySelector('.tiny_c4lauthor__precision-placeholder');
 
-    // Resolve needed lang strings — collect every label used in the registry
-    // plus the few UI strings the form needs (add/remove item).
-    const stringKeySet = new Set(['precision_add_item', 'precision_remove_item']);
-    Object.values(FIELD_REGISTRY).forEach((fields) => {
-        fields.forEach((field) => {
-            if (field.label) {
-                stringKeySet.add(field.label);
-            }
-            if (field.subfields) {
-                field.subfields.forEach((sf) => {
-                    if (sf.label) {
-                        stringKeySet.add(sf.label);
-                    }
-                });
-            }
-        });
-    });
-    const stringKeys = Array.from(stringKeySet);
-    const resolved = await Promise.all(stringKeys.map((k) => getString(k, component)));
-    const strings = new Map();
-    stringKeys.forEach((k, i) => strings.set(k, resolved[i]));
+    // The field labels come with the declarations; the form adds the add/remove item strings.
+    const [addItemStr, removeItemStr] = await Promise.all([
+        getString('precision_add_item', component),
+        getString('precision_remove_item', component),
+    ]);
+    const strings = new Map(catalogue.strings);
+    strings.set('precision_add_item', addItemStr);
+    strings.set('precision_remove_item', removeItemStr);
 
     const editorHtml = handlers.getEditorContent();
     const cssUrls = handlers.getContentCss();
@@ -948,7 +634,7 @@ export const mountPreciseView = async(container, handlers) => {
         }
 
         const compName = identifyComponent(compEl);
-        if (!compName || !FIELD_REGISTRY[compName]) {
+        if (!compName || !fieldRegistry[compName]) {
             clearForm();
             return;
         }
