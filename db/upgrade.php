@@ -29,7 +29,7 @@
  * @return bool
  */
 function xmldb_tiny_c4lauthor_upgrade($oldversion) {
-    if ($oldversion < 2026100904) {
+    if ($oldversion < 2026110400) {
         // The student settings now list every component. Record the ones they listed before
         // as seen, so that the components new to the lists show with their defaults.
         if (get_config('tiny_c4lauthor', 'studentcomponentsknown') === false) {
@@ -40,7 +40,7 @@ function xmldb_tiny_c4lauthor_upgrade($oldversion) {
             ];
             set_config('studentcomponentsknown', implode(',', $known), 'tiny_c4lauthor');
         }
-        upgrade_plugin_savepoint(true, 2026100904, 'tiny', 'c4lauthor');
+        upgrade_plugin_savepoint(true, 2026110400, 'tiny', 'c4lauthor');
     }
 
     return true;

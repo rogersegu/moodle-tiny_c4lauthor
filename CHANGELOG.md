@@ -1,5 +1,63 @@
 # Changelog
 
+## 1.4.0-beta
+
+Contributed by bdecent.
+
+### Security
+
+- The plugin loads only for users who hold both `tiny/c4lauthor:use` and
+  `tiny/c4lauthor:viewplugin`. `use` was never checked, and `viewplugin` only hid the
+  button in JavaScript.
+- A new capability, `tiny/c4lauthor:useallcomponents`, decides which components the
+  sidebar offers, with the same default roles, instead of a guess from
+  `gradereport/grader:view`. It steers authoring and is not access control.
+- Admin custom component HTML is cleaned with `clean_text()`. `format_text()` also ran
+  filters over it.
+- File serving matches the plugin's own file areas exactly and returns false for
+  anything else.
+- Uninstalling removes the plugin's user preference.
+
+### Added
+
+- Panel list and timeline, contributed by bdecent from the eduHub project. Panel list is
+  numbered or with checkmarks, optionally compact or full width. Timeline has events
+  with a year and a text, optionally full width or split, with continuity marks;
+  precision mode edits each event.
+- Variants can form groups (exactly one active) and exclude others. A component can
+  declare its own wrapper class instead of a `c4lv-` one.
+- Brand colour tokens (`--c4l-brand` and its tints) that follow the site's primary
+  colour, also inside the editor, with dark-mode values.
+- Other plugins can add components and editor stylesheets through a new hook,
+  `\tiny_c4lauthor\hook\extend_components`, without changing C4L Author. Their
+  components use their own templates, strings and icons, appear under a *Templates*
+  category, work with variants and precision mode, and can insert what an AMD module of
+  theirs returns. Their labels and docs are shown as text.
+- Documentation in `docs/`, for teachers, administrators and developers. On a site with
+  the Documentation Center (`tool_mdocs`) it appears in Moodle itself.
+- PHPUnit and Behat tests, and CI for Moodle 4.5 to 5.3.
+
+### Changed
+
+- Components are declared in `db/components.php` and their markup lives in Mustache
+  templates (`templates/components/`), instead of in JavaScript. The editor fetches the
+  declarations through a new web service, `tiny_c4lauthor_get_components`. The inserted
+  markup is unchanged; a test compares every component with the markup 1.3.0-beta
+  inserted.
+- Precision mode reads its fields from the declarations. Fields that need custom code
+  name a handler in `precise_handlers.js`.
+- `commands.js` is split into modules: the convert menu, the sidebar, the variant
+  toolbar, the dropdown, the icons and the component markup each have their own.
+- The two student settings list every component, including added ones, and each
+  component declares whether it is aimed at students. Saved choices stay as they are.
+  Components that were in neither list are listed as not intended for students, so
+  students still do not get them until an admin ticks them.
+
+### Fixed
+
+- The first analysis after accepting the AI policy could be refused, because core does
+  not wait for the server to store the acceptance. It now waits.
+
 ## 1.3.0-beta
 
 ### Security
