@@ -42,6 +42,25 @@ class plugininfo extends plugin implements plugin_with_buttons, plugin_with_conf
     }
 
     /**
+     * Whether the plugin is available to the current user in this context.
+     *
+     * @param context $context The context.
+     * @param array $options Options for the editor.
+     * @param array $fpoptions File picker options.
+     * @param ?\editor_tiny\editor $editor The editor instance.
+     * @return bool
+     */
+    public static function is_enabled(
+        context $context,
+        array $options,
+        array $fpoptions,
+        ?\editor_tiny\editor $editor = null
+    ): bool {
+        return has_capability('tiny/c4lauthor:use', $context)
+            && has_capability('tiny/c4lauthor:viewplugin', $context);
+    }
+
+    /**
      * Return the plugin configuration for the given context.
      *
      * @param context $context The context.
@@ -63,7 +82,10 @@ class plugininfo extends plugin implements plugin_with_buttons, plugin_with_conf
         $showoverlay = $config->showoverlay ?? '';
         $viewc4l = has_capability('tiny/c4lauthor:viewplugin', $context);
         $showdocs = isset($config->enabledocs) && $config->enabledocs !== '' ? (bool) $config->enabledocs : false;
-        $isstudent = !has_capability('gradereport/grader:view', $context);
+        // Users without useallcomponents only see the components listed for students.
+        // This steers authoring; it is not access control, since components are plain HTML
+        // that anyone can also write in the code view.
+        $isstudent = !has_capability('tiny/c4lauthor:useallcomponents', $context);
 
         $allowedcomps = [];
         if ($isstudent) {
@@ -198,8 +220,8 @@ class plugininfo extends plugin implements plugin_with_buttons, plugin_with_conf
                         $html
                     );
 
-                    // Clean HTML code.
-                    $html = format_text($html, FORMAT_HTML);
+                    // Clean HTML code. clean_text() only sanitises; format_text() would also run filters.
+                    $html = clean_text($html, FORMAT_HTML);
                     $html = preg_replace('/ style=("|\')(.*?)("|\')/', '', $html);
 
                     // Restore {}.
