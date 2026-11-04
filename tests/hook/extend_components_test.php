@@ -152,7 +152,7 @@ final class extend_components_test extends \advanced_testcase {
 
         $components = components::get_components();
         $this->assertDebuggingCalled();
-        $this->assertCount(27, $components);
+        $this->assertCount(28, $components);
         $this->assertSame('tiny_c4lauthor', $components['tip']['component']);
     }
 
@@ -180,7 +180,7 @@ final class extend_components_test extends \advanced_testcase {
 
         $components = components::get_components();
         $this->assertDebuggingCalled();
-        $this->assertCount(27, $components);
+        $this->assertCount(28, $components);
     }
 
     /**

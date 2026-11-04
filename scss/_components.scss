@@ -1343,3 +1343,124 @@ $panellist-checkmark-svg: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3
     margin-left: 0;
 }
 
+/* Combo */
+.c4l-spacer + .c4l-combo {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.c4l-combo {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    grid-gap: 20px;
+    align-items: stretch;
+    margin-top: 24px;
+    margin-bottom: 24px;
+
+    .text {
+        background: var(--c4l-combo-bg);
+        border-radius: 16px;
+        padding: 48px;
+    }
+
+    .text h2,
+    .text h3,
+    .text h4 {
+        margin-bottom: 22px;
+        color: var(--c4l-combo-title);
+        font-size: 30px;
+        font-weight: 600;
+        letter-spacing: -0.3px;
+    }
+
+    .text p {
+        color: var(--c4l-text);
+        font-size: 17px;
+        line-height: 1.5;
+    }
+
+    .text ul {
+        margin: 0;
+        padding-left: 0;
+        list-style: none;
+    }
+
+    .text ul li {
+        position: relative;
+        margin-bottom: 12px;
+        padding-left: 27px;
+        font-size: 17px;
+        line-height: 1.5;
+    }
+
+    .text ul li:last-child {
+        margin-bottom: 0;
+    }
+
+    .text ul li::before {
+        @include c4l-mask(url([[pix:tiny_c4lauthor|c4l-combo-bullet]]), 9px, 11px, var(--c4l-combo-bullet));
+        position: absolute;
+        top: 7px;
+        left: 0;
+    }
+
+    .image {
+        position: relative;
+        min-height: 200px;
+    }
+
+    img {
+        position: absolute !important;
+        top: 0;
+        left: 0;
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover;
+        object-position: 50% 50%;
+        border-radius: 16px;
+        &:not([src]),
+        &[src=""] {
+            position: static;
+            content: var(--c4l-figure-placeholder);
+        }
+    }
+}
+
+.c4l-combo .c4l-leading-text {
+    font-weight: 400;
+    font-size: 18px;
+    color: var(--c4l-combo-lead);
+    margin-bottom: 24px;
+    line-height: 1.4;
+}
+
+.c4l-combo.c4l-text-image-variant .text {
+    order: 1;
+}
+
+.c4l-combo.c4l-text-image-variant .image {
+    order: 2;
+}
+
+.c4l-combo.c4l-image-text-variant .text {
+    order: 2;
+}
+
+.c4l-combo.c4l-image-text-variant .image {
+    order: 1;
+}
+
+@media (max-width: 399.98px) {
+    .c4l-combo .text {
+        padding: 24px;
+    }
+}
+
+@media (min-width: 630px) {
+    .c4l-combo,
+    .c4l-combo.c4l-text-image-variant,
+    .c4l-combo.c4l-image-text-variant {
+        grid-template-columns: 1fr 1fr;
+    }
+}

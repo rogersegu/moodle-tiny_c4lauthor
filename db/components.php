@@ -720,6 +720,37 @@ $components = [
             ],
         ],
     ],
+    'combo' => [
+        'id' => 48,
+        'category' => 'helper',
+        'template' => 'tiny_c4lauthor/components/combo',
+        'iconclass' => 'c4l-combo-icon',
+        'menuicon' => 'c4l-combo-icon',
+        'wrapperclass' => 'c4l-combo',
+        'text' => 'Lorem ipsum dolor sit amet.',
+        'docs' => [
+            'description' => 'docs_combo_desc',
+            'usecases' => [],
+        ],
+        'variants' => ['text-image', 'image-text'],
+        'precision' => [
+            [
+                'selector' => '.text p',
+                'label' => 'precision_field_text',
+                'type' => 'textarea',
+            ],
+            [
+                'selector' => '.text li',
+                'label' => 'precision_field_item',
+                'type' => 'list',
+            ],
+            [
+                'selector' => 'img',
+                'label' => 'precision_field_image_alt',
+                'type' => 'image-alt',
+            ],
+        ],
+    ],
 ];
 
 $variants = [
@@ -773,5 +804,13 @@ $variants = [
     ],
     'compact' => [
         'id' => 22,
+    ],
+    'text-image' => [
+        'id' => 15,
+        'group' => 'combo-layout',
+    ],
+    'image-text' => [
+        'id' => 16,
+        'group' => 'combo-layout',
     ],
 ];
