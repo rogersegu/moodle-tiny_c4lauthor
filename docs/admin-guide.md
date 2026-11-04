@@ -2,6 +2,7 @@
 audience: admin
 pagetypes:
   - admin-setting-tiny_c4lauthor_settings
+  - admin-lib-editor-tiny-plugins-c4lauthor-*
   - lib-editor-tiny-plugins-c4lauthor-*
 ---
 
@@ -90,15 +91,30 @@ that anyone can also write in the code view.
 
 For forum posts, untrusted users and sites with `forceclean`, Moodle removes `role`,
 `aria-*`, `data-*` and `<button>` from content. Components are recognised by their
-classes, which stay.
+classes, which stay. Tabs, carousels and collapsibles get their buttons and ARIA
+attributes from a script on the page, so they keep working in cleaned content.
+
+That script loads on every page and does nothing where these components are absent.
 
 ## The Moodle app
 
-The app uses its own stylesheet, `mobileapp/styles.css`.
+The app uses its own stylesheet, `mobileapp/styles.css`. Tabs, carousels and collapsibles
+show all their content there, one after the other.
 
 ## Before you uninstall
 
-Uninstalling takes the styles with it. Content stays in your courses, but it loses its
-look.
+Uninstalling takes the styles and the page script with it. Content stays in your courses,
+but it loses its look, and tabs, carousels and collapsibles stop switching.
+
+To avoid that, copy both into your site first, from *Site administration > Plugins > Text
+editors > TinyMCE editor > C4L Author standalone fallback*:
+
+1. Paste the **styles** into your theme's Raw SCSS, which serves them as a cached
+   stylesheet.
+2. Add the **script** to *Additional HTML*, before BODY is closed.
+3. Uninstall C4L Author.
+
+The script needs no Moodle JavaScript, and it carries its strings in the site's language
+as of when you copied it.
 
 Uninstalling removes the plugin's user preference.

@@ -17,6 +17,8 @@ plugin.
 | Modal | `amd/src/commands.js` | The editor modal and its views. |
 | Editor modules | `amd/src/sidebar.js`, `variant_toolbar.js`, `convert.js`, `dropdown.js`, `icons.js`, `component_html.js` | One job each. |
 | Precision mode | `amd/src/precise_ui.js`, `precise_handlers.js` | Reads its fields from the declarations. |
+| Page behaviour | `amd/src/runtime.js` | Tabs, carousel and collapsible on the page. |
+| Editor behaviour | `amd/src/editor_widgets.js` | The same three inside the editor. |
 | Extension hook | `\tiny_c4lauthor\hook\extend_components` | How other plugins add components. |
 
 ## Adding a component
@@ -42,6 +44,24 @@ Changing a component's markup means updating its fixtures in the same commit.
 `students => true` offers a component to students by default. The two student
 settings list every component; one an admin has not seen there yet counts with its
 default.
+
+## Tabs, carousel and collapsible
+
+These helpers are plain markup recognised by their classes, so they survive Moodle's
+HTML cleaning (which removes `<button>`, `role`, `aria-*` and `data-*` for untrusted
+content) and work with Bootstrap 4 and 5 alike. Without JavaScript, and in the Moodle
+app, every tab, slide and collapsible content is shown. On the page,
+`amd/src/runtime.js` adds the buttons, the ARIA attributes and the behaviour; a hook
+callback loads it on every page, and it does nothing where these helpers are absent.
+
+The runtime also reads earlier Bootstrap-based markup of these components and turns it
+into this markup when the page loads, so content made with it keeps working. A link block
+with the earlier markup keeps its address only in its text; the runtime copies it into the
+link only if it is an http, https or mailto address.
+
+In the C4L Author editor, `amd/src/editor_widgets.js` shows one tab or slide at a time,
+with controls to switch, add and delete them and to add an image to a slide. The
+controls are never saved.
 
 ## Adding components from another plugin
 
@@ -74,6 +94,7 @@ public static function extend_c4lauthor(\tiny_c4lauthor\hook\extend_components $
         'students' => false,
     ]);
     $hook->add_editor_stylesheet(new \moodle_url('/local/example/editor.css'));
+    $hook->add_page_module('local_example/runtime');
 }
 ```
 
@@ -86,7 +107,9 @@ C4L Author. Its label and documentation strings are shown as text, without marku
 message.
 
 The plugin's `styles.css` styles the component on the page. The editor's content does
-not load it, so add the same rules as an editor stylesheet.
+not load it, so add the same rules as an editor stylesheet. A page module's `init()`
+runs on every page, for components that need behaviour, like tabs; it should return
+quickly where its components are absent.
 
 Instead of its template, a component can insert what an AMD module of the plugin
 returns, for example after the teacher has picked something:
@@ -105,14 +128,22 @@ export const insert = async({editor, component, selectedText, render}) => {
 The components can be filtered by the hook's `context`, the context of the editor.
 The hook is called on every page with an editor, so keep the callback cheap.
 
+## Standalone fallback files
+
+`dist/` holds the styles and the script the standalone fallback page offers. Both are
+built by `node tools/build-standalone.mjs`, from the plugin directory: the styles from
+`scss/standalone.scss` (content only, icons inlined once each), the script from
+`amd/src/runtime.js`. CI fails when `dist/` does not match the sources, so run the script
+after changing either, and commit the result.
+
 ## Tests
 
 - `tests/local/components_test.php` checks the declarations and compares every component
   byte for byte with `tests/fixtures/components/`.
 - `tests/hook/extend_components_test.php` covers what other plugins can add.
 - `tests/external/` covers the web services, including the gates and limits of AI suggest.
-- `tests/behat/` covers the modal, inserting components, precision mode, and stored scripts
-  staying inert.
+- `tests/behat/` covers the modal, inserting components, precision mode, the interactive
+  components, stored scripts staying inert, and the standalone fallback page.
 
 CI runs on pull requests and on pushes to `main`, for Moodle 4.5 to 5.3. Opening the modal
 and inserting a component are tracked with `core/pending` so Behat waits for them. Keep
@@ -124,6 +155,8 @@ that when changing the modal, or the tests become flaky.
   reach the top document as markup.
 - `mobileapp/styles.css` is maintained by hand. A change to a helper's SCSS needs the same
   change there, and a new `version` in `db/mobile.php`, because the app caches by it.
+- New editor controls follow the pattern in `editor_widgets.js`: editor-only elements
+  (`data-mce-bogus`), and any tracking attributes removed before saving.
 - Moodle's cleaning removes `role`, `aria-*`, `data-*` and `<button>` from some content, so
   a component must be recognisable from its classes alone.
 - Moodle 4.5 has Bootstrap 4 and `--primary`; 5.x has Bootstrap 5 and `--bs-primary`. The

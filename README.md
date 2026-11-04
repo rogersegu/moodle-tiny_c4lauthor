@@ -119,6 +119,9 @@ npm install
 npm run sass
 ```
 
+The standalone fallback in `dist/` is built from the plugin directory with
+`node tools/build-standalone.mjs`.
+
 JavaScript is built with Moodle's own Grunt setup, from the Moodle root:
 
 ```sh
@@ -136,7 +139,7 @@ Note that Moodle pins Node to `>=22.11.0 <23`; a newer Node will fail the instal
 
 ## Icons
 
-Icons authored by Roger Segú, except for the following, licensed under Creative Commons CCBY: [Glasses](https://thenounproject.com/icon/70907/) by Austin Condiff, [Estimate](https://thenounproject.com/icon/1061038/) by xwoodhillx, [Quote](https://thenounproject.com/icon/77920/) by Rohith M S, [Pin](https://thenounproject.com/icon/689105/) by Icons fest, [Bulb](https://thenounproject.com/icon/1175583/) by Adrien Coquet, [Date](https://thenounproject.com/icon/1272092/) by Karan, [Success](https://thenounproject.com/icon/3405499/) by Alice Design, [Clock](https://thenounproject.com/icon/2310543/) by Aybige, [Feedback](https://thenounproject.com/icon/651868/) by dilayorganci, [Star](https://thenounproject.com/icon/1368720/) by Zaff Studio, [Tag](https://thenounproject.com/icon/938953/) by Ananth, Redo and Book Open by [Unicons](https://github.com/Iconscout/unicons).
+Icons authored by Roger Segú, except for the following, licensed under Creative Commons CCBY: [Glasses](https://thenounproject.com/icon/70907/) by Austin Condiff, [Estimate](https://thenounproject.com/icon/1061038/) by xwoodhillx, [Quote](https://thenounproject.com/icon/77920/) by Rohith M S, [Pin](https://thenounproject.com/icon/689105/) by Icons fest, [Bulb](https://thenounproject.com/icon/1175583/) by Adrien Coquet, [Date](https://thenounproject.com/icon/1272092/) by Karan, [Success](https://thenounproject.com/icon/3405499/) by Alice Design, [Clock](https://thenounproject.com/icon/2310543/) by Aybige, [Feedback](https://thenounproject.com/icon/651868/) by dilayorganci, [Star](https://thenounproject.com/icon/1368720/) by Zaff Studio, [Tag](https://thenounproject.com/icon/938953/) by Ananth, Redo, Book Open and Check circle by [Unicons](https://github.com/Iconscout/unicons), Clipboard, External link, Arrow right, Combo (derived), Tabs (derived), Styled table (derived), Carousel (derived), and Dropdown (derived) by [Feather icons](https://feathericons.com/).
 
 ## Related projects
 

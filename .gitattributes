@@ -14,6 +14,9 @@
 scss/                                       export-ignore
 package.json                                export-ignore
 
+# The build of dist/, which the standalone fallback page reads. dist/ itself ships.
+tools/                                      export-ignore
+
 *.css.map                                   export-ignore
 *.min.js.map                                export-ignore
 .DS_Store                                   export-ignore

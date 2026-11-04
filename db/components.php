@@ -720,6 +720,149 @@ $components = [
             ],
         ],
     ],
+    'combo' => [
+        'id' => 48,
+        'category' => 'helper',
+        'template' => 'tiny_c4lauthor/components/combo',
+        'iconclass' => 'c4l-combo-icon',
+        'menuicon' => 'c4l-combo-icon',
+        'wrapperclass' => 'c4l-combo',
+        'text' => 'Lorem ipsum dolor sit amet.',
+        'docs' => [
+            'description' => 'docs_combo_desc',
+            'usecases' => [],
+        ],
+        'variants' => ['text-image', 'image-text'],
+        'precision' => [
+            [
+                'selector' => '.text p',
+                'label' => 'precision_field_text',
+                'type' => 'textarea',
+            ],
+            [
+                'selector' => '.text li',
+                'label' => 'precision_field_item',
+                'type' => 'list',
+            ],
+            [
+                'selector' => 'img',
+                'label' => 'precision_field_image_alt',
+                'type' => 'image-alt',
+            ],
+        ],
+    ],
+    'styledlist' => [
+        'id' => 54,
+        'category' => 'helper',
+        'template' => 'tiny_c4lauthor/components/styledlist',
+        'iconclass' => 'c4l-styledlist-icon',
+        'menuicon' => 'c4l-styledlist-icon',
+        'text' => 'Curabitur gravida est ultrices quam.',
+        'docs' => [
+            'description' => 'docs_styledlist_desc',
+            'usecases' => [],
+        ],
+        'variants' => ['checkmarks', 'chevrons'],
+        'precision' => [
+            [
+                'selector' => ':scope > li',
+                'label' => 'precision_field_item',
+                'type' => 'list',
+            ],
+        ],
+    ],
+    'linkblock' => [
+        'id' => 40,
+        'category' => 'helper',
+        'template' => 'tiny_c4lauthor/components/linkblock',
+        'iconclass' => 'c4l-linkblock-icon',
+        'menuicon' => 'c4l-linkblock-icon',
+        'wrapperclass' => 'c4l-linkblock',
+        'text' => '{{#linkblock_name}}',
+        'docs' => [
+            'description' => 'docs_linkblock_desc',
+            'usecases' => [],
+        ],
+        'variants' => [],
+        'precision' => [
+            [
+                'selector' => '.link-name',
+                'label' => 'precision_field_text',
+                'type' => 'input',
+            ],
+            [
+                'selector' => '.link-url',
+                'label' => 'precision_field_url',
+                'type' => 'input',
+                'handler' => 'linkurl',
+            ],
+        ],
+    ],
+    'tabs' => [
+        'id' => 41,
+        'category' => 'helper',
+        'template' => 'tiny_c4lauthor/components/tabs',
+        'iconclass' => 'c4l-tabs-icon',
+        'menuicon' => 'c4l-tabs-icon',
+        'text' => '{{#tab_content}} 1.',
+        'docs' => [
+            'description' => 'docs_tabs_desc',
+            'usecases' => [],
+        ],
+        'variants' => [],
+    ],
+    'carousel' => [
+        'id' => 44,
+        'category' => 'helper',
+        'template' => 'tiny_c4lauthor/components/carousel',
+        'iconclass' => 'c4l-carousel-icon',
+        'menuicon' => 'c4l-carousel-icon',
+        'text' => '',
+        'docs' => [
+            'description' => 'docs_carousel_desc',
+            'usecases' => [],
+        ],
+        'variants' => ['full-width', 'white-indicators'],
+    ],
+    'collapsible' => [
+        'id' => 42,
+        'category' => 'helper',
+        'template' => 'tiny_c4lauthor/components/collapsible',
+        'iconclass' => 'c4l-collapsible-icon',
+        'menuicon' => 'c4l-collapsible-icon',
+        'text' => '{{#collapsible_title}}',
+        'docs' => [
+            'description' => 'docs_collapsible_desc',
+            'usecases' => [],
+        ],
+        'variants' => ['buttondropdown', 'linkdropdown'],
+        'precision' => [
+            [
+                'selector' => '.c4l-collapsible-title',
+                'label' => 'precision_field_title',
+                'type' => 'input',
+            ],
+            [
+                'selector' => '.c4l-collapsible-content',
+                'label' => 'precision_field_text',
+                'type' => 'textarea',
+            ],
+        ],
+    ],
+    'styledtable' => [
+        'id' => 46,
+        'category' => 'helper',
+        'template' => 'tiny_c4lauthor/components/styledtable',
+        'iconclass' => 'c4l-styledtable-icon',
+        'menuicon' => 'c4l-styledtable-icon',
+        'wrapperclass' => 'c4l-table-container',
+        'text' => '',
+        'docs' => [
+            'description' => 'docs_styledtable_desc',
+            'usecases' => [],
+        ],
+        'variants' => ['solid', 'colored'],
+    ],
 ];
 
 $variants = [
@@ -773,5 +916,36 @@ $variants = [
     ],
     'compact' => [
         'id' => 22,
+    ],
+    'text-image' => [
+        'id' => 15,
+        'group' => 'combo-layout',
+    ],
+    'image-text' => [
+        'id' => 16,
+        'group' => 'combo-layout',
+    ],
+    'chevrons' => [
+        'id' => 10,
+        'group' => 'list-bullet',
+    ],
+    'buttondropdown' => [
+        'id' => 11,
+        'group' => 'collapsible-trigger',
+    ],
+    'linkdropdown' => [
+        'id' => 12,
+        'group' => 'collapsible-trigger',
+    ],
+    'solid' => [
+        'id' => 13,
+        'group' => 'table-style',
+    ],
+    'colored' => [
+        'id' => 14,
+        'group' => 'table-style',
+    ],
+    'white-indicators' => [
+        'id' => 17,
     ],
 ];

@@ -1,8 +1,8 @@
 @editor @editor_tiny @tiny @tiny_c4lauthor @javascript
-Feature: Panel list and timeline helpers
-  In order to structure lists and sequences
+Feature: Panel list, timeline and combo helpers
+  In order to structure lists, sequences and text with images
   As a teacher
-  I need to insert the panel list and timeline helpers and edit them precisely
+  I need to insert the panel list, timeline and combo helpers and edit them precisely
 
   Background:
     Given the following "courses" exist:
@@ -30,6 +30,7 @@ Feature: Panel list and timeline helpers
       | label      | selector                              |
       | Panel list | ul.c4lv-panellist.c4l-numbered-variant |
       | Timeline   | .c4lv-timeline .c4l-timeline-event    |
+      | Combo      | .c4l-combo.c4l-text-image-variant     |
 
   Scenario: A timeline event's year can be changed in precision mode
     Given I am on the "Page 1" "page activity editing" page logged in as "teacher1"
