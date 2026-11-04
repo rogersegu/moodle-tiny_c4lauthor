@@ -23,7 +23,7 @@ pagetypes:
 # C4L Author — teacher guide
 
 C4L Author lets you build course content from ready-made components, such as key
-concepts, tips and timelines, without writing any HTML.
+concepts, tips, timelines and tabs, without writing any HTML.
 
 ## Opening C4L Author
 
@@ -76,6 +76,25 @@ source, or an estimated time's value. Fixed labels, such as "min", stay as they 
 
 The preview does not run scripts, so a component that needs JavaScript to look right can
 look unfinished there.
+
+## Tabs, carousels and collapsibles
+
+These components show one thing at a time on the page. In the editor, they have controls
+of their own:
+
+- **Tabs:** switch between tabs, rename a tab in its title line, add and delete tabs.
+- **Carousel:** browse, add and delete slides, and add or change a slide's image.
+- **Collapsible:** edit its title and its content directly.
+
+These controls are never saved with your content. On the page, learners can use the
+mouse or the keyboard. If JavaScript is not available, and in the Moodle app, everything
+is shown one after the other, so nothing is hidden from anyone.
+
+## Link blocks
+
+A link block accepts web and mail addresses only: `http://`, `https://` and `mailto:`.
+Anything else, including a relative address such as `/course/view.php`, leaves the link
+going nowhere. Use the full address.
 
 ## Suggestions from AI
 
