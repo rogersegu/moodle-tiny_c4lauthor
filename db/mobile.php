@@ -34,7 +34,7 @@ $addons = [
                     // The app caches these styles by this string, so bump it whenever
                     // mobileapp/styles.css changes. It was left behind when the
                     // stylesheets were expanded, which kept the old copy on devices.
-                    'version' => '2026103100',
+                    'version' => '2026110400',
                 ],
             ],
         ],

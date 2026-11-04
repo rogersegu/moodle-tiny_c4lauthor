@@ -29,7 +29,7 @@ Settings are available at Site Administration > Plugins > Text Editors > TinyMCE
 
 The AI suggest feature uses Moodle's built-in AI subsystem (available from Moodle 4.5). The site administrator must configure an AI provider (such as OpenAI or Ollama) and supply their own API key at Site Administration > AI. No API key is bundled with this plugin.
 
-If no AI provider is configured, the AI suggest button will display a message prompting the administrator to set one up. The AI suggest feature can also be disabled entirely from the plugin settings.
+The AI suggest feature is off on new installs. The button stays hidden until it is switched on in the plugin settings, a provider offers text generation, the user holds the capability, and AI is enabled for the course and activity.
 
 ## Dark mode
 
@@ -103,6 +103,13 @@ exactly what should not be there.
   `data-bs-theme`; it has its own dark mode via Ionic, which needs a separate
   approach.
 
+## Documentation
+
+The guides are in [docs/](docs/): an [overview](docs/overview.md) and guides for
+[teachers](docs/teacher-guide.md), [administrators](docs/admin-guide.md) and
+[developers](docs/developer-guide.md). On a site with the Documentation Center
+(`tool_mdocs`) they appear in Moodle itself, on the pages they belong to.
+
 ## Building from source
 
 The compiled `styles.css` and `editor_styles.css` are generated from `scss/`:
@@ -125,10 +132,7 @@ Note that Moodle pins Node to `>=22.11.0 <23`; a newer Node will fail the instal
 - `tiny/c4lauthor:viewplugin` — controls plugin visibility for any role.
 - `tiny/c4lauthor:use` — allows using the plugin.
 - `tiny/c4lauthor:aisuggest` — allows using the AI suggest feature.
-
-## Fonts
-
-This plugin includes the Figtree font family (SIL Open Font License 1.1), inherited from the Components for Learning project.
+- `tiny/c4lauthor:useallcomponents` — offers all components in the sidebar. Users without it see only the components listed for students in the settings. Teachers and managers have it by default. This steers authoring and is not access control.
 
 ## Icons
 
