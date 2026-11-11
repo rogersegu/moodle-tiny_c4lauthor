@@ -822,7 +822,7 @@ const setupVariantToolbar = (ed, deleteStr, unstyleStr, convertStr, moveUpStr, m
         });
     };
 
-    const chevronUpSvg ='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"'
+    const chevronUpSvg = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"'
         + ' stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
         + '<polyline points="18 15 12 9 6 15"/></svg>';
 

@@ -22,8 +22,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
-
 use tiny_c4lauthor\components;
 
 /**
@@ -44,8 +42,8 @@ function tiny_c4lauthor_migrate_component_access(): void {
     $aimed = get_config('tiny_c4lauthor', 'aimedatstudents');
     $notintended = get_config('tiny_c4lauthor', 'notintendedforstudents');
 
-    // get_config() returns false for a setting that was never saved, and a string
-    // for one that was — including the empty string, which is an admin unticking
+    // A setting that was never saved reads back as false, and one that was reads
+    // back as a string — including the empty string, which is an admin unticking
     // every box and has to be honoured. With neither ever saved there is no choice
     // to carry over, and the new defaults already reproduce the intended behaviour.
     if ($aimed === false && $notintended === false) {
