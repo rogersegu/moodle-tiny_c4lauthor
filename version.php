@@ -28,7 +28,7 @@ $plugin->version   = 2026111100;
 $plugin->requires  = 2024100703.00;
 $plugin->component = 'tiny_c4lauthor';
 $plugin->maturity  = MATURITY_BETA;
-$plugin->release   = '1.3.0-beta';
+$plugin->release   = '1.3.0-beta+hochschule-hannover';
 
 // The code view imports tiny_html/codemirror-lazy, so it fails to load on a site
 // without that plugin. ANY_VERSION because tiny_html ships with core and tracks it.
