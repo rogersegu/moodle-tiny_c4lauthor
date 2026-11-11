@@ -36,7 +36,9 @@
   so an admin who had withheld a component from students keeps that. Without it the
   new defaults would have applied and the component would have been offered to
   students again, silently. The same three roles qualified under the old check, so
-  on a site with stock permissions nobody gains or loses a component.
+  on a site with stock permissions nobody gains or loses a component. Once the
+  values are carried over, both old settings are deleted from the database, and
+  their strings are listed in `lang/en/deprecated.txt`.
 
   The component list now comes from `tiny_c4lauthor\components` rather than being
   written out in `settings.php`, where it had drifted: Concept review, Further reading,
