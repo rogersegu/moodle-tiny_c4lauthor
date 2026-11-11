@@ -124,6 +124,7 @@ Note that Moodle pins Node to `>=22.11.0 <23`; a newer Node will fail the instal
 
 - `tiny/c4lauthor:viewplugin` — controls plugin visibility for any role.
 - `tiny/c4lauthor:use` — allows using the plugin.
+- `tiny/c4lauthor:useallcomponents` — allows using the components that Component availability restricts. Allowed by default for teacher, non-editing teacher and manager.
 - `tiny/c4lauthor:aisuggest` — allows using the AI suggest feature.
 
 ## Fonts
@@ -139,6 +140,13 @@ Icons authored by Roger Segú, except for the following, licensed under Creative
 - [Components for Learning](https://componentsforlearning.org) — the parent project with documentation, usage recommendations and examples for all components.
 - [tiny_c4l](https://moodle.org/plugins/tiny_c4l) — the original TinyMCE plugin for Moodle.
 - [atto_c4l](https://moodle.org/plugins/atto_c4l) — the original Atto editor plugin.
+
+## Funding
+
+The following were funded by [Hochschule Hannover](https://www.hs-hannover.de):
+
+- Component availability.
+- The Remove style and Convert to actions on the component toolbar.
 
 ## License
 

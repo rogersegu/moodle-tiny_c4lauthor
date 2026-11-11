@@ -33,9 +33,9 @@ defined('MOODLE_INTERNAL') || die();
 function xmldb_tiny_c4lauthor_upgrade($oldversion): bool {
     require_once(__DIR__ . '/upgradelib.php');
 
-    if ($oldversion < 2026101700) {
+    if ($oldversion < 2026111100) {
         tiny_c4lauthor_migrate_component_access();
-        upgrade_plugin_savepoint(true, 2026101700, 'tiny', 'c4lauthor');
+        upgrade_plugin_savepoint(true, 2026111100, 'tiny', 'c4lauthor');
     }
 
     return true;

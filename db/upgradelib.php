@@ -32,7 +32,7 @@ use tiny_c4lauthor\components;
  * aimedatstudents and notintendedforstudents each listed the components students
  * could use, and the editor took the union of the two; staff were never restricted.
  * So a component named in either list becomes available to everyone, and one named
- * in neither becomes staff only, which is exactly what it was.
+ * in neither becomes ACCESS_STAFF, which is exactly what it was.
  *
  * Without this, an upgraded site would fall back to the new defaults and an admin
  * who had deliberately withheld a component from students would find it offered to

@@ -44,6 +44,21 @@ $capabilities = [
             'manager' => CAP_ALLOW,
         ],
     ],
+    // Who may use every component, whatever the availability table says for
+    // students. The plugin used to ask whether the user could see the gradebook,
+    // which is another plugin's capability and says nothing about editing: a course
+    // creator failed it and counted as a student. A capability of our own lets an
+    // administrator decide directly, and lets them override it per category, course
+    // or activity — which a fixed list of roles cannot express.
+    'tiny/c4lauthor:useallcomponents' => [
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_COURSE,
+        'archetypes' => [
+            'teacher' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
+        ],
+    ],
     'tiny/c4lauthor:aisuggest' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,

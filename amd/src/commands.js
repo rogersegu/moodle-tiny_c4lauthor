@@ -16,6 +16,9 @@
 /**
  * Tiny C4L Author commands and UI logic.
  *
+ * The Remove style and Convert to actions on the component toolbar were funded by
+ * Hochschule Hannover <https://www.hs-hannover.de>.
+ *
  * @module      tiny_c4lauthor/commands
  * @copyright   2026 Roger Segú <rogersegu@gmail.com>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later

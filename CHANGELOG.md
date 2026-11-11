@@ -15,29 +15,34 @@
 ### Changed
 
 - *Component availability* replaces *Aimed at students* and *Not intended for students*
-  with one table: every component on a row, and a choice of **Everyone**, **Staff only**
-  or **Nobody**. Nobody withdraws a component from the plugin for all users, which the
-  old pair could not express — they only ever restricted students. Content that already
-  uses a withdrawn component keeps rendering and can still be edited, converted or
-  stripped of its style; only inserting a new one stops being offered.
+  with one table: every component on a row, and a choice of **Everyone**, **Capability**
+  or **Nobody**. Nobody withdraws a component from the plugin for all users, site
+  administrators included, which the old pair could not express — they only ever
+  restricted students. Content that already uses a withdrawn component keeps rendering
+  and can still be edited, converted or stripped of its style; only inserting a new one
+  stops being offered.
 
-  Staff means whoever can view the gradebook, which is the check the plugin has always
-  used to tell staff from students. It is a capability rather than a role, so a role
-  such as course creator does not qualify. The column heading lists the roles that hold
-  it on this site rather than naming roles in a fixed label, which would stop being
-  true as soon as the site's permissions differ from the stock ones.
+  Capability means the new `tiny/c4lauthor:useallcomponents`, allowed by default for
+  teacher, non-editing teacher and manager. The plugin used to ask whether the user
+  could view the gradebook, so an administrator who wanted to give someone every
+  component had to grant them the gradebook as well. The plugin's own capability
+  isolates the decision, and can be overridden for a category, course or activity.
+  The column heading lists the roles that hold it on this site rather than naming
+  roles in a fixed label, which would stop being true as soon as the site's
+  permissions differ from the stock ones.
 
   Nothing changes on upgrade. An upgrade step translates the stored settings — a
-  component either list named becomes Everyone, one in neither becomes Staff only —
+  component either list named becomes Everyone, one in neither becomes Capability —
   so an admin who had withheld a component from students keeps that. Without it the
   new defaults would have applied and the component would have been offered to
-  students again, silently.
+  students again, silently. The same three roles qualified under the old check, so
+  on a site with stock permissions nobody gains or loses a component.
 
   The component list now comes from `tiny_c4lauthor\components` rather than being
   written out in `settings.php`, where it had drifted: Concept review, Further reading,
   Statement and Assessment were in neither setting, which left them unusable for
-  students with no way for an admin to turn them on. They appear in the table as Staff
-  only, which is what they were in practice, and can now be changed.
+  students with no way for an admin to turn them on. They appear in the table as
+  Capability, which is what they were in practice, and can now be changed.
 
   Which components a user may insert is decided on the server and sent to the editor as
   one list, so the editor no longer carries any role logic of its own.
@@ -56,12 +61,17 @@
   `.c4l-quote-line` and `.c4l-quote-text` rather than through the root. Concept review
   likewise regains its title, Example its heading slot, and scaffolding belonging to the
   component being converted away from is no longer left behind.
-- The quickbar's component picker now honours *Components aimed at students*. The setting
+- The quickbar's component picker now honours *Component availability*. The setting
   was enforced only where the modal's sidebar is built, so a student opening the modal
   could insert any component from the quickbar, including every one the admin had left
   unchecked. Both now go through one shared gate. Note that neither is a security
   boundary: the markup can still be typed by hand in the source view, which no role
   restriction covers.
+
+### Funding
+
+Component availability, and the Remove style and Convert to actions on the component
+toolbar, were funded by Hochschule Hannover (https://www.hs-hannover.de).
 
 ## 1.3.0-beta
 

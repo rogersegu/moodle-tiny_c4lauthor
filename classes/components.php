@@ -27,6 +27,8 @@ namespace tiny_c4lauthor;
  * components were missing from both, which left them unusable for students with no
  * way for an admin to turn them on.
  *
+ * Component availability was funded by Hochschule Hannover <https://www.hs-hannover.de>.
+ *
  * @package    tiny_c4lauthor
  * @copyright  2026 Roger Segú <rogersegu@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -45,14 +47,20 @@ class components {
     public const SETTING = 'componentaccess';
 
     /**
-     * @var string What separates staff from students, for want of anything better.
+     * @var string What separates staff from students.
      *
-     * The plugin has no role of its own, so it asks whether the user can see the
-     * gradebook. That is a proxy, not a role: a course creator cannot, and so counts
-     * as a student. The settings page lists whoever holds it on this site rather than
-     * naming roles, so the label cannot claim more than the check delivers.
+     * The plugin's own capability, so an administrator decides this directly instead
+     * of it following from whether the user can see the gradebook — another plugin's
+     * capability, which a course creator fails, leaving them counted as a student.
+     *
+     * A capability rather than a list of roles on purpose. It answers the question in
+     * the context the editor is open in, so it respects an override at category,
+     * course or activity level and a user holding several roles; a fixed list of roles
+     * can express none of that, and would store role ids that mean nothing on another
+     * site. The settings page still lists whoever holds it here, so the label cannot
+     * claim more than the check delivers.
      */
-    public const STAFF_CAPABILITY = 'gradereport/grader:view';
+    public const STAFF_CAPABILITY = 'tiny/c4lauthor:useallcomponents';
 
     /**
      * The roles that count as staff on this site, by their localised names.
@@ -73,7 +81,7 @@ class components {
      * to. The defaults reproduce what the aimedatstudents and notintendedforstudents
      * settings did, so that neither a new site nor an upgraded one changes behaviour:
      * the twelve that were aimed at students default to everyone, and the rest —
-     * including the four that were missing from both settings — to staff only.
+     * including the four that were missing from both settings — to ACCESS_STAFF.
      *
      * Access does not follow the type: attention is procedural and allpurposecard is
      * a helper, yet both were aimed at students.
