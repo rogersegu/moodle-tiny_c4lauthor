@@ -18,6 +18,7 @@
   /* Tints */
   --c4l-tint-blue: #f1f5fe;
   --c4l-tint-blue-alt: #f2f5fd;
+  --c4l-tint-blue-deep: #e8efff;
   --c4l-tint-magenta: #fbeffa;
   --c4l-tint-cyan: #eff8fd;
   --c4l-tint-orange: #fef6ed;
@@ -52,14 +53,10 @@
   /* Solid fills */
   --c4l-solid-blue: #3171e3;
   --c4l-solid-blue-deep: #497ae9;
-  /* Brand: the site's primary colour, as set by the theme. Bootstrap 5 names it
-     --bs-primary, Bootstrap 4 (Moodle 4.5) --primary. The editor iframes get the
-     page's resolved value from tiny_c4lauthor/brand. */
-  --c4l-brand: var(--bs-primary, var(--primary, #0f6cbf));
-  --c4l-tint-brand: color-mix(in srgb, var(--c4l-brand) 7%, #fff);
-  --c4l-accent-brand: color-mix(in srgb, var(--c4l-brand) 50%, #fff);
-  --c4l-solid-brand: var(--c4l-brand);
-  --c4l-ink-brand: var(--c4l-brand);
+  --c4l-tint-brand: var(--c4l-tint-blue);
+  --c4l-accent-brand: var(--c4l-accent-blue);
+  --c4l-solid-brand: var(--c4l-solid-blue);
+  --c4l-ink-brand: var(--c4l-ink-blue);
   /* Picker toolbar icons */
   --c4l-ui-icon-contextual: #1679f9;
   --c4l-ui-icon-procedural: #d93562;
@@ -129,6 +126,7 @@
   /* Tints */
   --c4l-tint-blue: var(--c4l-surface);
   --c4l-tint-blue-alt: var(--c4l-surface);
+  --c4l-tint-blue-deep: var(--c4l-surface);
   --c4l-tint-magenta: var(--c4l-surface);
   --c4l-tint-cyan: var(--c4l-surface);
   --c4l-tint-orange: var(--c4l-surface);
@@ -162,11 +160,6 @@
   /* Solid fills */
   --c4l-solid-blue: #81abf5;
   --c4l-solid-blue-deep: #81abf5;
-  /* Brand: lightened like the other solids, pale fills become the surface. */
-  --c4l-tint-brand: var(--c4l-surface);
-  --c4l-accent-brand: color-mix(in srgb, var(--c4l-brand) 45%, var(--c4l-text-muted));
-  --c4l-solid-brand: color-mix(in srgb, var(--c4l-brand) 40%, #fff);
-  --c4l-ink-brand: color-mix(in srgb, var(--c4l-brand) 40%, #fff);
   /* ACTIVE 2 — PICKER TOOLBAR ICONS */
   --c4l-ui-icon-contextual: #64a4f9;
   --c4l-ui-icon-procedural: #e46487;
@@ -290,7 +283,7 @@
   --c4l-panellist-marker: var(--c4l-solid-brand);
   --c4l-panellist-marker-ink: var(--c4l-on-accent);
   --c4l-timeline-rule: var(--c4l-accent-brand);
-  --c4l-timeline-pill-bg: var(--c4l-tint-brand);
+  --c4l-timeline-pill-bg: var(--c4l-tint-blue-deep);
   --c4l-timeline-marker: var(--c4l-solid-brand);
   --c4l-timeline-marker-dot: var(--c4l-on-accent);
   --c4l-timeline-year: var(--c4l-ink-brand);

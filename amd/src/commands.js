@@ -69,7 +69,6 @@ import {
     basicSetup as cmBasicSetup,
     lang as cmLang,
 } from 'tiny_html/codemirror-lazy';
-import {brandColourRule} from './brand';
 import {callSuggest} from './ai_api';
 import {mountAiView} from './ai_ui';
 import {mountPreciseView} from './precise_ui';
@@ -372,7 +371,6 @@ export const getSetup = async() => {
             body_class: 'tiny_c4lauthor-inner-body',
             height: '100%',
             content_css: contentCss,
-            content_style: brandColourRule(),
             setup: (ed) => {
                 // Register Moodle core options so plugins can access contextid, filepickers, etc.
                 registerMoodleOptions(ed, moodleOptions);
@@ -1230,8 +1228,8 @@ export const getSetup = async() => {
             editor.options.set('content_css', [...contentCss, ...editorCss]);
         }
 
-        // Inject the site's brand colour and the custom preview CSS into the outer editor.
-        const contentStyle = [brandColourRule(), getpreviewCSS(editor)].filter(Boolean).join('\n');
+        // Inject the custom preview CSS into the outer editor.
+        const contentStyle = getpreviewCSS(editor);
         if (contentStyle) {
             editor.options.set('content_style', contentStyle);
         }

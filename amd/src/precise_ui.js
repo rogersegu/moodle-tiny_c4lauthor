@@ -23,7 +23,6 @@
 
 import {get_string as getString} from 'core/str';
 import {component} from './common';
-import {brandColourRule} from './brand';
 import {buildFieldRegistry} from './precise_handlers';
 import Templates from 'core/templates';
 
@@ -594,7 +593,6 @@ export const mountPreciseView = async(container, handlers, catalogue) => {
         '<style>body{margin:1rem;font-family:-apple-system,BlinkMacSystemFont,' +
         '"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}' +
         '.c4l-spacer{margin:.25rem 0}' +
-        brandColourRule() +
         '[data-c4l-selected]{outline:2px solid #b8d7ff;outline-offset:2px;border-radius:0}' +
         'html[data-bs-theme=dark] [data-c4l-selected]{outline-color:var(--c4l-ui-accent)}</style>' +
         '</head><body class="tiny_c4lauthor__precision-body">' + editorHtml + '</body></html>';
