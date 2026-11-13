@@ -99,7 +99,8 @@ const escapeAttr = (value) => String(value)
 
 export const getSetup = async() => {
     const [buttonText, buttonImage, applyStr, cancelStr,
-           allStr, contextualStr, proceduralStr, evaluativeStr, helperStr, templatesStr, customStr,
+           allStr, contextualStr, proceduralStr, evaluativeStr, sequentialStr, helperStr,
+           templatesStr, customStr,
            convertToStr, noComponentStr, notConvertibleStr, moreStr, discardStr, discardBtnStr, keepEditingStr,
            overlayOpenStr, overlayRestoreStr, aiButtonStr,
            codeButtonStr,
@@ -114,6 +115,7 @@ export const getSetup = async() => {
         getString('contextual', component),
         getString('procedural', component),
         getString('evaluative', component),
+        getString('sequential', component),
         getString('helper', component),
         getString('templates', component),
         getString('custom', component),
@@ -140,6 +142,7 @@ export const getSetup = async() => {
         contextual: contextualStr,
         procedural: proceduralStr,
         evaluative: evaluativeStr,
+        sequential: sequentialStr,
         helper: helperStr,
         templates: templatesStr,
         custom: customStr,
@@ -401,7 +404,7 @@ export const getSetup = async() => {
                         const bookmark = ed.selection.getBookmark(2, true);
                         const items = [];
                         const typeOrder = [
-                            'contextual', 'procedural', 'evaluative', 'helper', 'templates', 'custom'
+                            'contextual', 'procedural', 'evaluative', 'sequential', 'helper', 'templates', 'custom'
                         ];
                         const allIcons = ed.ui.registry.getAll().icons;
                         typeOrder.forEach((type) => {

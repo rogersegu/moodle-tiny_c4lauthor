@@ -130,7 +130,7 @@ final class components_test extends \advanced_testcase {
 
         foreach ($components as $name => $component) {
             $this->assertMatchesRegularExpression('/^[a-z0-9]+$/', $name);
-            $this->assertContains($component['category'], ['contextual', 'procedural', 'evaluative', 'helper']);
+            $this->assertContains($component['category'], ['contextual', 'procedural', 'evaluative', 'sequential', 'helper']);
             $this->assertIsBool($component['students'] ?? false);
             $this->assertTrue($strings->string_exists($name, 'tiny_c4lauthor'), "String $name exists");
             foreach ($component['variants'] as $variant) {

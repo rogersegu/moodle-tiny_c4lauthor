@@ -293,6 +293,7 @@ $string['sample_duedate'] = 'November 17th';
 $string['sample_figure_alt'] = 'Describe the image here';
 $string['sample_inlinetag'] = 'Text';
 $string['sample_statement'] = 'Task statement.';
+$string['sequential'] = 'Sequential';
 $string['setting_showoverlay'] = 'Show overlay';
 $string['setting_showoverlay_desc'] = 'When enabled, a clickable overlay is displayed on top of the TinyMCE editor. Clicking it opens the C4L Author modal. The overlay can be dismissed to access the original editor.';
 $string['source'] = 'Source';
