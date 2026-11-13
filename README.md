@@ -144,6 +144,10 @@ Icons authored by Roger Segú, except for the following, licensed under Creative
 - [tiny_c4l](https://moodle.org/plugins/tiny_c4l) — the original TinyMCE plugin for Moodle.
 - [atto_c4l](https://moodle.org/plugins/atto_c4l) — the original Atto editor plugin.
 
+## Contributions
+
+Components as declarations with their markup in templates, the hook other plugins extend the component list through, the documentation, the test suite and the continuous integration setup were contributed by [bdecent](https://bdecent.de).
+
 ## License
 
 Licensed under the [GNU GPL v3 or later](http://www.gnu.org/copyleft/gpl.html).

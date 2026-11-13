@@ -26,8 +26,6 @@ Contributed by bdecent.
   precision mode edits each event.
 - Variants can form groups (exactly one active) and exclude others. A component can
   declare its own wrapper class instead of a `c4lv-` one.
-- Brand colour tokens (`--c4l-brand` and its tints) that follow the site's primary
-  colour, also inside the editor, with dark-mode values.
 - Other plugins can add components and editor stylesheets through a new hook,
   `\tiny_c4lauthor\hook\extend_components`, without changing C4L Author. Their
   components use their own templates, strings and icons, appear under a *Templates*
