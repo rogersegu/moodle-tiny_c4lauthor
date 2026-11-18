@@ -1,56 +1,56 @@
 # Changelog
 
-## Unreleased
-
-### Added
-
-- Combo: text and image side by side, in either order.
-- Styled list, link block, tabs, carousel, collapsible and styled table, with their
-  variants. Tabs, carousel and collapsible use markup made of classes only, so it
-  survives Moodle's HTML cleaning and works with Bootstrap 4 and 5. Without JavaScript,
-  and in the Moodle app, all their content shows. A page script adds the buttons, ARIA
-  attributes and keyboard support, and turns earlier Bootstrap-based markup of these
-  components into the new one when the page loads. In the editor, tabs and slides can be
-  switched, added and deleted, and a slide gets its image through the image dialog.
-- Link blocks keep their address in the link, and accept only http, https and mailto
-  addresses.
-- The extension hook can add page modules, for the behaviour of interactive components
-  other plugins add.
-- A standalone fallback: an admin page offers the content styles and the page script to
-  copy into the site before uninstalling, so content keeps its look and its tabs,
-  carousels and collapsibles keep working. The styles are 102 KB (22 KB compressed).
-
 ## 1.4.0-beta
 
-Contributed by bdecent.
+Contributed by bdecent, except for seven of the helper components — combo, styled
+list, link block, tabs, carousel, collapsible and styled table — and the Sequential
+category.
 
 ### Security
 
 - The plugin loads only for users who hold both `tiny/c4lauthor:use` and
-  `tiny/c4lauthor:viewplugin`. `use` was never checked, and `viewplugin` only hid the
-  button in JavaScript.
-- A new capability, `tiny/c4lauthor:useallcomponents`, decides which components the
-  sidebar offers, with the same default roles, instead of a guess from
-  `gradereport/grader:view`. It steers authoring and is not access control.
-- Admin custom component HTML is cleaned with `clean_text()`. `format_text()` also ran
-  filters over it.
+  `tiny/c4lauthor:viewplugin`. `use` was not checked at all, and `viewplugin` only hid
+  the toolbar button in JavaScript, which is a decoration rather than a restriction.
+- Which components the sidebar offers is decided by a capability of the plugin's own,
+  `tiny/c4lauthor:useallcomponents`, with the same default roles as before. It used to
+  follow `gradereport/grader:view`, another plugin's capability, which says nothing
+  about authoring. Note that this steers authoring and is not access control: the
+  markup can still be typed by hand in the source view.
+- Custom component HTML from the settings page is cleaned with `clean_text()`. It went
+  through `format_text()`, which also ran the site's filters over it.
 - File serving matches the plugin's own file areas exactly and returns false for
   anything else.
 - Uninstalling removes the plugin's user preference.
 
 ### Added
 
-- Panel list and timeline, contributed by bdecent from the eduHub project. Panel list is
-  numbered or with checkmarks, optionally compact or full width. Timeline has events
-  with a year and a text, optionally full width or split, with continuity marks;
-  precision mode edits each event.
+- Nine helper components. Panel list and timeline, contributed by bdecent from the
+  eduHub project: panel list is numbered or with checkmarks, optionally compact or full
+  width, and timeline has events with a year and a text, optionally full width or split,
+  with continuity marks, with precision mode editing each event. And combo, styled list,
+  link block, tabs, carousel, collapsible and styled table, with their variants.
+- Tabs, carousel and collapsible use markup made of classes only, so it survives
+  Moodle's HTML cleaning and works with Bootstrap 4 and 5. Without JavaScript, and in
+  the Moodle app, all their content shows. A page script adds the buttons, ARIA
+  attributes and keyboard support, and converts earlier Bootstrap-based markup of these
+  components when the page loads. In the editor, tabs and slides can be switched, added
+  and deleted, and a slide gets its image through the image dialog.
+- Link blocks keep their address in the link, and accept only http, https and mailto
+  addresses.
+- A standalone fallback: an admin page offers the content styles and the page script to
+  copy into the site before uninstalling, so content keeps its look and its tabs,
+  carousels and collapsibles keep working. The styles are 102 KB (22 KB compressed).
+- A component category of its own for the timeline, *Sequential*, which until now sat
+  under *Helper* alongside the all-purpose card. Helper says what a component is built
+  out of; Sequential says what the timeline is for.
 - Variants can form groups (exactly one active) and exclude others. A component can
   declare its own wrapper class instead of a `c4lv-` one.
 - Other plugins can add components and editor stylesheets through a new hook,
   `\tiny_c4lauthor\hook\extend_components`, without changing C4L Author. Their
   components use their own templates, strings and icons, appear under a *Templates*
   category, work with variants and precision mode, and can insert what an AMD module of
-  theirs returns. Their labels and docs are shown as text.
+  theirs returns. Their labels and docs are shown as text. The hook can also add page
+  modules, for the behaviour of interactive components.
 - Documentation in `docs/`, for teachers, administrators and developers. On a site with
   the Documentation Center (`tool_mdocs`) it appears in Moodle itself.
 - PHPUnit and Behat tests, and CI for Moodle 4.5 to 5.3.
