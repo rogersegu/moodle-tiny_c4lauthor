@@ -485,6 +485,7 @@ $components = [
         ],
         'variants' => ['full-width'],
         'convertible' => 5,
+        'flow' => [''],
         'precision' => [
             [
                 'selector' => 'span[data-id]',

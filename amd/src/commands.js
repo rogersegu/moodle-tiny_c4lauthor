@@ -557,7 +557,13 @@ export const getSetup = async() => {
                 ? rng.endContainer
                 : rng.endContainer.parentElement;
             const flow = (catalogue.find(compName) || {}).flow || [];
-            const region = flow.length && caretEl ? caretEl.closest(flow.join(', ')) : null;
+            // An empty selector is the component itself, as it is in precision mode.
+            let region = null;
+            if (flow.includes('')) {
+                region = compEl;
+            } else if (flow.length && caretEl) {
+                region = caretEl.closest(flow.join(', '));
+            }
             if (region && compEl.contains(region)) {
                 const block = caretEl.closest('p, h1, h2, h3, h4, h5, h6, blockquote, li, td, th');
                 // An empty list item is how TinyMCE leaves a list, not the component.

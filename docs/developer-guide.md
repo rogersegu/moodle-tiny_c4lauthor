@@ -54,6 +54,13 @@ whose text is meant to run to several paragraphs declare those regions in `flow`
 'flow' => ['.text'],
 ```
 
+An empty selector is the component itself, as it is in a precision field, for a
+component whose text is its whole content:
+
+```php
+'flow' => [''],
+```
+
 Inside one, Enter is TinyMCE's to handle and starts a paragraph, until it is pressed
 on a paragraph left empty: that paragraph goes and the cursor leaves the component.
 An empty list item is left alone, since that is how TinyMCE itself leaves a list.
