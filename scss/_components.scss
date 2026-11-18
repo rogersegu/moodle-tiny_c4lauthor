@@ -1358,12 +1358,6 @@ $panellist-checkmark-svg: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3
     margin-top: 24px;
     margin-bottom: 24px;
 
-    .text {
-        background: var(--c4l-combo-bg);
-        border-radius: 16px;
-        padding: 48px;
-    }
-
     .text h2,
     .text h3,
     .text h4 {
@@ -1407,7 +1401,7 @@ $panellist-checkmark-svg: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3
 
     .image {
         position: relative;
-        min-height: 200px;
+        min-height: 80px;
     }
 
     img {
@@ -1451,9 +1445,51 @@ $panellist-checkmark-svg: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3
     order: 1;
 }
 
+/* Text background: the panel the text sat in before it became a choice. */
+.c4l-combo.c4l-textbackground-variant .text {
+    background: var(--c4l-combo-bg);
+    border-radius: 16px;
+    padding: 48px;
+}
+
 @media (max-width: 399.98px) {
-    .c4l-combo .text {
+    .c4l-combo.c4l-textbackground-variant .text {
         padding: 24px;
+    }
+}
+
+/* Whole image: the image is shown entire rather than cropped to fill its cell.
+   It leaves the absolute fill, so it sits in the flow at its own aspect ratio. */
+.c4l-combo.c4l-wholeimage-variant .image {
+    min-height: 100px;
+}
+
+.c4l-combo.c4l-wholeimage-variant img {
+    position: static !important;
+    width: 100% !important;
+    height: auto !important;
+    object-fit: contain;
+}
+
+@media (min-width: 630px) {
+    /* The image column takes the width the image asks for, capped at half the
+       component, and the text takes what is left. */
+    .c4l-combo.c4l-wholeimage-variant,
+    .c4l-combo.c4l-wholeimage-variant.c4l-text-image-variant {
+        grid-template-columns: 1fr fit-content(50%);
+    }
+
+    .c4l-combo.c4l-wholeimage-variant.c4l-image-text-variant {
+        grid-template-columns: fit-content(50%) 1fr;
+    }
+
+    /* Its own size, not the height the text happens to set: a short text would
+       otherwise leave the image a sliver. */
+    .c4l-combo.c4l-wholeimage-variant img {
+        width: auto !important;
+        max-width: 100%;
+        height: auto !important;
+        min-height: 100px;
     }
 }
 

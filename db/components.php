@@ -732,7 +732,7 @@ $components = [
             'description' => 'docs_combo_desc',
             'usecases' => [],
         ],
-        'variants' => ['text-image', 'image-text'],
+        'variants' => ['text-image', 'image-text', 'textbackground', 'wholeimage'],
         'precision' => [
             [
                 'selector' => '.text p',
@@ -916,6 +916,12 @@ $variants = [
     ],
     'compact' => [
         'id' => 22,
+    ],
+    'textbackground' => [
+        'id' => 23,
+    ],
+    'wholeimage' => [
+        'id' => 24,
     ],
     'text-image' => [
         'id' => 15,
