@@ -188,7 +188,7 @@ $c4l-chevron-down: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/20
     }
 
     &:focus-visible {
-        outline: 2px solid var(--c4l-brand);
+        outline: 2px solid var(--c4l-accent-brand);
         outline-offset: 2px;
     }
 }

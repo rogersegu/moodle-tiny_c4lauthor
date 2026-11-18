@@ -3106,7 +3106,7 @@ svg.tiny_c4lauthor__code-header-icon {
   background-color: var(--c4l-tabs-panel-bg);
 }
 .c4l-tablist-button:focus-visible {
-  outline: 2px solid var(--c4l-brand);
+  outline: 2px solid var(--c4l-accent-brand);
   outline-offset: 2px;
 }
 
