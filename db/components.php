@@ -687,7 +687,7 @@ $components = [
     ],
     'timeline' => [
         'id' => 56,
-        'category' => 'helper',
+        'category' => 'sequential',
         'template' => 'tiny_c4lauthor/components/timeline',
         'iconclass' => 'c4l-timeline-icon',
         'menuicon' => 'c4l_timeline_icon',

@@ -70,7 +70,6 @@ import {
     basicSetup as cmBasicSetup,
     lang as cmLang,
 } from 'tiny_html/codemirror-lazy';
-import {brandColourRule} from './brand';
 import {callSuggest} from './ai_api';
 import {mountAiView} from './ai_ui';
 import {mountPreciseView} from './precise_ui';
@@ -101,7 +100,8 @@ const escapeAttr = (value) => String(value)
 
 export const getSetup = async() => {
     const [buttonText, buttonImage, applyStr, cancelStr,
-           allStr, contextualStr, proceduralStr, evaluativeStr, helperStr, templatesStr, customStr,
+           allStr, contextualStr, proceduralStr, evaluativeStr, sequentialStr, helperStr,
+           templatesStr, customStr,
            convertToStr, noComponentStr, notConvertibleStr, moreStr, discardStr, discardBtnStr, keepEditingStr,
            overlayOpenStr, overlayRestoreStr, aiButtonStr,
            codeButtonStr,
@@ -116,6 +116,7 @@ export const getSetup = async() => {
         getString('contextual', component),
         getString('procedural', component),
         getString('evaluative', component),
+        getString('sequential', component),
         getString('helper', component),
         getString('templates', component),
         getString('custom', component),
@@ -142,6 +143,7 @@ export const getSetup = async() => {
         contextual: contextualStr,
         procedural: proceduralStr,
         evaluative: evaluativeStr,
+        sequential: sequentialStr,
         helper: helperStr,
         templates: templatesStr,
         custom: customStr,
@@ -373,7 +375,6 @@ export const getSetup = async() => {
             body_class: 'tiny_c4lauthor-inner-body',
             height: '100%',
             content_css: contentCss,
-            content_style: brandColourRule(),
             setup: (ed) => {
                 // Register Moodle core options so plugins can access contextid, filepickers, etc.
                 registerMoodleOptions(ed, moodleOptions);
@@ -404,7 +405,7 @@ export const getSetup = async() => {
                         const bookmark = ed.selection.getBookmark(2, true);
                         const items = [];
                         const typeOrder = [
-                            'contextual', 'procedural', 'evaluative', 'helper', 'templates', 'custom'
+                            'contextual', 'procedural', 'evaluative', 'sequential', 'helper', 'templates', 'custom'
                         ];
                         const allIcons = ed.ui.registry.getAll().icons;
                         typeOrder.forEach((type) => {
@@ -1234,8 +1235,8 @@ export const getSetup = async() => {
             editor.options.set('content_css', [...contentCss, ...editorCss]);
         }
 
-        // Inject the site's brand colour and the custom preview CSS into the outer editor.
-        const contentStyle = [brandColourRule(), getpreviewCSS(editor)].filter(Boolean).join('\n');
+        // Inject the custom preview CSS into the outer editor.
+        const contentStyle = getpreviewCSS(editor);
         if (contentStyle) {
             editor.options.set('content_style', contentStyle);
         }

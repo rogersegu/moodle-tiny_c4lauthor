@@ -49,7 +49,7 @@ use tiny_c4lauthor\hook\extend_components;
  */
 class components {
     /** @var string[] Categories of the sidebar. */
-    private const CATEGORIES = ['contextual', 'procedural', 'evaluative', 'helper'];
+    private const CATEGORIES = ['contextual', 'procedural', 'evaluative', 'sequential', 'helper'];
 
     /** @var string[] Field types precision mode knows. */
     private const FIELD_TYPES = ['textarea', 'input', 'list', 'image-src', 'image-alt'];
