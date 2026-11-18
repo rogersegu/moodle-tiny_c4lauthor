@@ -18,13 +18,14 @@ pagetypes:
   - course-edit
   - course-editsection
   - admin-setting-tiny_c4lauthor_settings
+  - admin-lib-editor-tiny-plugins-c4lauthor-*
 ---
 
 # C4L Author — overview
 
 C4L Author is a TinyMCE editor plugin for Moodle. It opens your content in a large,
 distraction-free editor and lets you build it from [Components for Learning](https://componentsforlearning.org):
-visual components designed for learning, such as key concepts, tips and timelines.
+visual components designed for learning, such as key concepts, tips, timelines and tabs.
 
 Components are plain HTML in your content. They need no special activity type, and they
 work wherever Moodle offers the TinyMCE editor: pages, labels, books, forum posts and
@@ -96,6 +97,13 @@ more.
 | All-purpose card | Gives a piece of content its own visual context. |
 | Panel list | A styled list with numbered or checkmark bullets. |
 | Timeline | A vertical timeline of events, each with a year and a text. |
+| Combo | Two columns with text and an image, in either order. |
+| Styled list | A list with checkmark or chevron bullets. |
+| Link block | A link shown as a block, with its name and address. |
+| Tabs | Content in tabs, one panel at a time. |
+| Carousel | A slideshow of images with navigation controls. |
+| Collapsible | A title that opens and closes its content, as a button or a link. |
+| Styled table | A table with a solid or coloured header. |
 
 Your site may offer more: administrators can define custom components, and other
 plugins can add their own under *Templates*.

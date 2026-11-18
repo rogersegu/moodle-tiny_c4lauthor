@@ -1,5 +1,25 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- Combo: text and image side by side, in either order.
+- Styled list, link block, tabs, carousel, collapsible and styled table, with their
+  variants. Tabs, carousel and collapsible use markup made of classes only, so it
+  survives Moodle's HTML cleaning and works with Bootstrap 4 and 5. Without JavaScript,
+  and in the Moodle app, all their content shows. A page script adds the buttons, ARIA
+  attributes and keyboard support, and turns earlier Bootstrap-based markup of these
+  components into the new one when the page loads. In the editor, tabs and slides can be
+  switched, added and deleted, and a slide gets its image through the image dialog.
+- Link blocks keep their address in the link, and accept only http, https and mailto
+  addresses.
+- The extension hook can add page modules, for the behaviour of interactive components
+  other plugins add.
+- A standalone fallback: an admin page offers the content styles and the page script to
+  copy into the site before uninstalling, so content keeps its look and its tabs,
+  carousels and collapsibles keep working. The styles are 102 KB (22 KB compressed).
+
 ## 1.4.0-beta
 
 Contributed by bdecent.

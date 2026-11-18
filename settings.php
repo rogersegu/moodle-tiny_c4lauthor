@@ -257,3 +257,10 @@ if ($ADMIN->fulltree) {
         $settings->add($setting);
     }
 }
+
+// The standalone fallback page sits next to the settings page core adds for us.
+$ADMIN->add('editortiny', new admin_externalpage(
+    'tiny_c4lauthor_standalone',
+    new lang_string('standalone_heading', 'tiny_c4lauthor'),
+    new moodle_url('/lib/editor/tiny/plugins/c4lauthor/admin/standalone.php')
+));
