@@ -68,6 +68,15 @@ category.
   inserted.
 - Precision mode reads its fields from the declarations. Fields that need custom code
   name a handler in `precise_handlers.js`.
+- Precision mode shows the whole text of the all-purpose card, the combo and the
+  collapsible, now that these take more than one paragraph: one box, a blank line
+  between the paragraphs, which is how they go back into the component. It used to
+  show the first paragraph alone, or, in the collapsible, all of them run together.
+- Editing a text in precision mode keeps the formatting it has. The change is written
+  where it lies, so bold, italics and links elsewhere in the text stay. Formatting
+  still cannot be added there: the boxes hold plain text. A field that falls back to
+  the component, because the text span it looks for is not there, no longer replaces
+  everything the component holds — a title of its own, for one, used to go.
 - `commands.js` is split into modules: the convert menu, the sidebar, the variant
   toolbar, the dropdown, the icons and the component markup each have their own.
 - The two student settings list every component, including added ones, and each

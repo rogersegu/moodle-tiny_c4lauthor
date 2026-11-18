@@ -131,6 +131,10 @@ const extractSingleField = (compEl, desc) => {
     if (desc.type === 'list') {
         return extractListField(compEl, desc);
     }
+    // A text of several blocks, read as one.
+    if (desc.type === 'paragraphs') {
+        return extractParagraphsField(compEl, desc);
+    }
     // Custom extraction.
     if (desc.extract) {
         // Honour `optional` when a selector is provided: if the underlying
@@ -157,6 +161,145 @@ const extractSingleField = (compEl, desc) => {
         return desc.optional ? null : null;
     }
     return {descriptor: desc, value: getStandardValue(el, desc), elements: [el]};
+};
+
+/**
+ * Extract a paragraphs-type field: every block the selector matches, as one text
+ * with a blank line between them, the way an author writes paragraphs.
+ *
+ * @param {HTMLElement} compEl
+ * @param {Object} desc
+ * @returns {Object|null}
+ */
+const extractParagraphsField = (compEl, desc) => {
+    const blocks = compEl.querySelectorAll(desc.selector);
+    if (blocks.length === 0) {
+        return null;
+    }
+    // A block with nothing in it is not a paragraph of the text; showing it would be a
+    // blank line at the top of the box that the author cannot do anything about.
+    const value = Array.from(blocks)
+        .map((block) => block.textContent.trim())
+        .filter((text) => text !== '')
+        .join('\n\n');
+    return {descriptor: desc, value, elements: blocks};
+};
+
+/**
+ * Write a paragraphs-type field back: a block per paragraph of the text, with the tag
+ * and in the place of the blocks that were there.
+ *
+ * @param {HTMLElement} compEl
+ * @param {Object} desc
+ * @param {string} value
+ */
+const applyParagraphsField = (compEl, desc, value) => {
+    const blocks = Array.from(compEl.querySelectorAll(desc.selector));
+    if (blocks.length === 0) {
+        return;
+    }
+    const parent = blocks[0].parentNode;
+    const tagname = blocks[0].tagName;
+    const after = blocks[blocks.length - 1].nextSibling;
+    const texts = value.split(/\n\s*\n/).map((text) => text.trim()).filter((text) => text !== '');
+    // A text emptied altogether still leaves the block the author writes in.
+    const wanted = texts.length ? texts : [''];
+    // The blocks the box showed, in its order; an empty one was not shown.
+    const shown = blocks.filter((block) => block.textContent.trim() !== '');
+    blocks.filter((block) => !shown.includes(block)).forEach((block) => block.remove());
+    const written = wanted.map((text, index) => {
+        const block = shown[index] || compEl.ownerDocument.createElement(tagname);
+        setBlockText(block, text);
+        return block;
+    });
+    // Paragraphs the author took out.
+    shown.slice(wanted.length).forEach((block) => block.remove());
+    // Put them in order, from the back, moving only what is out of place.
+    let anchor = after;
+    for (let index = written.length - 1; index >= 0; index--) {
+        if (written[index].parentNode !== parent || written[index].nextSibling !== anchor) {
+            parent.insertBefore(written[index], anchor);
+        }
+        anchor = written[index];
+    }
+};
+
+/**
+ * Write a text into a block, keeping the markup of what did not change. The author
+ * edits plain text here, so a bold word or a link they left alone has to survive.
+ *
+ * @param {HTMLElement} block
+ * @param {string} text
+ */
+const setBlockText = (block, text) => {
+    // The box holds the text trimmed, so the comparison is with the trimmed text, and
+    // what the markup is indented with is left out of the change and survives it.
+    const raw = block.textContent;
+    const lead = raw.length - raw.trimStart().length;
+    const current = raw.trim();
+    if (current === text) {
+        return;
+    }
+    // What changed is what lies between the common start and the common end.
+    let start = 0;
+    while (start < current.length && start < text.length && current[start] === text[start]) {
+        start++;
+    }
+    let end = 0;
+    while (end < current.length - start && end < text.length - start &&
+        current[current.length - 1 - end] === text[text.length - 1 - end]) {
+        end++;
+    }
+    const inserted = text.slice(start, text.length - end);
+    if (!spliceBlockText(block, lead + start, current.length - start - end, inserted)) {
+        block.textContent = text;
+    }
+};
+
+/**
+ * Replace a range of a block's text where it lives, in its text nodes, so that the
+ * elements around them stay. Elements left with nothing in them go.
+ *
+ * @param {HTMLElement} block
+ * @param {number} start — where the change begins, in characters of the block's text
+ * @param {number} removed — how many characters go
+ * @param {string} inserted — what takes their place
+ * @returns {boolean} false when the block has no text node to write into
+ */
+const spliceBlockText = (block, start, removed, inserted) => {
+    const walker = block.ownerDocument.createTreeWalker(block, NodeFilter.SHOW_TEXT);
+    const nodes = [];
+    while (walker.nextNode()) {
+        nodes.push(walker.currentNode);
+    }
+    if (nodes.length === 0) {
+        return false;
+    }
+    const end = start + removed;
+    let offset = 0;
+    let written = false;
+    nodes.forEach((node) => {
+        const length = node.data.length;
+        const from = Math.min(Math.max(start - offset, 0), length);
+        const to = Math.min(Math.max(end - offset, 0), length);
+        // What was added goes into the first node the change reaches.
+        if (from < to || (!written && start < offset + length)) {
+            node.data = node.data.slice(0, from) + (written ? '' : inserted) + node.data.slice(to);
+            written = true;
+        }
+        offset += length;
+    });
+    if (!written) {
+        // Added at the very end: it belongs to the block, not to the markup the last
+        // word happens to wear.
+        block.appendChild(block.ownerDocument.createTextNode(inserted));
+    }
+    block.querySelectorAll('*').forEach((el) => {
+        if (!el.textContent && !el.querySelector('img, br') && !['BR', 'IMG'].includes(el.tagName)) {
+            el.remove();
+        }
+    });
+    return true;
 };
 
 /**
@@ -295,7 +438,7 @@ const buildFieldHtml = (field, fIdx, strings) => {
 
     if (field.descriptor.type === 'list') {
         html += buildListFieldHtml(field, fIdx, strings);
-    } else if (field.descriptor.type === 'textarea') {
+    } else if (field.descriptor.type === 'textarea' || field.descriptor.type === 'paragraphs') {
         // Value is set via DOM after insertion to avoid HTML escaping issues.
         html += '<textarea class="tiny_c4lauthor__precision-input' +
             ' tiny_c4lauthor__precision-textarea"' +
@@ -466,10 +609,17 @@ const applyFormToComponent = (compEl, fields, formPanel) => {
             desc.apply(compEl, val);
             return;
         }
-        // Fallback fields — always set textContent to match extraction.
+        // A text of several blocks.
+        if (desc.type === 'paragraphs') {
+            applyParagraphsField(compEl, desc, val);
+            return;
+        }
+        // Fallback fields — text, to match extraction, written where it lies so that
+        // the markup it is in survives. Where the selector misses, that markup is the
+        // component's own: a title of its own, for one.
         if (desc.fallback) {
             const target = (desc.selector && compEl.querySelector(desc.selector)) || compEl;
-            target.textContent = val;
+            setBlockText(target, val);
             return;
         }
         // Standard selector-based.

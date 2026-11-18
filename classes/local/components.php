@@ -54,7 +54,7 @@ class components {
     private const CATEGORIES = ['contextual', 'procedural', 'evaluative', 'sequential', 'helper'];
 
     /** @var string[] Field types precision mode knows. */
-    private const FIELD_TYPES = ['textarea', 'input', 'list', 'image-src', 'image-alt'];
+    private const FIELD_TYPES = ['textarea', 'paragraphs', 'input', 'list', 'image-src', 'image-alt'];
 
     /** @var array|null The declarations from db/components.php, loaded once. */
     private static ?array $declarations = null;

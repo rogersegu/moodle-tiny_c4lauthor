@@ -51,7 +51,10 @@ class get_components extends external_api {
         $field = [
             'selector' => new external_value(PARAM_RAW, 'CSS selector of the element, empty for the component itself'),
             'label' => new external_value(PARAM_RAW, 'Lang string key of the label'),
-            'type' => new external_value(PARAM_ALPHANUMEXT, 'textarea, input, list, image-src or image-alt'),
+            'type' => new external_value(
+                PARAM_ALPHANUMEXT,
+                'textarea, paragraphs, input, list, image-src or image-alt'
+            ),
         ];
         return new external_single_structure([
             'components' => new external_multiple_structure(

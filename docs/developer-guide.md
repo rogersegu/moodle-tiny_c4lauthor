@@ -37,6 +37,16 @@ Add the strings to `lang/en/tiny_c4lauthor.php` and the styles to `scss/`. A var
 that adds HTML has its own template in `templates/variants/`. Precision fields that a
 CSS selector alone cannot read or write name a handler from `amd/src/precise_handlers.js`.
 
+A field of type `paragraphs` is a text of several blocks — the paragraphs of a card or
+of a combo — read into one box with a blank line between them, the way they are
+written, and written back as a block each, with the tag they had and where they were.
+The box holds plain text, so nothing can be formatted in it, but nothing formatted is
+lost either: what the author changed is written where it lies, in the text nodes that
+hold it, leaving the bold and the links around it alone.
+A field of type `list` is one box per element the selector matches, added and removed
+one at a time, for the items of a list. The other types are a single element, the
+first the selector matches.
+
 `tests/local/components_test.php` checks that the declarations are consistent and
 that each component renders exactly the markup in `tests/fixtures/components/`.
 Changing a component's markup means updating its fixtures in the same commit.

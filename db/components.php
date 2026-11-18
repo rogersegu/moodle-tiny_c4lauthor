@@ -488,11 +488,9 @@ $components = [
         'flow' => [''],
         'precision' => [
             [
-                'selector' => 'span[data-id]',
+                'selector' => 'p',
                 'label' => 'precision_field_text',
-                'type' => 'textarea',
-                'innerhtml' => true,
-                'fallback' => true,
+                'type' => 'paragraphs',
             ],
         ],
         'students' => true,
@@ -739,7 +737,7 @@ $components = [
             [
                 'selector' => '.text p',
                 'label' => 'precision_field_text',
-                'type' => 'textarea',
+                'type' => 'paragraphs',
             ],
             [
                 'selector' => '.text li',
@@ -847,9 +845,9 @@ $components = [
                 'type' => 'input',
             ],
             [
-                'selector' => '.c4l-collapsible-content',
+                'selector' => '.c4l-collapsible-content p',
                 'label' => 'precision_field_text',
-                'type' => 'textarea',
+                'type' => 'paragraphs',
             ],
         ],
     ],
