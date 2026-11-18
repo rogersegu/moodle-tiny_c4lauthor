@@ -45,6 +45,20 @@ Changing a component's markup means updating its fixtures in the same commit.
 settings list every component; one an admin has not seen there yet counts with its
 default.
 
+## Enter inside a component
+
+Enter at the end of a component leaves it, for a new paragraph below. Components
+whose text is meant to run to several paragraphs declare those regions in `flow`:
+
+```php
+'flow' => ['.text'],
+```
+
+Inside one, Enter is TinyMCE's to handle and starts a paragraph, until it is pressed
+on a paragraph left empty: that paragraph goes and the cursor leaves the component.
+An empty list item is left alone, since that is how TinyMCE itself leaves a list.
+The handler is in `amd/src/commands.js`; components only say where it applies.
+
 ## Tabs, carousel and collapsible
 
 These helpers are plain markup recognised by their classes, so they survive Moodle's

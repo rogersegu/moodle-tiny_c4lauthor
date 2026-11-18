@@ -45,6 +45,9 @@ category.
   out of; Sequential says what the timeline is for.
 - Variants can form groups (exactly one active) and exclude others. A component can
   declare its own wrapper class instead of a `c4lv-` one.
+- A component can name the regions of its text, in `flow`, where Enter writes on in a
+  new paragraph rather than leaving the component, which a second Enter on the empty
+  paragraph does. The combo, the tabs and the collapsible name theirs.
 - Other plugins can add components and editor stylesheets through a new hook,
   `\tiny_c4lauthor\hook\extend_components`, without changing C4L Author. Their
   components use their own templates, strings and icons, appear under a *Templates*

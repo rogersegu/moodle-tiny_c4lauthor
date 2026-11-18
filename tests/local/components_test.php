@@ -170,6 +170,7 @@ final class components_test extends \advanced_testcase {
         $this->assertSame('tiny_c4lauthor/components/keyconcept', $keyconcept['template']);
         $this->assertSame(['full-width'], $keyconcept['variants']);
         $this->assertTrue($keyconcept['precision'][0]['innerhtml']);
+        $this->assertSame([], $keyconcept['flow']);
         $this->assertSame('tiny_c4lauthor', $keyconcept['component']);
         $this->assertSame(0, $keyconcept['id']);
         $this->assertSame('', $keyconcept['inserter']);

@@ -500,6 +500,28 @@ export const getSetup = async() => {
         // Tabs and carousel controls.
         attachEditorWidgets(innerEditor).catch(Notification.exception);
 
+        // Leave a component: a new paragraph after it, the cursor in it, and the
+        // block the cursor came from gone when it was left empty.
+        const leaveComponent = (compEl, emptyBlock) => {
+            const iframeDoc = innerEditor.getDoc();
+            const newP = iframeDoc.createElement('p');
+            newP.innerHTML = '<br>';
+            const wrapper = compEl.closest('.c4l-inline-group, .c4l-display-left');
+            let insertAfter = wrapper || compEl;
+            if (insertAfter.nextSibling &&
+                insertAfter.nextSibling.nodeType === 1 &&
+                insertAfter.nextSibling.classList &&
+                insertAfter.nextSibling.classList.contains('c4l-spacer')) {
+                insertAfter = insertAfter.nextSibling;
+            }
+            insertAfter.parentNode.insertBefore(newP, insertAfter.nextSibling);
+            if (emptyBlock) {
+                emptyBlock.remove();
+            }
+            // Move cursor into the new paragraph.
+            innerEditor.selection.setCursorLocation(newP, 0);
+        };
+
         // When pressing Enter at the end of a C4L component, exit the
         // component and place the cursor in a new paragraph below it.
         // Third param `true` = prepend, so this runs before TinyMCE's own handler.
@@ -514,15 +536,40 @@ export const getSetup = async() => {
             }
             // Walk up to find the c4lv-* wrapper.
             let compEl = rng.endContainer;
+            let compName = null;
             const body = innerEditor.getBody();
             while (compEl && compEl !== body) {
-                if (compEl.nodeType === 1 && compEl.className &&
-                    catalogue.nameOf(compEl)) {
-                    break;
+                if (compEl.nodeType === 1 && compEl.className) {
+                    compName = catalogue.nameOf(compEl);
+                    if (compName) {
+                        break;
+                    }
                 }
                 compEl = compEl.parentNode;
             }
             if (!compEl || compEl === body) {
+                return;
+            }
+            // Inside a region the component declares as flow, Enter is TinyMCE's to
+            // handle — it writes on in a new paragraph — until it is pressed on a
+            // paragraph left empty, and that one leaves the component.
+            const caretEl = rng.endContainer.nodeType === 1
+                ? rng.endContainer
+                : rng.endContainer.parentElement;
+            const flow = (catalogue.find(compName) || {}).flow || [];
+            const region = flow.length && caretEl ? caretEl.closest(flow.join(', ')) : null;
+            if (region && compEl.contains(region)) {
+                const block = caretEl.closest('p, h1, h2, h3, h4, h5, h6, blockquote, li, td, th');
+                // An empty list item is how TinyMCE leaves a list, not the component.
+                const empty = block && block.tagName !== 'LI' &&
+                    block.textContent.trim() === '' &&
+                    !block.querySelector('img, iframe, video, audio, table');
+                if (!block || !region.contains(block) || !empty) {
+                    return;
+                }
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                leaveComponent(compEl, block);
                 return;
             }
             // Check if cursor is at the very end of the component.
@@ -555,21 +602,7 @@ export const getSetup = async() => {
             // Prevent TinyMCE from inserting a newline inside the component.
             e.preventDefault();
             e.stopImmediatePropagation();
-            // Insert a new paragraph after the component (or its wrapper).
-            const iframeDoc = innerEditor.getDoc();
-            const newP = iframeDoc.createElement('p');
-            newP.innerHTML = '<br>';
-            const wrapper = compEl.closest('.c4l-inline-group, .c4l-display-left');
-            let insertAfter = wrapper || compEl;
-            if (insertAfter.nextSibling &&
-                insertAfter.nextSibling.nodeType === 1 &&
-                insertAfter.nextSibling.classList &&
-                insertAfter.nextSibling.classList.contains('c4l-spacer')) {
-                insertAfter = insertAfter.nextSibling;
-            }
-            insertAfter.parentNode.insertBefore(newP, insertAfter.nextSibling);
-            // Move cursor into the new paragraph.
-            innerEditor.selection.setCursorLocation(newP, 0);
+            leaveComponent(compEl, null);
         }, true);
 
         // View swap — all views share the modal body.

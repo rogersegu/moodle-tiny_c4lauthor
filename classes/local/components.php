@@ -36,6 +36,8 @@ use tiny_c4lauthor\hook\extend_components;
  * - docs: lang string keys of the description and the use cases (optional)
  * - variants: names of the variants the component supports
  * - convertible: position in the "Convert to" menu, for components that can be converted (optional)
+ * - flow: selectors of the regions where Enter starts a paragraph rather than leaving
+ *   the component, which it takes a second Enter on an empty one to do (optional)
  * - precision: the fields precision mode offers (optional)
  * - students: whether students are offered the component by default (optional)
  *
@@ -178,6 +180,7 @@ class components {
                 $declaration['variants'] ?? [],
                 fn($variant) => isset($variants[$variant])
             )),
+            'flow' => array_values(array_filter($declaration['flow'] ?? [], 'is_string')),
             'precision' => $precision,
             'inserter' => $declaration['inserter'] ?? '',
             'students' => !empty($declaration['students']),
@@ -324,6 +327,7 @@ class components {
                 ],
                 'variants' => $component['variants'] ?? [],
                 'convertible' => $component['convertible'] ?? 0,
+                'flow' => array_values($component['flow'] ?? []),
                 'precision' => array_map([self::class, 'export_field'], $component['precision'] ?? []),
                 'inserter' => $component['inserter'] ?? '',
             ];

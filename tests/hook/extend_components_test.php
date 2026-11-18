@@ -59,6 +59,7 @@ final class extend_components_test extends \advanced_testcase {
             'text' => 'Box text',
             'docs' => ['description' => 'docs_tip_desc', 'usecases' => ['docs_tip_use1']],
             'variants' => ['full-width', 'nosuchvariant'],
+            'flow' => ['.c4l-box-content', 42],
             'precision' => [
                 ['selector' => 'span[data-id]', 'label' => 'precision_field_text', 'type' => 'textarea'],
             ],
@@ -106,6 +107,7 @@ final class extend_components_test extends \advanced_testcase {
         $this->assertSame('tiny_c4lauthor/testinserter', $box['inserter']);
         $this->assertStringContainsString('c4l_panellist_icon', $box['icon']);
         $this->assertSame('tiny_c4lauthor/docs_tip_desc', $box['docs']['description']);
+        $this->assertSame(['.c4l-box-content'], $box['flow'], 'Flow selectors that are not strings are dropped');
         $this->assertSame('tiny_c4lauthor/precision_field_text', $box['precision'][0]['label']);
 
         $strings = array_column($export['strings'], 'value', 'key');

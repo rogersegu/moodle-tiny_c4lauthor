@@ -733,6 +733,7 @@ $components = [
             'usecases' => [],
         ],
         'variants' => ['text-image', 'image-text', 'textbackground', 'wholeimage'],
+        'flow' => ['.text'],
         'precision' => [
             [
                 'selector' => '.text p',
@@ -810,6 +811,7 @@ $components = [
             'usecases' => [],
         ],
         'variants' => [],
+        'flow' => ['.c4l-tab-content'],
     ],
     'carousel' => [
         'id' => 44,
@@ -836,6 +838,7 @@ $components = [
             'usecases' => [],
         ],
         'variants' => ['buttondropdown', 'linkdropdown'],
+        'flow' => ['.c4l-collapsible-content'],
         'precision' => [
             [
                 'selector' => '.c4l-collapsible-title',

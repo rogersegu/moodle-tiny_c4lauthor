@@ -57,6 +57,8 @@ final class get_components_test extends \advanced_testcase {
         $timeline = $result['components'][array_search('timeline', $names)];
         $this->assertSame('timelineevents', $timeline['precision'][0]['handler']);
         $this->assertSame('year', $timeline['precision'][0]['subfields'][0]['key']);
+        $combo = $result['components'][array_search('combo', $names)];
+        $this->assertSame(['.text'], $combo['flow']);
         $this->assertContains('caption', array_column($result['variants'], 'name'));
     }
 

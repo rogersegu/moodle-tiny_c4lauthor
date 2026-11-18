@@ -76,6 +76,9 @@ class get_components extends external_api {
                         new external_value(PARAM_ALPHANUMEXT, 'Variant name')
                     ),
                     'convertible' => new external_value(PARAM_INT, 'Position in the convert menu, 0 if not convertible'),
+                    'flow' => new external_multiple_structure(
+                        new external_value(PARAM_RAW, 'Selector of a region where Enter starts a paragraph')
+                    ),
                     'precision' => new external_multiple_structure(
                         new external_single_structure($field + [
                             'innerhtml' => new external_value(PARAM_BOOL, 'Whether the value is HTML'),
