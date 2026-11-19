@@ -78,6 +78,9 @@ category.
   still cannot be added there: the boxes hold plain text. A field that falls back to
   the component, because the text span it looks for is not there, no longer replaces
   everything the component holds — a title of its own, for one, used to go.
+- The panel list and the styled list draw the same checkmark, a ring with the tick
+  stroked rather than filled in, and a little thinner than it was. They were drawing
+  two different marks, which looked like two different sets of components.
 - `commands.js` is split into modules: the convert menu, the sidebar, the variant
   toolbar, the dropdown, the icons and the component markup each have their own.
 - The two student settings list every component, including added ones, and each
