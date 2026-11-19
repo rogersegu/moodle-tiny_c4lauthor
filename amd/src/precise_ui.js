@@ -433,18 +433,22 @@ const buildFormHtml = (fields, strings) => {
  */
 const buildFieldHtml = (field, fIdx, strings) => {
     const label = strings.get(field.descriptor.label) || field.descriptor.label;
+    // A list is a box per item, so there is nothing single for its label to name.
+    const single = field.descriptor.type !== 'list';
+    const id = 'tiny_c4lauthor__precision-field-' + fIdx;
     let html = '<div class="tiny_c4lauthor__precision-field-group" data-field-idx="' + fIdx + '">';
-    html += '<label class="tiny_c4lauthor__precision-label">' + label + '</label>';
+    html += '<label class="tiny_c4lauthor__precision-label"' +
+        (single ? ' for="' + id + '"' : '') + '>' + label + '</label>';
 
     if (field.descriptor.type === 'list') {
         html += buildListFieldHtml(field, fIdx, strings);
     } else if (field.descriptor.type === 'textarea' || field.descriptor.type === 'paragraphs') {
         // Value is set via DOM after insertion to avoid HTML escaping issues.
         html += '<textarea class="tiny_c4lauthor__precision-input' +
-            ' tiny_c4lauthor__precision-textarea"' +
+            ' tiny_c4lauthor__precision-textarea" id="' + id + '"' +
             ' data-field="' + fIdx + '"></textarea>';
     } else {
-        html += '<input type="text" class="tiny_c4lauthor__precision-input"' +
+        html += '<input type="text" class="tiny_c4lauthor__precision-input" id="' + id + '"' +
             ' data-field="' + fIdx + '" value="">';
     }
     html += '</div>';

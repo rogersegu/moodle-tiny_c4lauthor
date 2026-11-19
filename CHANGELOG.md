@@ -81,6 +81,8 @@ category.
 - The panel list and the styled list draw the same checkmark, a ring with the tick
   stroked rather than filled in, and a little thinner than it was. They were drawing
   two different marks, which looked like two different sets of components.
+- Each box in precision mode is named by its label, which until now sat beside it
+  without being tied to it, so a screen reader had nothing to announce.
 - `commands.js` is split into modules: the convert menu, the sidebar, the variant
   toolbar, the dropdown, the icons and the component markup each have their own.
 - The two student settings list every component, including added ones, and each
