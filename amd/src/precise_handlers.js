@@ -26,6 +26,7 @@
  */
 
 import {isWebAddress} from './webaddress';
+import {setBlockText, setParagraphs} from './precise_text';
 
 const setTextContent = (el, val) => {
     el.textContent = val;
@@ -255,6 +256,50 @@ const handlers = {
                 }
             });
             for (let i = values.length; i < existing.length; i++) {
+                existing[i].remove();
+            }
+        },
+    },
+
+    /**
+     * The tabs, a name and a text each. A tab is two elements, the name in one and the
+     * text of several blocks in the other, which is more than a selector can write.
+     */
+    tabs: {
+        apply: (compEl, values) => {
+            const doc = compEl.ownerDocument;
+            const existing = [...compEl.querySelectorAll(':scope > .c4l-tab')];
+            values.forEach((row, i) => {
+                let tab = existing[i];
+                if (!tab) {
+                    tab = doc.createElement('div');
+                    tab.className = 'c4l-tab';
+                    const title = doc.createElement('p');
+                    title.className = 'c4l-tab-title';
+                    const content = doc.createElement('div');
+                    content.className = 'c4l-tab-content';
+                    tab.append(title, content);
+                    // After the last tab, and before whatever the component keeps at
+                    // its end: the editor's own controls live there.
+                    const last = existing[existing.length - 1];
+                    if (last) {
+                        last.after(tab);
+                    } else {
+                        compEl.appendChild(tab);
+                    }
+                    existing[i] = tab;
+                }
+                const title = tab.querySelector(':scope > .c4l-tab-title');
+                if (title) {
+                    setBlockText(title, row.name || '');
+                }
+                const content = tab.querySelector(':scope > .c4l-tab-content');
+                if (content) {
+                    setParagraphs(content, [...content.children], row.content || '');
+                }
+            });
+            // A tabs component with no tab is not a tabs component: the last one stays.
+            for (let i = Math.max(values.length, 1); i < existing.length; i++) {
                 existing[i].remove();
             }
         },

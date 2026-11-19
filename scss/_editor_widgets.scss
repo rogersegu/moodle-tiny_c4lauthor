@@ -33,12 +33,28 @@
     border-top-right-radius: 0;
 }
 
-.c4lv-tabs[data-c4l-editing] .c4l-tab-title {
-    padding-bottom: 4px;
-    border-bottom: 1px dashed var(--c4l-tabs-rule);
+/* The title is the name of the tab, which the author writes. Drawn as the field it
+   behaves like, with a caption of its own, rather than as a line of faint text that
+   reads like a heading of the content below it. */
+.c4lv-tabs[data-c4l-editing] .c4l-editor-tab-label {
+    display: block;
+    margin-bottom: 3px;
     color: var(--c4l-text-muted);
-    font-size: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
+}
+
+.c4lv-tabs[data-c4l-editing] .c4l-tab-title {
+    margin-bottom: 18px;
+    padding: 6px 10px;
+    border: 1px solid var(--c4l-tabs-rule);
+    border-radius: 4px;
+    background-color: var(--c4l-surface);
+    color: var(--c4l-text);
+    font-size: 15px;
+    font-weight: 400;
 }
 
 .c4l-editor-tabbar {

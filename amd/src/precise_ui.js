@@ -24,6 +24,8 @@
 import {get_string as getString} from 'core/str';
 import {component} from './common';
 import {buildFieldRegistry} from './precise_handlers';
+import {attachPreviewTabs} from './editor_widgets';
+import {blocksToText, setBlockText, setParagraphs} from './precise_text';
 import Templates from 'core/templates';
 
 /** @type {Object} Field descriptors by component name, built from the declarations on mount. */
@@ -176,18 +178,11 @@ const extractParagraphsField = (compEl, desc) => {
     if (blocks.length === 0) {
         return null;
     }
-    // A block with nothing in it is not a paragraph of the text; showing it would be a
-    // blank line at the top of the box that the author cannot do anything about.
-    const value = Array.from(blocks)
-        .map((block) => block.textContent.trim())
-        .filter((text) => text !== '')
-        .join('\n\n');
-    return {descriptor: desc, value, elements: blocks};
+    return {descriptor: desc, value: blocksToText(blocks), elements: blocks};
 };
 
 /**
- * Write a paragraphs-type field back: a block per paragraph of the text, with the tag
- * and in the place of the blocks that were there.
+ * Write a paragraphs-type field back.
  *
  * @param {HTMLElement} compEl
  * @param {Object} desc
@@ -198,108 +193,7 @@ const applyParagraphsField = (compEl, desc, value) => {
     if (blocks.length === 0) {
         return;
     }
-    const parent = blocks[0].parentNode;
-    const tagname = blocks[0].tagName;
-    const after = blocks[blocks.length - 1].nextSibling;
-    const texts = value.split(/\n\s*\n/).map((text) => text.trim()).filter((text) => text !== '');
-    // A text emptied altogether still leaves the block the author writes in.
-    const wanted = texts.length ? texts : [''];
-    // The blocks the box showed, in its order; an empty one was not shown.
-    const shown = blocks.filter((block) => block.textContent.trim() !== '');
-    blocks.filter((block) => !shown.includes(block)).forEach((block) => block.remove());
-    const written = wanted.map((text, index) => {
-        const block = shown[index] || compEl.ownerDocument.createElement(tagname);
-        setBlockText(block, text);
-        return block;
-    });
-    // Paragraphs the author took out.
-    shown.slice(wanted.length).forEach((block) => block.remove());
-    // Put them in order, from the back, moving only what is out of place.
-    let anchor = after;
-    for (let index = written.length - 1; index >= 0; index--) {
-        if (written[index].parentNode !== parent || written[index].nextSibling !== anchor) {
-            parent.insertBefore(written[index], anchor);
-        }
-        anchor = written[index];
-    }
-};
-
-/**
- * Write a text into a block, keeping the markup of what did not change. The author
- * edits plain text here, so a bold word or a link they left alone has to survive.
- *
- * @param {HTMLElement} block
- * @param {string} text
- */
-const setBlockText = (block, text) => {
-    // The box holds the text trimmed, so the comparison is with the trimmed text, and
-    // what the markup is indented with is left out of the change and survives it.
-    const raw = block.textContent;
-    const lead = raw.length - raw.trimStart().length;
-    const current = raw.trim();
-    if (current === text) {
-        return;
-    }
-    // What changed is what lies between the common start and the common end.
-    let start = 0;
-    while (start < current.length && start < text.length && current[start] === text[start]) {
-        start++;
-    }
-    let end = 0;
-    while (end < current.length - start && end < text.length - start &&
-        current[current.length - 1 - end] === text[text.length - 1 - end]) {
-        end++;
-    }
-    const inserted = text.slice(start, text.length - end);
-    if (!spliceBlockText(block, lead + start, current.length - start - end, inserted)) {
-        block.textContent = text;
-    }
-};
-
-/**
- * Replace a range of a block's text where it lives, in its text nodes, so that the
- * elements around them stay. Elements left with nothing in them go.
- *
- * @param {HTMLElement} block
- * @param {number} start — where the change begins, in characters of the block's text
- * @param {number} removed — how many characters go
- * @param {string} inserted — what takes their place
- * @returns {boolean} false when the block has no text node to write into
- */
-const spliceBlockText = (block, start, removed, inserted) => {
-    const walker = block.ownerDocument.createTreeWalker(block, NodeFilter.SHOW_TEXT);
-    const nodes = [];
-    while (walker.nextNode()) {
-        nodes.push(walker.currentNode);
-    }
-    if (nodes.length === 0) {
-        return false;
-    }
-    const end = start + removed;
-    let offset = 0;
-    let written = false;
-    nodes.forEach((node) => {
-        const length = node.data.length;
-        const from = Math.min(Math.max(start - offset, 0), length);
-        const to = Math.min(Math.max(end - offset, 0), length);
-        // What was added goes into the first node the change reaches.
-        if (from < to || (!written && start < offset + length)) {
-            node.data = node.data.slice(0, from) + (written ? '' : inserted) + node.data.slice(to);
-            written = true;
-        }
-        offset += length;
-    });
-    if (!written) {
-        // Added at the very end: it belongs to the block, not to the markup the last
-        // word happens to wear.
-        block.appendChild(block.ownerDocument.createTextNode(inserted));
-    }
-    block.querySelectorAll('*').forEach((el) => {
-        if (!el.textContent && !el.querySelector('img, br') && !['BR', 'IMG'].includes(el.tagName)) {
-            el.remove();
-        }
-    });
-    return true;
+    setParagraphs(blocks[0].parentNode, blocks, value);
 };
 
 /**
@@ -320,7 +214,15 @@ const extractListField = (compEl, desc) => {
             const row = {};
             desc.subfields.forEach((sf) => {
                 const el = item.querySelector(sf.selector);
-                row[sf.key] = el ? el.textContent.trim() : '';
+                if (!el) {
+                    row[sf.key] = '';
+                    return;
+                }
+                // A subfield that holds blocks reads as the text it is, a blank line
+                // between its paragraphs, rather than all of them run together.
+                row[sf.key] = sf.type === 'paragraphs'
+                    ? blocksToText(el.children.length ? el.children : [el])
+                    : el.textContent.trim();
             });
             values.push(row);
         });
@@ -493,7 +395,7 @@ const buildListItemHtml = (fIdx, itemIdx, strings, desc) => {
             if (labelText) {
                 html += '<label class="tiny_c4lauthor__precision-sublabel">' + labelText + '</label>';
             }
-            if (sf.type === 'textarea') {
+            if (sf.type === 'textarea' || sf.type === 'paragraphs') {
                 html += '<textarea class="tiny_c4lauthor__precision-input' +
                     ' tiny_c4lauthor__precision-textarea"' +
                     ' data-field="' + fIdx + '" data-item="' + itemIdx +
@@ -755,6 +657,7 @@ export const mountPreciseView = async(container, handlers, catalogue) => {
 
     let currentCompEl = null;
     let currentFields = null;
+    let detachPreviewTabs = null;
 
     iframe.addEventListener('load', () => {
         const iDoc = iframe.contentDocument;
@@ -765,6 +668,16 @@ export const mountPreciseView = async(container, handlers, catalogue) => {
         iDoc.addEventListener('click', (e) => {
             e.preventDefault();
             handlePreviewClick(e.target, iDoc);
+        });
+
+        // The preview runs no scripts of its own, so what the components need drawing
+        // is drawn from here. Without it the tabs stand one under the other, every
+        // title showing, which is not how the author has just seen them.
+        attachPreviewTabs(iDoc).then((detach) => {
+            detachPreviewTabs = detach;
+            return detach;
+        }).catch(() => {
+            // A preview that draws no tab bar is still a usable preview.
         });
     });
 
@@ -819,9 +732,14 @@ export const mountPreciseView = async(container, handlers, catalogue) => {
             return null;
         }
         const clone = body.cloneNode(true);
-        clone.querySelectorAll('[data-c4l-selected], [data-c4l-idx]').forEach((el) => {
-            el.removeAttribute('data-c4l-selected');
-            el.removeAttribute('data-c4l-idx');
+        // What the preview draws for itself is furniture, not content: the controls
+        // the components get drawn, marked as the editor marks its own, and the
+        // attributes saying which one is selected and which tab is shown. The editor
+        // takes the same things out of what it saves, in its PreProcess.
+        clone.querySelectorAll('[data-mce-bogus]').forEach((el) => el.remove());
+        const furniture = ['data-c4l-selected', 'data-c4l-idx', 'data-c4l-active', 'data-c4l-editing'];
+        clone.querySelectorAll('[' + furniture.join('], [') + ']').forEach((el) => {
+            furniture.forEach((name) => el.removeAttribute(name));
         });
         return clone.innerHTML;
     };
@@ -906,6 +824,10 @@ export const mountPreciseView = async(container, handlers, catalogue) => {
     const destroy = () => {
         if (currentCompEl) {
             currentCompEl.removeAttribute('data-c4l-selected');
+        }
+        if (detachPreviewTabs) {
+            detachPreviewTabs();
+            detachPreviewTabs = null;
         }
         // Cancel any pending debounced sync and force-write the clean HTML.
         if (syncTimer) {

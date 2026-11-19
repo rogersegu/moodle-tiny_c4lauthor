@@ -36,9 +36,19 @@ const ACTIVE = 'data-c4l-active';
 const EDITING = 'data-c4l-editing';
 
 const STRING_KEYS = [
-    'tab', 'tab_content', 'tabs_add_tab', 'tabs_delete_tab', 'carousel_previous', 'carousel_next',
+    'tab', 'tab_name', 'tab_content', 'tabs_add_tab', 'tabs_delete_tab', 'carousel_previous', 'carousel_next',
     'carousel_add_slide', 'carousel_delete_slide', 'carousel_add_image', 'carousel_change_image',
 ];
+
+/**
+ * The strings the controls are labelled with, by key.
+ *
+ * @returns {Promise<Object>}
+ */
+const getWidgetStrings = async() => {
+    const values = await getStrings(STRING_KEYS.map((key) => ({key, component})));
+    return Object.fromEntries(STRING_KEYS.map((key, i) => [key, values[i]]));
+};
 
 /**
  * Create an editor-only control element.
@@ -99,27 +109,37 @@ const show = (items, index) => {
  *
  * @param {HTMLElement} root .c4lv-tabs
  * @param {Object} strings
+ * @param {boolean} [preview] leave out the controls that change what the component holds
  */
-const drawTabs = (root, strings) => {
+const drawTabs = (root, strings, preview) => {
     const doc = root.ownerDocument;
     const {items, index} = itemsOf(root, '.c4l-tab');
     show(items, index);
 
     root.querySelectorAll(':scope > .c4l-editor-tabbar, :scope > .c4l-editor-toolbar').forEach((el) => el.remove());
+    root.querySelectorAll('.c4l-editor-tab-label').forEach((el) => el.remove());
     const bar = control(doc, 'div', 'c4l-editor-tabbar');
     items.forEach((tab, i) => {
         const title = tab.querySelector(':scope > .c4l-tab-title');
         const text = (title && title.textContent.trim()) || `${strings.tab} ${i + 1}`;
+        // Say what the title is. On its own it reads as a heading of the tab's
+        // content rather than as the name the author is writing for the tab.
+        if (title) {
+            title.before(control(doc, 'span', 'c4l-editor-tab-label', null, strings.tab_name));
+        }
         const button = control(doc, 'span', 'c4l-editor-tab' + (i === index ? ' active' : ''), 'tabs-select', text);
         button.setAttribute('data-c4l-index', i);
         bar.appendChild(button);
     });
+    root.prepend(bar);
+    if (preview) {
+        return;
+    }
     const toolbar = control(doc, 'div', 'c4l-editor-toolbar');
     toolbar.append(
         control(doc, 'span', 'c4l-editor-button', 'tabs-add', '+ ' + strings.tabs_add_tab),
         control(doc, 'span', 'c4l-editor-button', 'tabs-delete', '× ' + strings.tabs_delete_tab),
     );
-    root.prepend(bar);
     root.append(toolbar);
 };
 
@@ -185,6 +205,43 @@ const attachTabs = (root, strings) => {
             drawTabs(root, strings);
         }
     }).observe(root, {childList: true, subtree: true, characterData: true});
+};
+
+/**
+ * Draw the tabs of a document that is not an editor — the preview of precision mode,
+ * which runs no scripts of its own — and let them be switched, so that they read and
+ * behave as they do in the content view. Without the controls that change what the
+ * component holds: the preview is for reading and for choosing what to edit.
+ *
+ * @param {Document} doc
+ * @returns {Promise<Function>} takes the listener back off
+ */
+export const attachPreviewTabs = async(doc) => {
+    const roots = doc.querySelectorAll('.c4lv-tabs');
+    if (!roots.length) {
+        return () => {};
+    }
+    const strings = await getWidgetStrings();
+    roots.forEach((root) => {
+        root.setAttribute(EDITING, '');
+        drawTabs(root, strings, true);
+    });
+
+    const onClick = (e) => {
+        const target = e.target.closest && e.target.closest('[data-c4l-action="tabs-select"]');
+        const root = target && target.closest('.c4lv-tabs');
+        if (!root) {
+            return;
+        }
+        // The click belongs to the tab bar: switching tabs is not choosing a
+        // component to edit, so it does not reach the preview's own handler.
+        e.preventDefault();
+        e.stopPropagation();
+        tabsAction(root, 'tabs-select', target, strings);
+        drawTabs(root, strings, true);
+    };
+    doc.addEventListener('click', onClick, true);
+    return () => doc.removeEventListener('click', onClick, true);
 };
 
 // ── Carousel ──
@@ -314,8 +371,7 @@ const carouselAction = (editor, root, action, strings) => {
  * @param {object} editor TinyMCE editor
  */
 export const attach = async(editor) => {
-    const values = await getStrings(STRING_KEYS.map((key) => ({key, component})));
-    const strings = Object.fromEntries(STRING_KEYS.map((key, i) => [key, values[i]]));
+    const strings = await getWidgetStrings();
     const doc = editor.getDoc();
     if (!doc) {
         return;

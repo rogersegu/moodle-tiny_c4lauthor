@@ -813,6 +813,28 @@ $components = [
         ],
         'variants' => [],
         'flow' => ['.c4l-tab-content'],
+        'precision' => [
+            [
+                'selector' => '.c4l-tab',
+                'label' => 'precision_field_tab',
+                'type' => 'list',
+                'handler' => 'tabs',
+                'subfields' => [
+                    [
+                        'key' => 'name',
+                        'selector' => '.c4l-tab-title',
+                        'type' => 'input',
+                        'label' => 'tab_name',
+                    ],
+                    [
+                        'key' => 'content',
+                        'selector' => '.c4l-tab-content',
+                        'type' => 'paragraphs',
+                        'label' => 'precision_field_text',
+                    ],
+                ],
+            ],
+        ],
     ],
     'carousel' => [
         'id' => 44,
