@@ -71,9 +71,17 @@ component whose text is its whole content:
 'flow' => [''],
 ```
 
-Inside one, Enter is TinyMCE's to handle and starts a paragraph, until it is pressed
-on a paragraph left empty: that paragraph goes and the cursor leaves the component.
-An empty list item is left alone, since that is how TinyMCE itself leaves a list.
+Inside one, Enter is TinyMCE's to handle and starts a paragraph, or an item where the
+region is a list, until it is pressed on one left empty: that block goes and the
+cursor leaves the component. The last block a component has is kept rather than
+removed, so that an empty list is never left behind and a text always has somewhere
+to write.
+
+An empty item only leaves where the list is the region itself, as it is in the panel
+list and the styled list. A list inside a region that holds more than it — the text
+of a combo — is TinyMCE's to unindent, which leaves the author a paragraph in the
+same region, where they meant to stay.
+
 The handler is in `amd/src/commands.js`; components only say where it applies.
 
 ## Tabs, carousel and collapsible

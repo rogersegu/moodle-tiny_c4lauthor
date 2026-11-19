@@ -47,8 +47,9 @@ category.
   declare its own wrapper class instead of a `c4lv-` one.
 - A component can name the regions of its text, in `flow`, where Enter writes on in a
   new paragraph rather than leaving the component, which a second Enter on the empty
-  paragraph does. The all-purpose card, the combo, the tabs and the collapsible name
-  theirs.
+  paragraph does. In a list, Enter adds an item and the empty one leaves. The
+  all-purpose card, the panel list, the styled list, the combo, the tabs and the
+  collapsible name theirs.
 - Other plugins can add components and editor stylesheets through a new hook,
   `\tiny_c4lauthor\hook\extend_components`, without changing C4L Author. Their
   components use their own templates, strings and icons, appear under a *Templates*

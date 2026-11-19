@@ -676,6 +676,7 @@ $components = [
             'usecases' => [],
         ],
         'variants' => ['numbered', 'checkmarks', 'compact', 'full-width'],
+        'flow' => [''],
         'precision' => [
             [
                 'selector' => 'li',
@@ -763,6 +764,7 @@ $components = [
             'usecases' => [],
         ],
         'variants' => ['checkmarks', 'chevrons'],
+        'flow' => [''],
         'precision' => [
             [
                 'selector' => ':scope > li',

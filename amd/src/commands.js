@@ -515,7 +515,10 @@ export const getSetup = async() => {
                 insertAfter = insertAfter.nextSibling;
             }
             insertAfter.parentNode.insertBefore(newP, insertAfter.nextSibling);
-            if (emptyBlock) {
+            // The block the cursor came from goes, unless it is the last one the
+            // component has: an empty list is no list, and an empty text leaves the
+            // author nowhere to write when they come back.
+            if (emptyBlock && emptyBlock.parentNode.children.length > 1) {
                 emptyBlock.remove();
             }
             // Move cursor into the new paragraph.
@@ -566,11 +569,19 @@ export const getSetup = async() => {
             }
             if (region && compEl.contains(region)) {
                 const block = caretEl.closest('p, h1, h2, h3, h4, h5, h6, blockquote, li, td, th');
-                // An empty list item is how TinyMCE leaves a list, not the component.
-                const empty = block && block.tagName !== 'LI' &&
-                    block.textContent.trim() === '' &&
+                if (!block || !region.contains(block)) {
+                    return;
+                }
+                // An empty item leaves a list the way an empty paragraph leaves a
+                // text, but only where the list is the region itself. A list inside
+                // a text of its own is TinyMCE's to unindent, which is what the
+                // author wants there: a paragraph, in the same text.
+                if (block.tagName === 'LI' && block.closest('ul, ol') !== region) {
+                    return;
+                }
+                const empty = block.textContent.trim() === '' &&
                     !block.querySelector('img, iframe, video, audio, table');
-                if (!block || !region.contains(block) || !empty) {
+                if (!empty) {
                     return;
                 }
                 e.preventDefault();
