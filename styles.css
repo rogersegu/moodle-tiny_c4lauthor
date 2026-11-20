@@ -13,6 +13,7 @@
   --c4l-surface: #fff;
   --c4l-border: transparent;
   --c4l-rule: #cbd1e1; /* visible lines: tab and table borders */
+  --c4l-rule-soft: #e2e7f1; /* fainter lines: the carousel's slide count */
   --c4l-text-strong: #454952; /* text that must not take a link's colour */
   --c4l-text: inherit;
   --c4l-text-muted: #686d79;
@@ -124,6 +125,7 @@
   --c4l-surface: #181c20;
   --c4l-border: #2a3037;
   --c4l-rule: #3a414b;
+  --c4l-rule-soft: #2f353d;
   --c4l-text-strong: #e6e9ec;
   --c4l-text: #e6e9ec;
   --c4l-text-muted: #8d959d;
@@ -309,6 +311,7 @@
   --c4l-tabs-panel-bg: var(--c4l-surface);
   --c4l-carousel-slide-bg: var(--c4l-tint-brand);
   --c4l-carousel-control: var(--c4l-text-muted);
+  --c4l-carousel-count-border: var(--c4l-rule-soft);
   --c4l-collapsible-trigger: var(--c4l-ink-brand);
   --c4l-collapsible-bg: var(--c4l-tint-brand);
   --c4l-table-head-bg: var(--c4l-solid-brand);
@@ -2614,8 +2617,6 @@ svg.tiny_c4lauthor__code-header-icon {
   padding: 8px 4px;
 }
 
-/* The same checkmark the styled list draws, so the two look like one family: a ring
-   with the tick stroked and round-capped rather than filled in. */
 .c4lv-panellist.c4l-checkmarks-variant > li::before {
   content: "";
   background-color: var(--c4l-panellist-marker);
@@ -2876,7 +2877,6 @@ svg.tiny_c4lauthor__code-header-icon {
   height: 100% !important;
   object-fit: cover;
   object-position: 50% 50%;
-  border-radius: 16px;
 }
 .c4l-combo img:not([src]), .c4l-combo img[src=""] {
   position: static;
@@ -2907,10 +2907,9 @@ svg.tiny_c4lauthor__code-header-icon {
   order: 1;
 }
 
-/* Text background: the panel the text sat in before it became a choice. */
 .c4l-combo.c4l-textbackground-variant .text {
   background: var(--c4l-combo-bg);
-  border-radius: 16px;
+  border-radius: 10px;
   padding: 48px;
 }
 
@@ -2919,8 +2918,7 @@ svg.tiny_c4lauthor__code-header-icon {
     padding: 24px;
   }
 }
-/* Whole image: the image is shown entire rather than cropped to fill its cell.
-   It leaves the absolute fill, so it sits in the flow at its own aspect ratio. */
+/* Whole image: shown entire, at its own aspect ratio, in the flow. */
 .c4l-combo.c4l-wholeimage-variant .image {
   min-height: 100px;
 }
@@ -2933,8 +2931,6 @@ svg.tiny_c4lauthor__code-header-icon {
 }
 
 @media (min-width: 630px) {
-  /* The image column takes the width the image asks for, capped at half the
-     component, and the text takes what is left. */
   .c4l-combo.c4l-wholeimage-variant,
   .c4l-combo.c4l-wholeimage-variant.c4l-text-image-variant {
     grid-template-columns: 1fr fit-content(50%);
@@ -2942,8 +2938,6 @@ svg.tiny_c4lauthor__code-header-icon {
   .c4l-combo.c4l-wholeimage-variant.c4l-image-text-variant {
     grid-template-columns: fit-content(50%) 1fr;
   }
-  /* Its own size, not the height the text happens to set: a short text would
-     otherwise leave the image a sliver. */
   .c4l-combo.c4l-wholeimage-variant img {
     width: auto !important;
     max-width: 100%;

@@ -24,7 +24,7 @@
 import {get_string as getString} from 'core/str';
 import {component} from './common';
 import {buildFieldRegistry} from './precise_handlers';
-import {attachPreviewTabs} from './editor_widgets';
+import {attachPreview} from './editor_widgets';
 import {blocksToText, setBlockText, setParagraphs} from './precise_text';
 import Templates from 'core/templates';
 
@@ -657,7 +657,7 @@ export const mountPreciseView = async(container, handlers, catalogue) => {
 
     let currentCompEl = null;
     let currentFields = null;
-    let detachPreviewTabs = null;
+    let detachPreview = null;
 
     iframe.addEventListener('load', () => {
         const iDoc = iframe.contentDocument;
@@ -670,11 +670,10 @@ export const mountPreciseView = async(container, handlers, catalogue) => {
             handlePreviewClick(e.target, iDoc);
         });
 
-        // The preview runs no scripts of its own, so what the components need drawing
-        // is drawn from here. Without it the tabs stand one under the other, every
-        // title showing, which is not how the author has just seen them.
-        attachPreviewTabs(iDoc).then((detach) => {
-            detachPreviewTabs = detach;
+        // The preview runs no scripts of its own, so the tabs and the carousels are
+        // drawn from here, one tab or slide at a time, as the content view has them.
+        attachPreview(iDoc).then((detach) => {
+            detachPreview = detach;
             return detach;
         }).catch(() => {
             // A preview that draws no tab bar is still a usable preview.
@@ -825,9 +824,9 @@ export const mountPreciseView = async(container, handlers, catalogue) => {
         if (currentCompEl) {
             currentCompEl.removeAttribute('data-c4l-selected');
         }
-        if (detachPreviewTabs) {
-            detachPreviewTabs();
-            detachPreviewTabs = null;
+        if (detachPreview) {
+            detachPreview();
+            detachPreview = null;
         }
         // Cancel any pending debounced sync and force-write the clean HTML.
         if (syncTimer) {

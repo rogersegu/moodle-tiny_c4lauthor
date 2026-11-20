@@ -1416,8 +1416,6 @@ p.c4l-spacer + p.c4l-spacer {
     padding: 8px 4px;
 }
 
-/* The same checkmark the styled list draws, so the two look like one family: a ring
-   with the tick stroked and round-capped rather than filled in. */
 .c4lv-panellist.c4l-checkmarks-variant > li::before {
     content: "";
     display: inline-block;
@@ -1619,9 +1617,9 @@ p.c4l-spacer + p.c4l-spacer {
     margin-top: 24px;
     margin-bottom: 24px;
 }
-.c4l-combo .text {
+.c4l-combo.c4l-textbackground-variant .text {
     background: var(--c4l-combo-bg);
-    border-radius: 16px;
+    border-radius: 10px;
     padding: 48px;
 }
 .c4l-combo .text h2,
@@ -1673,7 +1671,7 @@ p.c4l-spacer + p.c4l-spacer {
 }
 .c4l-combo .image {
     position: relative;
-    min-height: 200px;
+    min-height: 80px;
 }
 .c4l-combo img {
     position: absolute !important;
@@ -1683,7 +1681,6 @@ p.c4l-spacer + p.c4l-spacer {
     height: 100% !important;
     object-fit: cover;
     object-position: 50% 50%;
-    border-radius: 16px;
 }
 .c4l-combo img:not([src]), .c4l-combo img[src=""] {
     position: static;
@@ -1714,8 +1711,19 @@ p.c4l-spacer + p.c4l-spacer {
     order: 1;
 }
 
+.c4l-combo.c4l-wholeimage-variant .image {
+    min-height: 100px;
+}
+
+.c4l-combo.c4l-wholeimage-variant img {
+    position: static !important;
+    width: 100% !important;
+    height: auto !important;
+    object-fit: contain;
+}
+
 @media (max-width: 399.98px) {
-    .c4l-combo .text {
+    .c4l-combo.c4l-textbackground-variant .text {
         padding: 24px;
     }
 }
@@ -1724,6 +1732,19 @@ p.c4l-spacer + p.c4l-spacer {
     .c4l-combo.c4l-text-image-variant,
     .c4l-combo.c4l-image-text-variant {
         grid-template-columns: 1fr 1fr;
+    }
+    .c4l-combo.c4l-wholeimage-variant,
+    .c4l-combo.c4l-wholeimage-variant.c4l-text-image-variant {
+        grid-template-columns: 1fr fit-content(50%);
+    }
+    .c4l-combo.c4l-wholeimage-variant.c4l-image-text-variant {
+        grid-template-columns: fit-content(50%) 1fr;
+    }
+    .c4l-combo.c4l-wholeimage-variant img {
+        width: auto !important;
+        max-width: 100%;
+        height: auto !important;
+        min-height: 100px;
     }
 }
 

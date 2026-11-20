@@ -33,9 +33,7 @@
     border-top-right-radius: 0;
 }
 
-/* The title is the name of the tab, which the author writes. Drawn as the field it
-   behaves like, with a caption of its own, rather than as a line of faint text that
-   reads like a heading of the content below it. */
+/* The title is the tab's name: a field with a caption of its own. */
 .c4lv-tabs[data-c4l-editing] .c4l-editor-tab-label {
     display: block;
     margin-bottom: 3px;
@@ -129,6 +127,12 @@
         margin: 0;
         transform: translateX(-50%);
     }
+
+    /* Adding and deleting a slide: along the bottom, centred. */
+    .c4l-editor-carousel-actions {
+        top: auto;
+        bottom: 8px;
+    }
 }
 
 .c4l-editor-carousel-image {
@@ -162,6 +166,7 @@
 
 .c4l-editor-carousel-count {
     padding: 4px 8px;
+    border: 1px solid var(--c4l-carousel-count-border);
     border-radius: 4px;
     background-color: var(--c4l-surface);
     color: var(--c4l-text-muted);

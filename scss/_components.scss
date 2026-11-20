@@ -1167,8 +1167,6 @@
     min-height: 40px;
     padding: 8px 4px;
 }
-/* The same checkmark the styled list draws, so the two look like one family: a ring
-   with the tick stroked and round-capped rather than filled in. */
 .c4lv-panellist.c4l-checkmarks-variant > li::before {
     @include c4l-mask(
         url([[pix:tiny_c4lauthor|c4l-checkmarks-icon]]),
@@ -1412,7 +1410,6 @@
         height: 100% !important;
         object-fit: cover;
         object-position: 50% 50%;
-        border-radius: 16px;
         &:not([src]),
         &[src=""] {
             position: static;
@@ -1445,10 +1442,9 @@
     order: 1;
 }
 
-/* Text background: the panel the text sat in before it became a choice. */
 .c4l-combo.c4l-textbackground-variant .text {
     background: var(--c4l-combo-bg);
-    border-radius: 16px;
+    border-radius: 10px;
     padding: 48px;
 }
 
@@ -1458,8 +1454,7 @@
     }
 }
 
-/* Whole image: the image is shown entire rather than cropped to fill its cell.
-   It leaves the absolute fill, so it sits in the flow at its own aspect ratio. */
+/* Whole image: shown entire, at its own aspect ratio, in the flow. */
 .c4l-combo.c4l-wholeimage-variant .image {
     min-height: 100px;
 }
@@ -1472,8 +1467,6 @@
 }
 
 @media (min-width: 630px) {
-    /* The image column takes the width the image asks for, capped at half the
-       component, and the text takes what is left. */
     .c4l-combo.c4l-wholeimage-variant,
     .c4l-combo.c4l-wholeimage-variant.c4l-text-image-variant {
         grid-template-columns: 1fr fit-content(50%);
@@ -1483,8 +1476,6 @@
         grid-template-columns: fit-content(50%) 1fr;
     }
 
-    /* Its own size, not the height the text happens to set: a short text would
-       otherwise leave the image a sliver. */
     .c4l-combo.c4l-wholeimage-variant img {
         width: auto !important;
         max-width: 100%;

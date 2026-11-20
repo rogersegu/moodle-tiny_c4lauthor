@@ -207,43 +207,6 @@ const attachTabs = (root, strings) => {
     }).observe(root, {childList: true, subtree: true, characterData: true});
 };
 
-/**
- * Draw the tabs of a document that is not an editor — the preview of precision mode,
- * which runs no scripts of its own — and let them be switched, so that they read and
- * behave as they do in the content view. Without the controls that change what the
- * component holds: the preview is for reading and for choosing what to edit.
- *
- * @param {Document} doc
- * @returns {Promise<Function>} takes the listener back off
- */
-export const attachPreviewTabs = async(doc) => {
-    const roots = doc.querySelectorAll('.c4lv-tabs');
-    if (!roots.length) {
-        return () => {};
-    }
-    const strings = await getWidgetStrings();
-    roots.forEach((root) => {
-        root.setAttribute(EDITING, '');
-        drawTabs(root, strings, true);
-    });
-
-    const onClick = (e) => {
-        const target = e.target.closest && e.target.closest('[data-c4l-action="tabs-select"]');
-        const root = target && target.closest('.c4lv-tabs');
-        if (!root) {
-            return;
-        }
-        // The click belongs to the tab bar: switching tabs is not choosing a
-        // component to edit, so it does not reach the preview's own handler.
-        e.preventDefault();
-        e.stopPropagation();
-        tabsAction(root, 'tabs-select', target, strings);
-        drawTabs(root, strings, true);
-    };
-    doc.addEventListener('click', onClick, true);
-    return () => doc.removeEventListener('click', onClick, true);
-};
-
 // ── Carousel ──
 
 /**
@@ -251,28 +214,33 @@ export const attachPreviewTabs = async(doc) => {
  *
  * @param {HTMLElement} root .c4lv-carousel
  * @param {Object} strings
+ * @param {boolean} [preview] only the controls that move between slides
  */
-const drawCarousel = (root, strings) => {
+const drawCarousel = (root, strings, preview) => {
     const doc = root.ownerDocument;
     const {items, index} = itemsOf(root, '.c4l-slide');
     show(items, index);
 
     root.querySelectorAll(':scope > .c4l-editor-carousel').forEach((el) => el.remove());
     const controls = control(doc, 'div', 'c4l-editor-carousel');
-    const hasImage = !!(items[index] && items[index].querySelector('img[src]:not([src=""])'));
-    controls.append(
-        control(doc, 'span', 'c4l-editor-carousel-prev', 'carousel-prev', '‹'),
-        control(doc, 'span', 'c4l-editor-button c4l-editor-carousel-image', 'carousel-image',
-            '+ ' + (hasImage ? strings.carousel_change_image : strings.carousel_add_image)),
-        control(doc, 'span', 'c4l-editor-carousel-next', 'carousel-next', '›'),
-    );
+    controls.appendChild(control(doc, 'span', 'c4l-editor-carousel-prev', 'carousel-prev', '‹'));
+    if (!preview) {
+        const hasImage = !!(items[index] && items[index].querySelector('img[src]:not([src=""])'));
+        controls.appendChild(control(doc, 'span', 'c4l-editor-button c4l-editor-carousel-image', 'carousel-image',
+            '+ ' + (hasImage ? strings.carousel_change_image : strings.carousel_add_image)));
+    }
+    controls.appendChild(control(doc, 'span', 'c4l-editor-carousel-next', 'carousel-next', '›'));
     const toolbar = control(doc, 'div', 'c4l-editor-toolbar');
-    toolbar.append(
-        control(doc, 'span', 'c4l-editor-carousel-count', null, `${index + 1} / ${items.length}`),
-        control(doc, 'span', 'c4l-editor-button', 'carousel-add', '+ ' + strings.carousel_add_slide),
-        control(doc, 'span', 'c4l-editor-button', 'carousel-delete', '× ' + strings.carousel_delete_slide),
-    );
+    toolbar.appendChild(control(doc, 'span', 'c4l-editor-carousel-count', null, `${index + 1} / ${items.length}`));
     controls.appendChild(toolbar);
+    if (!preview) {
+        const actions = control(doc, 'div', 'c4l-editor-toolbar c4l-editor-carousel-actions');
+        actions.append(
+            control(doc, 'span', 'c4l-editor-button', 'carousel-add', '+ ' + strings.carousel_add_slide),
+            control(doc, 'span', 'c4l-editor-button', 'carousel-delete', '× ' + strings.carousel_delete_slide),
+        );
+        controls.appendChild(actions);
+    }
     controls.querySelector('.c4l-editor-carousel-prev').title = strings.carousel_previous;
     controls.querySelector('.c4l-editor-carousel-next').title = strings.carousel_next;
     root.appendChild(controls);
@@ -363,6 +331,57 @@ const carouselAction = (editor, root, action, strings) => {
         pickImage(editor, root, items[index], () => drawCarousel(root, strings));
     }
     return false;
+};
+
+/**
+ * Draw the tabs and carousels of a document that is not an editor — the preview of
+ * precision mode, which runs no scripts of its own — and let them be browsed, one tab
+ * or slide at a time, as in the content view. Only the controls that move between
+ * them: the preview is for reading and for choosing what to edit.
+ *
+ * @param {Document} doc
+ * @returns {Promise<Function>} takes the listener back off
+ */
+export const attachPreview = async(doc) => {
+    const tabs = doc.querySelectorAll('.c4lv-tabs');
+    const carousels = doc.querySelectorAll('.c4lv-carousel');
+    if (!tabs.length && !carousels.length) {
+        return () => {};
+    }
+    const strings = await getWidgetStrings();
+    tabs.forEach((root) => {
+        root.setAttribute(EDITING, '');
+        drawTabs(root, strings, true);
+    });
+    carousels.forEach((root) => {
+        root.setAttribute(EDITING, '');
+        drawCarousel(root, strings, true);
+    });
+
+    const browsing = ['tabs-select', 'carousel-prev', 'carousel-next'];
+    const onClick = (e) => {
+        const target = e.target.closest && e.target.closest('[data-c4l-action]');
+        const root = target && target.closest('.c4lv-tabs, .c4lv-carousel');
+        const action = root && target.getAttribute('data-c4l-action');
+        if (!browsing.includes(action)) {
+            return;
+        }
+        // The click belongs to the controls: moving between tabs or slides is not
+        // choosing a component to edit, so it does not reach the preview's own handler.
+        e.preventDefault();
+        e.stopPropagation();
+        if (action === 'tabs-select') {
+            tabsAction(root, action, target, strings);
+            drawTabs(root, strings, true);
+            return;
+        }
+        const {items, index} = itemsOf(root, '.c4l-slide');
+        const step = action === 'carousel-next' ? 1 : -1;
+        show(items, (index + step + items.length) % items.length);
+        drawCarousel(root, strings, true);
+    };
+    doc.addEventListener('click', onClick, true);
+    return () => doc.removeEventListener('click', onClick, true);
 };
 
 /**
