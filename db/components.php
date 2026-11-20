@@ -888,6 +888,14 @@ $components = [
             'usecases' => [],
         ],
         'variants' => ['solid', 'colored'],
+        'precision' => [
+            [
+                'selector' => 'th, td',
+                'label' => 'precision_field_cell',
+                'type' => 'textarea',
+                'clicked' => true,
+            ],
+        ],
     ],
 ];
 

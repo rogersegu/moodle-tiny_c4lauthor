@@ -293,6 +293,7 @@ $string['precision_add_item'] = 'Add item';
 $string['precision_button'] = 'Precision';
 $string['precision_field_author'] = 'Author';
 $string['precision_field_caption'] = 'Caption';
+$string['precision_field_cell'] = 'Cell';
 $string['precision_field_do'] = 'Do';
 $string['precision_field_dont'] = 'Don\'t';
 $string['precision_field_event'] = 'Event';

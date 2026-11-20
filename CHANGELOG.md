@@ -83,6 +83,10 @@ category.
   two different marks, which looked like two different sets of components.
 - Each box in precision mode is named by its label, which until now sat beside it
   without being tied to it, so a screen reader had nothing to announce.
+- Precision mode edits the cell of a styled table that the author clicks, the field
+  being the part clicked rather than the first the selector matches. Components with
+  a wrapper class of their own, the styled table among them, could not be selected
+  there at all.
 - `commands.js` is split into modules: the convert menu, the sidebar, the variant
   toolbar, the dropdown, the icons and the component markup each have their own.
 - The two student settings list every component, including added ones, and each

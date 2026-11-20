@@ -38,7 +38,9 @@ use tiny_c4lauthor\hook\extend_components;
  * - convertible: position in the "Convert to" menu, for components that can be converted (optional)
  * - flow: selectors of the regions where Enter starts a paragraph rather than leaving
  *   the component, which it takes a second Enter on an empty one to do (optional)
- * - precision: the fields precision mode offers (optional)
+ * - precision: the fields precision mode offers (optional). A field marked clicked is
+ *   the part of the component the author clicked, rather than the first its selector
+ *   matches: a cell of a table, say
  * - students: whether students are offered the component by default (optional)
  *
  * A variant declaration has an id, an optional template with HTML it adds to the
@@ -370,6 +372,7 @@ class components {
             'innerhtml' => !empty($field['innerhtml']),
             'fallback' => !empty($field['fallback']),
             'optional' => !empty($field['optional']),
+            'clicked' => !empty($field['clicked']),
             'handler' => $field['handler'] ?? '',
             'subfields' => $field['subfields'] ?? [],
         ];

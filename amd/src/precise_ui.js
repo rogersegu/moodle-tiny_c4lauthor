@@ -104,21 +104,42 @@ const getStandardValue = (el, desc) => {
  *
  * @param {HTMLElement} compEl
  * @param {string} compName
+ * @param {HTMLElement} [clicked] what the click landed on, for fields anchored to it
  * @returns {Array<{descriptor: Object, value: string, values?: Array, elements: NodeList|Array}>}
  */
-const extractFields = (compEl, compName) => {
+const extractFields = (compEl, compName, clicked) => {
     const registry = fieldRegistry[compName];
     if (!registry) {
         return [];
     }
     const fields = [];
     for (const desc of registry) {
-        const extracted = extractSingleField(compEl, desc);
+        // A field the component has one of per part — a cell of a table — is the one
+        // the author clicked, not the first the selector matches.
+        const extracted = desc.clicked
+            ? extractClickedField(clicked, compEl, desc)
+            : extractSingleField(compEl, desc);
         if (extracted) {
             fields.push(extracted);
         }
     }
     return fields;
+};
+
+/**
+ * Extract the field of the part that was clicked.
+ *
+ * @param {HTMLElement} clicked what the click landed on
+ * @param {HTMLElement} compEl
+ * @param {Object} desc
+ * @returns {Object|null} null when the click was not on one of the parts
+ */
+const extractClickedField = (clicked, compEl, desc) => {
+    const el = clicked && clicked.closest && desc.selector ? clicked.closest(desc.selector) : null;
+    if (!el || !compEl.contains(el)) {
+        return null;
+    }
+    return {descriptor: desc, value: blocksToText([el]), elements: [el]};
 };
 
 /**
@@ -515,6 +536,13 @@ const applyFormToComponent = (compEl, fields, formPanel) => {
             desc.apply(compEl, val);
             return;
         }
+        // The part that was clicked, which no selector can find again.
+        if (desc.clicked) {
+            if (field.elements[0]) {
+                setBlockText(field.elements[0], val);
+            }
+            return;
+        }
         // A text of several blocks.
         if (desc.type === 'paragraphs') {
             applyParagraphsField(compEl, desc, val);
@@ -656,6 +684,7 @@ export const mountPreciseView = async(container, handlers, catalogue) => {
     previewContainer.appendChild(iframe);
 
     let currentCompEl = null;
+    let currentSelected = null;
     let currentFields = null;
     let detachPreview = null;
 
@@ -687,8 +716,8 @@ export const mountPreciseView = async(container, handlers, catalogue) => {
      * @param {Document} iDoc
      */
     const handlePreviewClick = (target, iDoc) => {
-        if (currentCompEl) {
-            currentCompEl.removeAttribute('data-c4l-selected');
+        if (currentSelected) {
+            currentSelected.removeAttribute('data-c4l-selected');
         }
 
         const compEl = findComponentEl(target, iDoc);
@@ -703,9 +732,12 @@ export const mountPreciseView = async(container, handlers, catalogue) => {
             return;
         }
 
-        compEl.setAttribute('data-c4l-selected', '');
+        currentFields = extractFields(compEl, compName, target);
+        // The outline goes on the part being edited, where there is one.
+        const anchored = currentFields.find((field) => field.descriptor.clicked);
+        currentSelected = (anchored && anchored.elements[0]) || compEl;
+        currentSelected.setAttribute('data-c4l-selected', '');
         currentCompEl = compEl;
-        currentFields = extractFields(compEl, compName);
 
         if (currentFields.length === 0) {
             return;
@@ -821,8 +853,9 @@ export const mountPreciseView = async(container, handlers, catalogue) => {
     };
 
     const destroy = () => {
-        if (currentCompEl) {
-            currentCompEl.removeAttribute('data-c4l-selected');
+        if (currentSelected) {
+            currentSelected.removeAttribute('data-c4l-selected');
+            currentSelected = null;
         }
         if (detachPreview) {
             detachPreview();

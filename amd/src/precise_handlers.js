@@ -322,7 +322,7 @@ export const buildFieldRegistry = (components) => {
         if (!comp.precision || !comp.precision.length) {
             return;
         }
-        registry[comp.name] = comp.precision.map((field) => {
+        const fields = comp.precision.map((field) => {
             const handler = handlers[field.handler] || {};
             return {
                 selector: field.selector || null,
@@ -331,11 +331,19 @@ export const buildFieldRegistry = (components) => {
                 innerHTML: field.innerhtml,
                 fallback: field.fallback,
                 optional: field.optional,
+                clicked: field.clicked,
                 subfields: field.subfields && field.subfields.length ? field.subfields : undefined,
                 extract: handler.extract,
                 apply: handler.apply,
             };
         });
+        registry[comp.name] = fields;
+        // Precision mode names a component from its c4lv- class, or from a c4l- one
+        // that matches a key here. A component with a wrapper class of its own is
+        // known by that too, or clicking it would find nothing.
+        if (comp.wrapperclass && comp.wrapperclass.startsWith('c4l-')) {
+            registry[comp.wrapperclass.substring(4)] = fields;
+        }
     });
     return registry;
 };

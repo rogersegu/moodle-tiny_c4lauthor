@@ -87,6 +87,7 @@ class get_components extends external_api {
                             'innerhtml' => new external_value(PARAM_BOOL, 'Whether the value is HTML'),
                             'fallback' => new external_value(PARAM_BOOL, 'Whether to use the component when the selector misses'),
                             'optional' => new external_value(PARAM_BOOL, 'Whether to leave the field out when missing'),
+                            'clicked' => new external_value(PARAM_BOOL, 'Whether the field is the part that was clicked'),
                             'handler' => new external_value(PARAM_ALPHANUMEXT, 'Name of the extract and apply handler'),
                             'subfields' => new external_multiple_structure(
                                 new external_single_structure($field + [
