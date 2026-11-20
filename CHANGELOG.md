@@ -96,6 +96,11 @@ category.
 
 ### Fixed
 
+- What other TinyMCE plugins add to the menus is there inside the C4L Author modal:
+  the editor it opens inherits the outer editor's menus, context menu and table
+  toolbar, where it used to fall back to TinyMCE's own. A font colour plugin's items,
+  for one, were missing from Format. The items of the plugins the modal does without
+  — the original C4L and tiny_html — are taken out of everything it inherits.
 - The first analysis after accepting the AI policy could be refused, because core does
   not wait for the server to store the acceptance. It now waits.
 

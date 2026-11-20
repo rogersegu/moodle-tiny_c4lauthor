@@ -316,11 +316,38 @@ export const getSetup = async() => {
         }
 
 
+        // The plugins the inner editor does without: this one, so it cannot open inside
+        // itself; the original C4L, whose components would clash with these; and
+        // tiny_html, the modal having a code view of its own.
+        const excluded = ['tiny_c4lauthor', 'tiny_c4l', 'tiny_html'];
+
         // Collect namespaced plugin options from the outer editor so inner plugins get their config.
         const outerPlugins = editor.options.get('plugins') || [];
-        const innerPlugins = outerPlugins.filter(
-            (p) => p !== 'tiny_c4lauthor/plugin' && p !== 'tiny_c4l/plugin' && p !== 'tiny_html/plugin'
-        );
+        const innerPlugins = outerPlugins.filter((p) => !excluded.includes(String(p).replace(/\/plugin$/, '')));
+
+        // An excluded plugin's button is named after it, and the outer editor's toolbar,
+        // menus and quickbar are inherited: without this the inner editor would offer
+        // items whose plugin is not there.
+        const dropExcluded = (items) => {
+            if (Array.isArray(items)) {
+                return items.filter((item) => !excluded.includes(item));
+            }
+            if (typeof items !== 'string') {
+                return items;
+            }
+            return items.split(' ').filter((item) => !excluded.includes(item)).join(' ')
+                .replace(/\|\s*\|/g, '|')
+                .replace(/^\s*\|\s*/, '')
+                .replace(/\s*\|\s*$/, '')
+                .trim();
+        };
+
+        // The menus are the outer editor's, less those items, and not its own objects.
+        const outerMenu = editor.options.get('menu') || {};
+        const innerMenu = {};
+        Object.keys(outerMenu).forEach((name) => {
+            innerMenu[name] = Object.assign({}, outerMenu[name], {items: dropExcluded(outerMenu[name].items)});
+        });
 
         // We'll copy plugin option values from the outer editor by intercepting
         // option registration on the inner editor (see setup callback below).
@@ -349,12 +376,19 @@ export const getSetup = async() => {
             skin: colourMode === 'dark' ? 'oxide-dark' : 'oxide',
             toolbar: editor.options.get('toolbar').map((section) => ({
                 name: section.name,
-                items: section.items.filter((b) => b !== buttonName),
+                items: dropExcluded(section.items),
             })),
             menubar: editor.options.get('menubar'),
+            // The menus themselves, not just whether the bar shows: a plugin that adds
+            // an item to Format — a font colour — has added it to the outer editor's
+            // menu, and the inner one would otherwise get TinyMCE's own menus.
+            menu: innerMenu,
+            contextmenu: dropExcluded(editor.options.get('contextmenu')),
+            table_toolbar: dropExcluded(editor.options.get('table_toolbar')),
             quickbars_insert_toolbar: '',
             quickbars_selection_toolbar:
-                (editor.options.get('quickbars_selection_toolbar') || 'bold italic | h3 h4 h5 h6 blockquote')
+                (dropExcluded(editor.options.get('quickbars_selection_toolbar'))
+                    || 'bold italic | h3 h4 h5 h6 blockquote')
                 + ' | ' + quickInsertMenuName + ' ' + convertMenuName,
             block_formats:
                 editor.options.get('block_formats'),
