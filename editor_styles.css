@@ -324,6 +324,7 @@
 }
 
 /* C4L MIXINS */
+/* The collapsible's trigger: a button, or a link. */
 /* COMPONENT STYLES */
 /* .c4lv prefix instead of .c4l only for the parent class of an element supporting variants */
 /* Utilities */
@@ -2632,6 +2633,59 @@
 
 .c4l-editor-carousel-next {
   right: 0;
+}
+
+/* Collapsible: open while editing, with a control beside the title to close it. */
+.c4lv-collapsible[data-c4l-editing] > .c4l-collapsible-content:not([data-c4l-active]) {
+  display: none;
+}
+
+/* The title is the trigger, with the control inside it: the same button or link the
+   page draws, around the chevron and the words the author is writing. */
+.c4lv-collapsible[data-c4l-editing] > .c4l-collapsible-title {
+  display: inline-block;
+  font-weight: 400;
+}
+
+.c4lv-collapsible.c4l-buttondropdown-variant[data-c4l-editing] > .c4l-collapsible-title {
+  padding: 6px 12px;
+  border: 1px solid var(--c4l-collapsible-trigger);
+  border-radius: 4px;
+  background-color: var(--c4l-surface);
+}
+
+.c4lv-collapsible.c4l-linkdropdown-variant[data-c4l-editing] > .c4l-collapsible-title {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  text-decoration: underline;
+}
+
+/* The control is beside the trigger, not in it: an editor button of its own, with the
+   chevron the collapsible uses on the page. It points down when the content is open
+   and to the right when it is folded away. */
+.c4lv-collapsible[data-c4l-editing] .c4l-editor-collapsible-toggle {
+  margin-left: 8px;
+  vertical-align: middle;
+}
+.c4lv-collapsible[data-c4l-editing] .c4l-editor-collapsible-toggle::before {
+  content: "";
+  width: 0.9em;
+  height: 0.9em;
+  margin-right: 0.4em;
+  background-color: currentColor;
+  transition: transform 0.2s ease-in-out;
+  -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+  mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+}
+.c4lv-collapsible[data-c4l-editing] .c4l-editor-collapsible-toggle[aria-expanded=false]::before {
+  transform: rotate(-90deg);
 }
 
 .c4l-editor-carousel-count {

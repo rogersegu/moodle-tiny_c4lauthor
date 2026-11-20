@@ -164,6 +164,49 @@
     right: 0;
 }
 
+/* Collapsible: open while editing, with a control beside the title to close it. */
+
+.c4lv-collapsible[data-c4l-editing] > .c4l-collapsible-content:not([data-c4l-active]) {
+    display: none;
+}
+
+/* The title is the trigger, with the control inside it: the same button or link the
+   page draws, around the chevron and the words the author is writing. */
+.c4lv-collapsible[data-c4l-editing] > .c4l-collapsible-title {
+    display: inline-block;
+    font-weight: 400;
+}
+
+.c4lv-collapsible.c4l-buttondropdown-variant[data-c4l-editing] > .c4l-collapsible-title {
+    @include c4l-collapsible-button;
+}
+
+.c4lv-collapsible.c4l-linkdropdown-variant[data-c4l-editing] > .c4l-collapsible-title {
+    @include c4l-collapsible-link;
+}
+
+/* The control is beside the trigger, not in it: an editor button of its own, with the
+   chevron the collapsible uses on the page. It points down when the content is open
+   and to the right when it is folded away. */
+.c4lv-collapsible[data-c4l-editing] .c4l-editor-collapsible-toggle {
+    margin-left: 8px;
+    vertical-align: middle;
+
+    &::before {
+        content: "";
+        width: 0.9em;
+        height: 0.9em;
+        margin-right: 0.4em;
+        background-color: currentColor;
+        transition: transform 0.2s ease-in-out;
+        @include c4l-helper-mask($c4l-chevron-down);
+    }
+
+    &[aria-expanded="false"]::before {
+        transform: rotate(-90deg);
+    }
+}
+
 .c4l-editor-carousel-count {
     padding: 4px 8px;
     border: 1px solid var(--c4l-carousel-count-border);

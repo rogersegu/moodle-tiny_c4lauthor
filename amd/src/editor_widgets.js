@@ -38,6 +38,7 @@ const EDITING = 'data-c4l-editing';
 const STRING_KEYS = [
     'tab', 'tab_name', 'tab_content', 'tabs_add_tab', 'tabs_delete_tab', 'carousel_previous', 'carousel_next',
     'carousel_add_slide', 'carousel_delete_slide', 'carousel_add_image', 'carousel_change_image',
+    'collapsible_fold', 'collapsible_unfold',
 ];
 
 /**
@@ -333,6 +334,67 @@ const carouselAction = (editor, root, action, strings) => {
     return false;
 };
 
+// ── Collapsible ──
+
+/**
+ * Draw the control that opens and closes a collapsible. The title stays where it is,
+ * editable: on the page the runtime wraps it in the trigger, which here would leave
+ * the author's words inside a control that is never saved.
+ *
+ * @param {HTMLElement} root .c4lv-collapsible
+ * @param {Object} strings
+ */
+const drawCollapsible = (root, strings) => {
+    const doc = root.ownerDocument;
+    const title = root.querySelector(':scope > .c4l-collapsible-title');
+    const content = root.querySelector(':scope > .c4l-collapsible-content');
+    if (!title || !content) {
+        return;
+    }
+    root.querySelectorAll('.c4l-editor-collapsible-toggle').forEach((el) => el.remove());
+    const open = content.hasAttribute(ACTIVE);
+    // The chevron is the control's own, from the stylesheet, and turns with the state.
+    const toggle = control(doc, 'span', 'c4l-editor-button c4l-editor-collapsible-toggle',
+        'collapsible-toggle', open ? strings.collapsible_fold : strings.collapsible_unfold);
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    title.after(toggle);
+};
+
+/**
+ * Open a collapsible that is closed, close one that is open.
+ *
+ * @param {HTMLElement} root .c4lv-collapsible
+ * @param {Object} strings
+ */
+const toggleCollapsible = (root, strings) => {
+    const content = root.querySelector(':scope > .c4l-collapsible-content');
+    if (!content) {
+        return;
+    }
+    if (content.hasAttribute(ACTIVE)) {
+        content.removeAttribute(ACTIVE);
+    } else {
+        content.setAttribute(ACTIVE, '');
+    }
+    drawCollapsible(root, strings);
+};
+
+/**
+ * Show a collapsible's content and draw its control. Open, because a closed content
+ * is content the author cannot reach.
+ *
+ * @param {HTMLElement} root .c4lv-collapsible
+ * @param {Object} strings
+ */
+const attachCollapsible = (root, strings) => {
+    root.setAttribute(EDITING, '');
+    const content = root.querySelector(':scope > .c4l-collapsible-content');
+    if (content) {
+        content.setAttribute(ACTIVE, '');
+    }
+    drawCollapsible(root, strings);
+};
+
 /**
  * Draw the tabs and carousels of a document that is not an editor — the preview of
  * precision mode, which runs no scripts of its own — and let them be browsed, one tab
@@ -345,7 +407,8 @@ const carouselAction = (editor, root, action, strings) => {
 export const attachPreview = async(doc) => {
     const tabs = doc.querySelectorAll('.c4lv-tabs');
     const carousels = doc.querySelectorAll('.c4lv-carousel');
-    if (!tabs.length && !carousels.length) {
+    const collapsibles = doc.querySelectorAll('.c4lv-collapsible');
+    if (!tabs.length && !carousels.length && !collapsibles.length) {
         return null;
     }
     const strings = await getWidgetStrings();
@@ -357,19 +420,25 @@ export const attachPreview = async(doc) => {
         root.setAttribute(EDITING, '');
         drawCarousel(root, strings, true);
     });
+    collapsibles.forEach((root) => attachCollapsible(root, strings));
 
-    const browsing = ['tabs-select', 'carousel-prev', 'carousel-next'];
+    const browsing = ['tabs-select', 'carousel-prev', 'carousel-next', 'collapsible-toggle'];
     const onClick = (e) => {
         const target = e.target.closest && e.target.closest('[data-c4l-action]');
-        const root = target && target.closest('.c4lv-tabs, .c4lv-carousel');
+        const root = target && target.closest('.c4lv-tabs, .c4lv-carousel, .c4lv-collapsible');
         const action = root && target.getAttribute('data-c4l-action');
         if (!browsing.includes(action)) {
             return;
         }
-        // The click belongs to the controls: moving between tabs or slides is not
-        // choosing a component to edit, so it does not reach the preview's own handler.
+        // The click belongs to the controls: moving between tabs or slides, or opening
+        // a collapsible, is not choosing a component to edit, so it does not reach the
+        // preview's own handler.
         e.preventDefault();
         e.stopPropagation();
+        if (action === 'collapsible-toggle') {
+            toggleCollapsible(root, strings);
+            return;
+        }
         if (action === 'tabs-select') {
             tabsAction(root, action, target, strings);
             drawTabs(root, strings, true);
@@ -411,17 +480,28 @@ export const attach = async(editor) => {
                 drawCarousel(root, strings);
             }
         });
+        doc.querySelectorAll('.c4lv-collapsible').forEach((root) => {
+            if (!attached.has(root)) {
+                attached.add(root);
+                attachCollapsible(root, strings);
+            }
+        });
     };
 
     const onClick = (e) => {
         const target = e.target.closest('[data-c4l-action]');
-        const root = target && target.closest('.c4lv-tabs, .c4lv-carousel');
+        const root = target && target.closest('.c4lv-tabs, .c4lv-carousel, .c4lv-collapsible');
         if (!root) {
             return;
         }
         e.preventDefault();
         e.stopPropagation();
         const action = target.getAttribute('data-c4l-action');
+        // Opening a collapsible is the editor's own state, not a change to the content.
+        if (root.classList.contains('c4lv-collapsible')) {
+            toggleCollapsible(root, strings);
+            return;
+        }
         const changed = root.classList.contains('c4lv-tabs')
             ? tabsAction(root, action, target, strings)
             : carouselAction(editor, root, action, strings);

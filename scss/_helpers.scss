@@ -348,17 +348,11 @@ $c4l-chevron-down: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/20
 }
 
 .c4lv-collapsible.c4l-buttondropdown-variant .c4l-collapsible-toggle {
-    padding: 6px 12px;
-    border: 1px solid var(--c4l-collapsible-trigger);
-    border-radius: 4px;
-    background-color: var(--c4l-surface);
+    @include c4l-collapsible-button;
 }
 
 .c4lv-collapsible.c4l-linkdropdown-variant .c4l-collapsible-toggle {
-    padding: 0;
-    border: 0;
-    background: transparent;
-    text-decoration: underline;
+    @include c4l-collapsible-link;
 
     &::after {
         margin-left: .2em;

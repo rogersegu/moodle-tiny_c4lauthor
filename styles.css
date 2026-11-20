@@ -324,6 +324,7 @@
 }
 
 /* C4L MIXINS */
+/* The collapsible's trigger: a button, or a link. */
 /* Collapse adjacent spacers (e.g. trailing spacer of one component
    followed by leading spacer of the next). */
 p.c4l-spacer + p.c4l-spacer {
