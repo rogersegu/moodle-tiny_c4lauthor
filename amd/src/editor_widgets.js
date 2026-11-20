@@ -340,13 +340,13 @@ const carouselAction = (editor, root, action, strings) => {
  * them: the preview is for reading and for choosing what to edit.
  *
  * @param {Document} doc
- * @returns {Promise<Function>} takes the listener back off
+ * @returns {Promise<Function|null>} takes the listener back off, null if there was none
  */
 export const attachPreview = async(doc) => {
     const tabs = doc.querySelectorAll('.c4lv-tabs');
     const carousels = doc.querySelectorAll('.c4lv-carousel');
     if (!tabs.length && !carousels.length) {
-        return () => {};
+        return null;
     }
     const strings = await getWidgetStrings();
     tabs.forEach((root) => {
