@@ -436,7 +436,9 @@ export const setupVariantToolbar = (ed, catalogue, deleteStr, unstyleStr, conver
             toolbar.appendChild(btn);
         });
 
-        // Position above the component, right-aligned.
+        // Position above the component, right-aligned, or below it where there is no
+        // room above: a component at the top of the document would otherwise have its
+        // toolbar off the edge, out of reach.
         let top = 0;
         let el = compEl;
         while (el && el !== iframeBody) {
@@ -445,7 +447,12 @@ export const setupVariantToolbar = (ed, catalogue, deleteStr, unstyleStr, conver
         }
         toolbar.classList.add('c4lauthor-vt--visible');
         const tbHeight = toolbar.offsetHeight;
-        toolbar.style.top = (top - tbHeight - 6) + 'px';
+        // Whether it fits is a question about the visible area, since the frame
+        // scrolls; where it goes is a position in the document.
+        const roomAbove = compEl.getBoundingClientRect().top >= tbHeight + 6;
+        toolbar.style.top = (roomAbove
+            ? top - tbHeight - 6
+            : top + compEl.offsetHeight + 6) + 'px';
         toolbar.style.right = '16px';
     };
 

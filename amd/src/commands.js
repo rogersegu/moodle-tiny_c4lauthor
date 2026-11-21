@@ -469,6 +469,13 @@ export const getSetup = async() => {
                 ed.on('init', () => {
                     innerEditor = ed;
 
+                    // A class of our own on the content frame: the outer editor's frame
+                    // carries the same TinyMCE class, and nothing else here tells the
+                    // two apart.
+                    if (ed.iframeElement) {
+                        ed.iframeElement.classList.add('tiny_c4lauthor__inner-iframe');
+                    }
+
                     // The chevron our quickbar button draws for its dropdown.
                     const chevronHtml = '<div class="tox-tbtn__select-chevron">' +
                         '<svg width="10" height="10" focusable="false">' +
