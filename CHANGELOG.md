@@ -164,6 +164,14 @@ theirs too.
 Component availability, and the Remove style and Convert to actions on the component
 toolbar, were funded by Hochschule Hannover (https://www.hs-hannover.de).
 
+### Acknowledgements
+
+A special thank you to the Institut Obert de Catalunya
+(https://ioc.xtec.cat/educacio/), which promoted and sponsored Components for Learning
+and made the whole project possible. The combo, styled list, link block, tabs,
+carousel, collapsible and styled table grew out of components built there years
+earlier, with the professors who designed and tested them.
+
 ## 1.3.0-beta
 
 ### Security

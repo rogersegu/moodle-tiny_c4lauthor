@@ -155,6 +155,10 @@ The panel list and timeline components, the components as declarations with thei
 
 Component availability, and the Remove style and Convert to actions on the component toolbar, were funded by [Hochschule Hannover](https://www.hs-hannover.de).
 
+## Acknowledgements
+
+A special thank you to the [Institut Obert de Catalunya](https://ioc.xtec.cat/educacio/), which promoted and sponsored Components for Learning and made the whole project possible. The combo, styled list, link block, tabs, carousel, collapsible and styled table grew out of components I built there years earlier, with the professors who designed and tested them alongside me.
+
 ## License
 
 Licensed under the [GNU GPL v3 or later](http://www.gnu.org/copyleft/gpl.html).
