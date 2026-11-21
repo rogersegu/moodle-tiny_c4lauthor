@@ -19,7 +19,8 @@
  * Removing a component's style and converting it to another both need the same
  * thing: the content, out of its scaffolding.
  *
- * Component availability was funded by Hochschule Hannover <https://www.hs-hannover.de>.
+ * Remove style and Convert to, which both need this, were funded by Hochschule
+ * Hannover <https://www.hs-hannover.de>.
  *
  * @module      tiny_c4lauthor/plain_content
  * @copyright   2026 Roger Segú <rogersegu@gmail.com>
