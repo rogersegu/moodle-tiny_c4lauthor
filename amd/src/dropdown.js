@@ -30,31 +30,35 @@
  * @param {object} ed - TinyMCE editor instance.
  * @param {string} btnTooltip - The tooltip of the button (used to locate it in the DOM).
  * @param {Array} items - Array of {label, icon, onAction} objects.
+ * @param {object} [anchor] - Where to hang the dropdown from, in page coordinates, for
+ *     a button that is not in the editor's toolbar: one inside the content iframe.
  */
-export const showCustomDropdown = (ed, btnTooltip, items) => {
+export const showCustomDropdown = (ed, btnTooltip, items, anchor) => {
     // Close any existing custom dropdown.
     document.querySelectorAll('.c4l-custom-dropdown').forEach((el) => el.remove());
 
-    // Find the button by its aria-label.  The quickbar lives in
-    // .tox-tinymce-aux which is a sibling of .tox-tinymce, so we
-    // search the modal (or the whole document as fallback).
-    const edContainer = ed.getContainer();
-    const searchRoot = edContainer
-        ? (edContainer.closest('.tiny_c4lauthor') || edContainer.parentNode)
-        : document;
-    let btn = searchRoot.querySelector(
-        '.tox-tinymce-aux button[aria-label="' + btnTooltip + '"]'
-    );
-    if (!btn) {
-        btn = document.querySelector(
+    let btnRect = anchor;
+    if (!btnRect) {
+        // Find the button by its aria-label.  The quickbar lives in
+        // .tox-tinymce-aux which is a sibling of .tox-tinymce, so we
+        // search the modal (or the whole document as fallback).
+        const edContainer = ed.getContainer();
+        const searchRoot = edContainer
+            ? (edContainer.closest('.tiny_c4lauthor') || edContainer.parentNode)
+            : document;
+        let btn = searchRoot.querySelector(
             '.tox-tinymce-aux button[aria-label="' + btnTooltip + '"]'
         );
+        if (!btn) {
+            btn = document.querySelector(
+                '.tox-tinymce-aux button[aria-label="' + btnTooltip + '"]'
+            );
+        }
+        if (!btn) {
+            return;
+        }
+        btnRect = btn.getBoundingClientRect();
     }
-    if (!btn) {
-        return;
-    }
-
-    const btnRect = btn.getBoundingClientRect();
 
     // Build dropdown element.
     const dropdown = document.createElement('div');

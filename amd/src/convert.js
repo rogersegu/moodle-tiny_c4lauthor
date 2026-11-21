@@ -21,45 +21,56 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import {convertMenuName} from './common';
-import {showCustomDropdown} from './dropdown';
+import {extractComponentContent} from './plain_content';
 
 const compPrefix = 'c4lv-';
 
 /**
- * Find the nearest c4lv-* ancestor element from the current selection
- * and return both the element and its component name, but only if
- * the component is in the convertible list.
- *
- * @param {object} ed - TinyMCE editor instance.
- * @param {object} catalogue - The components the editor offers.
- * @returns {{el: HTMLElement, name: string}|null}
- */
-const getComponentFromSelection = (ed, catalogue) => {
-    let node = ed.selection.getNode();
-    while (node && node !== ed.getBody()) {
-        if (node.nodeType === 1 && node.className) {
-            const name = catalogue.nameOf(node);
-            if (name) {
-                const convertible = catalogue.convertible.indexOf(name) !== -1;
-                return {el: node, name, convertible};
-            }
-        }
-        node = node.parentNode;
-    }
-    return null;
-};
-
-/**
  * Convert a c4lv-* element from one component type to another.
- * Swaps the class and aria-label, removes incompatible variant classes.
+ * Swaps the class and aria-label, drops the variant classes the target does not
+ * support, and rebuilds the inner markup the target's styling relies on.
  *
  * @param {HTMLElement} el - The component wrapper element.
  * @param {string} oldName - Current component name.
  * @param {string} newName - Target component name.
  * @param {object} catalogue - The components the editor offers.
  */
-const convertComponent = (el, oldName, newName, catalogue) => {
+const componentShapes = {
+    quote: (content, doc) => {
+        const body = doc.createElement('div');
+        body.className = 'c4l-quote-body';
+        const line = doc.createElement('div');
+        line.className = 'c4l-quote-line';
+        const text = doc.createElement('div');
+        text.className = 'c4l-quote-text';
+        text.append(...content.childNodes);
+        body.append(line, text);
+        return [body];
+    },
+    conceptreview: (content, doc, catalogue) => {
+        // The title is a generated label, like the one a freshly inserted Concept
+        // review carries.
+        const title = doc.createElement('h6');
+        title.className = 'c4l-concept-review-title';
+        title.textContent = catalogue.strings.get('conceptreview') || 'conceptreview';
+        return [title, ...content.childNodes];
+    },
+    example: (content) => {
+        // The Example title is free text, not a generated label, so it is only filled
+        // when the content already starts with a heading. Promoting a paragraph would
+        // invent a title the author never wrote.
+        const first = content.firstElementChild;
+        if (first && /^h[1-6]$/i.test(first.tagName)) {
+            const title = first.ownerDocument.createElement('h1');
+            title.innerHTML = first.innerHTML;
+            first.remove();
+            return [title, ...content.childNodes];
+        }
+        return [...content.childNodes];
+    },
+};
+
+export const convertComponent = (el, oldName, newName, catalogue) => {
     // Swap the main c4lv- class.
     el.classList.remove(compPrefix + oldName);
     el.classList.add(compPrefix + newName);
@@ -83,9 +94,22 @@ const convertComponent = (el, oldName, newName, catalogue) => {
         }
     });
     toRemove.forEach((cls) => el.classList.remove(cls));
+
+    // Rebuild the inner markup. The source's scaffolding belongs to the shape it had,
+    // so it is reduced to plain content first and then re-wrapped for the target.
+    // Components absent from the table hold their content directly, which is what
+    // their own insert markup does.
+    const doc = el.ownerDocument;
+    const content = extractComponentContent(el, doc);
+    const shape = componentShapes[newName];
+    const nodes = shape ? shape(content, doc, catalogue) : [...content.childNodes];
+    while (el.firstChild) {
+        el.removeChild(el.firstChild);
+    }
+    nodes.forEach((node) => el.appendChild(node));
 };
 
-const convertIconSvg = '<svg width="24" height="24" viewBox="-4 -3.5 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">'
+export const convertIconSvg = '<svg width="24" height="24" viewBox="-4 -3.5 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">'
     + '<path d="M15.5 9.23V10.47C15.5 12.54 13.82 14.22 11.75 14.22H0.75C0.34 14.22 0 13.88 0 '
     + '13.47C0 13.05 0.34 12.72 0.75 12.72H11.75C12.99 12.72 14 11.71 14 10.47V9.23C14 8.82 14.34 '
     + '8.48 14.75 8.48C15.16 8.48 15.5 8.82 15.5 9.23Z" fill="currentColor"/>'
@@ -99,62 +123,3 @@ const convertIconSvg = '<svg width="24" height="24" viewBox="-4 -3.5 24 24" fill
     + '12.5-0.07 12.8 0.22L15.28 2.7C15.57 3 15.57 3.47 15.28 3.76L12.8 6.25C12.5 6.54 12.03 6.54 '
     + '11.74 6.25C11.44 5.96 11.44 5.48 11.74 5.19Z" fill="currentColor"/>'
     + '</svg>';
-
-/**
- * Register the "Convert to" menu button on a TinyMCE editor instance.
- *
- * @param {object} ed - TinyMCE editor instance.
- * @param {object} catalogue - The components the editor offers.
- * @param {string} convertTooltip - Tooltip text for the button.
- * @param {string} noComponentStr - Shown when the selection is not in a component.
- * @param {string} notConvertibleStr - Shown when the component cannot be converted.
- */
-export const registerConvertMenu = (ed, catalogue, convertTooltip, noComponentStr, notConvertibleStr) => {
-    ed.ui.registry.addIcon('c4l-convert', convertIconSvg);
-    ed.ui.registry.addButton(convertMenuName, {
-        icon: 'c4l-convert',
-        tooltip: convertTooltip,
-        onAction: () => {
-            // Save selection before showing the dropdown.
-            const bookmark = ed.selection.getBookmark(2, true);
-            const found = getComponentFromSelection(ed, catalogue);
-            if (!found) {
-                showCustomDropdown(ed, convertTooltip, [
-                    {label: noComponentStr, enabled: false, onAction: () => {
-                        return;
-                    }},
-                ]);
-                return;
-            }
-            if (!found.convertible) {
-                showCustomDropdown(ed, convertTooltip, [
-                    {label: notConvertibleStr, enabled: false, onAction: () => {
-                        return;
-                    }},
-                ]);
-                return;
-            }
-            const items = [];
-            const allIcons = ed.ui.registry.getAll().icons;
-            catalogue.convertible.forEach((targetName) => {
-                if (targetName === found.name) {
-                    return;
-                }
-                const label = catalogue.strings.get(targetName) || targetName;
-                const iconKey = 'c4l-' + targetName;
-                items.push({
-                    label,
-                    iconHtml: allIcons[iconKey] || '',
-                    onAction: () => {
-                        ed.selection.moveToBookmark(bookmark);
-                        ed.undoManager.transact(() => {
-                            convertComponent(found.el, found.name, targetName, catalogue);
-                        });
-                        ed.nodeChanged();
-                    },
-                });
-            });
-            showCustomDropdown(ed, convertTooltip, items);
-        },
-    });
-};

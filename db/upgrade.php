@@ -29,18 +29,11 @@
  * @return bool
  */
 function xmldb_tiny_c4lauthor_upgrade($oldversion) {
-    if ($oldversion < 2026110400) {
-        // The student settings now list every component. Record the ones they listed before
-        // as seen, so that the components new to the lists show with their defaults.
-        if (get_config('tiny_c4lauthor', 'studentcomponentsknown') === false) {
-            $known = [
-                'keyconcept', 'tip', 'reminder', 'quote', 'dodontcards', 'readingcontext', 'example', 'figure', 'tag',
-                'inlinetag', 'attention', 'allpurposecard', 'estimatedtime', 'duedate', 'proceduralcontext',
-                'gradingvalue', 'aiuseallowed', 'aiusenotallowed', 'aiusereported', 'expectedfeedback', 'learningoutcomes',
-            ];
-            set_config('studentcomponentsknown', implode(',', $known), 'tiny_c4lauthor');
-        }
-        upgrade_plugin_savepoint(true, 2026110400, 'tiny', 'c4lauthor');
+    require_once(__DIR__ . '/upgradelib.php');
+
+    if ($oldversion < 2026112000) {
+        tiny_c4lauthor_migrate_component_access();
+        upgrade_plugin_savepoint(true, 2026112000, 'tiny', 'c4lauthor');
     }
 
     return true;

@@ -52,18 +52,12 @@ if ($ADMIN->fulltree) {
         0
     ));
 
-    // Components offered to students: those aimed at them, and those not intended for them.
-    $settings->add(new \tiny_c4lauthor\local\admin_setting_student_components(
-        'tiny_c4lauthor/aimedatstudents',
-        get_string('aimedatstudents', 'tiny_c4lauthor'),
-        get_string('aimedatstudents_desc', 'tiny_c4lauthor'),
-        true
-    ));
-    $settings->add(new \tiny_c4lauthor\local\admin_setting_student_components(
-        'tiny_c4lauthor/notintendedforstudents',
-        get_string('notintendedforstudents', 'tiny_c4lauthor'),
-        get_string('notintendedforstudents_desc', 'tiny_c4lauthor'),
-        false
+    // Who may use each component. The rows come from the declarations, so a component
+    // cannot be left out of this page by accident.
+    $settings->add(new \tiny_c4lauthor\local\admin_setting_component_access(
+        'tiny_c4lauthor/' . \tiny_c4lauthor\local\component_access::SETTING,
+        get_string('componentaccess', 'tiny_c4lauthor'),
+        get_string('componentaccess_desc', 'tiny_c4lauthor')
     ));
 
     // AI Suggest settings heading.

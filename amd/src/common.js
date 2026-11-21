@@ -26,4 +26,3 @@ export const pluginName = `${component}/plugin`;
 export const buttonName = component;
 export const buttonIcon = component;
 export const quickInsertMenuName = 'tiny_c4lauthor_quickinsert';
-export const convertMenuName = 'tiny_c4lauthor_convert';

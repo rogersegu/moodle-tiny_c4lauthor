@@ -14,12 +14,20 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * The toolbar shown over a component in the editor: delete, move and variants.
+ * The toolbar shown over a component in the editor: delete, remove style, convert,
+ * move and variants.
+ *
+ * Remove style and Convert to were funded by Hochschule Hannover
+ * <https://www.hs-hannover.de>.
  *
  * @module      tiny_c4lauthor/variant_toolbar
  * @copyright   2026 Roger Segú <rogersegu@gmail.com>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+import {extractComponentContent} from './plain_content';
+import {convertComponent, convertIconSvg} from './convert';
+import {showCustomDropdown} from './dropdown';
 
 /**
  * Format a variant name for display.
@@ -45,10 +53,12 @@ const formatVariantLabel = (name, strings) => {
  * @param {object} ed - The inner TinyMCE editor instance.
  * @param {object} catalogue - The components the editor offers.
  * @param {string} deleteStr - Localised label for the delete button.
+ * @param {string} unstyleStr - Localised label for the remove-style button.
+ * @param {string} convertStr - Localised label for the convert button.
  * @param {string} moveUpStr - Localised label for the move-up button.
  * @param {string} moveDownStr - Localised label for the move-down button.
  */
-export const setupVariantToolbar = (ed, catalogue, deleteStr, moveUpStr, moveDownStr) => {
+export const setupVariantToolbar = (ed, catalogue, deleteStr, unstyleStr, convertStr, moveUpStr, moveDownStr) => {
     const iframeDoc = ed.getDoc();
     const iframeBody = ed.getBody();
     const allVariants = catalogue.variants;
@@ -80,6 +90,12 @@ export const setupVariantToolbar = (ed, catalogue, deleteStr, moveUpStr, moveDow
         cancelHide();
         hideTimeout = setTimeout(hideToolbar, 200);
     };
+
+    const eraserIconSvg = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"'
+        + ' stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
+        + '<path d="M7 21l-4.3-4.3a2 2 0 0 1 0-2.8l9.6-9.6a2 2 0 0 1 2.8 0l5.6 5.6a2 2 0 0 1 0 2.8L13 21"/>'
+        + '<path d="M22 21H7"/>'
+        + '<path d="M5 11l9 9"/></svg>';
 
     const trashIconSvg = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"'
         + ' stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
@@ -241,6 +257,81 @@ export const setupVariantToolbar = (ed, catalogue, deleteStr, moveUpStr, moveDow
         registerVariantChange(compEl);
     };
 
+    /**
+     * Strip the C4L markup from a component, keeping its content as plain HTML. The
+     * element stops being a C4L component, so the toolbar no longer applies.
+     *
+     * @param {HTMLElement} compEl - The c4lv-* component element.
+     */
+    const unstyleComponent = (compEl) => {
+        const wrapper = compEl.closest('.c4l-inline-group, .c4l-display-left');
+        const target = wrapper || compEl;
+
+        const holder = extractComponentContent(compEl, iframeDoc);
+
+        // Swap the component, and its spacers, for the plain content.
+        const prev = target.previousElementSibling;
+        const next = target.nextElementSibling;
+        if (prev && prev.classList.contains('c4l-spacer')) {
+            prev.remove();
+        }
+        if (next && next.classList.contains('c4l-spacer')) {
+            next.remove();
+        }
+        if (holder.childNodes.length) {
+            target.replaceWith(...holder.childNodes);
+        } else {
+            target.remove();
+        }
+
+        hideToolbar();
+        ed.undoManager.add();
+    };
+
+    /**
+     * Offer the compatible components, and convert on pick. Replaces the quickbar's
+     * Convert to button: inside a component the quickbar no longer offers it, because
+     * the component is already known here.
+     *
+     * @param {HTMLElement} compEl - The c4lv-* component element.
+     * @param {string} compName - Its component name.
+     * @param {HTMLElement} btn - The toolbar button the dropdown hangs from.
+     */
+    const showConvertDropdown = (compEl, compName, btn) => {
+        const allIcons = ed.ui.registry.getAll().icons;
+        const items = [];
+        catalogue.convertible.forEach((targetName) => {
+            if (targetName === compName) {
+                return;
+            }
+            items.push({
+                label: catalogue.strings.get(targetName) || targetName,
+                iconHtml: allIcons['c4l-' + targetName] || '',
+                onAction: () => {
+                    ed.undoManager.transact(() => {
+                        convertComponent(compEl, compName, targetName, catalogue);
+                    });
+                    ed.nodeChanged();
+                    // Drop the stale variant buttons; the next hover rebuilds them.
+                    hideToolbar();
+                },
+            });
+        });
+        // The button sits inside the iframe, so its rect is relative to the iframe
+        // viewport. Offset it by the frame to get page coordinates.
+        const frame = ed.iframeElement;
+        const frameRect = frame ? frame.getBoundingClientRect() : {top: 0, left: 0};
+        const btnRect = btn.getBoundingClientRect();
+        showCustomDropdown(ed, convertStr, items, {
+            top: frameRect.top + btnRect.top,
+            bottom: frameRect.top + btnRect.bottom,
+            left: frameRect.left + btnRect.left,
+            right: frameRect.left + btnRect.right,
+            width: btnRect.width,
+            height: btnRect.height,
+        });
+    };
+
     const showToolbar = (compEl, comp) => {
         if (currentCompEl === compEl) {
             return;
@@ -259,6 +350,39 @@ export const setupVariantToolbar = (ed, catalogue, deleteStr, moveUpStr, moveDow
             deleteComponent(compEl);
         });
         toolbar.appendChild(delBtn);
+
+        // Remove style — keeps the content, drops the component.
+        const unstyleBtn = iframeDoc.createElement('button');
+        unstyleBtn.className = 'c4lauthor-vt__btn c4lauthor-vt__btn--unstyle';
+        unstyleBtn.innerHTML = eraserIconSvg;
+        unstyleBtn.title = unstyleStr;
+        unstyleBtn.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            unstyleComponent(compEl);
+        });
+        toolbar.appendChild(unstyleBtn);
+
+        // Convert — only for the components that have compatible targets.
+        if (catalogue.convertible.includes(comp.name)) {
+            const convertBtn = iframeDoc.createElement('button');
+            convertBtn.className = 'c4lauthor-vt__btn c4lauthor-vt__btn--convert';
+            convertBtn.innerHTML = convertIconSvg;
+            convertBtn.title = convertStr;
+            convertBtn.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+            });
+            // Opened on click rather than mousedown: the dropdown closes itself on the
+            // next click inside the editor, so it has to open after this very click
+            // has been dispatched, not before it.
+            convertBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                showConvertDropdown(compEl, comp.name, convertBtn);
+            });
+            toolbar.appendChild(convertBtn);
+        }
 
         // Move up / move down buttons.
         const wrapper = compEl.closest('.c4l-inline-group, .c4l-display-left');

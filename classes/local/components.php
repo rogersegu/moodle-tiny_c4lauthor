@@ -248,31 +248,6 @@ class components {
     }
 
     /**
-     * Get the names of the components offered to students.
-     *
-     * Those an admin chose in either setting, and those the admin has not seen in the settings
-     * yet that are offered to students by default.
-     *
-     * @param context $context
-     * @return string[]
-     */
-    public static function get_student_components(context $context): array {
-        $config = get_config('tiny_c4lauthor');
-        $chosen = array_merge(
-            explode(',', $config->aimedatstudents ?? ''),
-            explode(',', $config->notintendedforstudents ?? '')
-        );
-        $known = explode(',', $config->studentcomponentsknown ?? '');
-        $names = [];
-        foreach (self::get_components($context) as $name => $component) {
-            if (in_array($name, $chosen) || (!in_array($name, $known) && !empty($component['students']))) {
-                $names[] = $name;
-            }
-        }
-        return $names;
-    }
-
-    /**
      * Get everything the editor needs: components, variants and the strings they use.
      *
      * @param context $context Where the editor is used.

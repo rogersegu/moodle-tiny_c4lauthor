@@ -51,9 +51,12 @@ first the selector matches.
 that each component renders exactly the markup in `tests/fixtures/components/`.
 Changing a component's markup means updating its fixtures in the same commit.
 
-`students => true` offers a component to students by default. The two student
-settings list every component; one an admin has not seen there yet counts with its
-default.
+`students => true` makes a component available to everyone by default, and leaving it
+out makes it available to those holding `tiny/c4lauthor:useallcomponents`. That is only
+the default: the *Component availability* setting holds a level per component, and
+`\tiny_c4lauthor\local\component_access` reads it. A component the setting does not
+mention keeps its declared default, so one added in a later release needs nothing from
+the administrator.
 
 ## Enter inside a component
 

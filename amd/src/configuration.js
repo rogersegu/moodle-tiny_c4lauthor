@@ -22,7 +22,7 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import {component as buttonName, quickInsertMenuName, convertMenuName} from './common';
+import {component as buttonName, quickInsertMenuName} from './common';
 
 const configureToolbar = (toolbar) => {
     return toolbar.map((section) => {
@@ -38,7 +38,7 @@ const configureQuickbars = (selectionToolbar) => {
     // The actual menu buttons are only registered on the inner editor (inside
     // the modal), so TinyMCE silently skips them on the outer editor.
     if (selectionToolbar && selectionToolbar.indexOf(quickInsertMenuName) === -1) {
-        return selectionToolbar + ' | ' + quickInsertMenuName + ' ' + convertMenuName;
+        return selectionToolbar + ' | ' + quickInsertMenuName;
     }
     return selectionToolbar;
 };

@@ -16,7 +16,8 @@
 
 namespace tiny_c4lauthor\hook;
 
-use tiny_c4lauthor\local\admin_setting_student_components;
+use tiny_c4lauthor\local\admin_setting_component_access;
+use tiny_c4lauthor\local\component_access;
 use tiny_c4lauthor\local\components;
 
 /**
@@ -31,7 +32,8 @@ use tiny_c4lauthor\local\components;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @covers     \tiny_c4lauthor\hook\extend_components
  * @covers     \tiny_c4lauthor\local\components
- * @covers     \tiny_c4lauthor\local\admin_setting_student_components
+ * @covers     \tiny_c4lauthor\local\component_access
+ * @covers     \tiny_c4lauthor\local\admin_setting_component_access
  * @covers     \tiny_c4lauthor\hook_callbacks
  */
 final class extend_components_test extends \advanced_testcase {
@@ -229,41 +231,53 @@ final class extend_components_test extends \advanced_testcase {
     /**
      * Students get the components chosen in the settings, and new ones with their default.
      */
-    public function test_student_components(): void {
+    public function test_component_availability(): void {
         $this->add([
             ['tiny_c4lauthor', 'forstudents', self::declaration()],
             ['tiny_c4lauthor', 'forteachers', self::declaration(['students' => false])],
         ]);
         $context = \core\context\system::instance();
-        set_config('aimedatstudents', 'keyconcept,tip', 'tiny_c4lauthor');
-        set_config('notintendedforstudents', 'duedate', 'tiny_c4lauthor');
-        set_config('studentcomponentsknown', 'keyconcept,tip,reminder,duedate', 'tiny_c4lauthor');
 
-        $names = components::get_student_components($context);
-        sort($names);
-        // Quote is aimed at students and new to the settings; reminder was unticked.
-        $this->assertContains('quote', $names);
-        $this->assertNotContains('reminder', $names);
-        $this->assertContains('forstudents', $names);
-        $this->assertNotContains('forteachers', $names);
-        $this->assertContains('duedate', $names);
-        $this->assertNotContains('timeline', $names);
+        // With nothing stored, each component sits at the level its declaration implies.
+        $students = component_access::usable_by(true, $context);
+        $this->assertContains('keyconcept', $students);
+        $this->assertContains('forstudents', $students);
+        $this->assertNotContains('forteachers', $students);
+        $this->assertNotContains('timeline', $students);
+        $this->assertContains('timeline', component_access::usable_by(false, $context));
 
-        // Once the admin has seen and saved the settings, only their choice counts.
-        $setting = new admin_setting_student_components('tiny_c4lauthor/aimedatstudents', '', '', true);
-        $shown = $setting->get_setting();
-        $this->assertArrayHasKey('forstudents', $shown);
-        $this->assertArrayNotHasKey('reminder', $shown);
-        $this->assertArrayNotHasKey('forteachers', $shown);
-        unset($shown['forstudents']);
-        $this->assertSame('', $setting->write_setting($shown));
-        $this->assertNotContains('forstudents', components::get_student_components($context));
-        $this->assertContains('quote', components::get_student_components($context));
+        // A level stored for one component leaves the rest at their defaults.
+        set_config(
+            component_access::SETTING,
+            component_access::encode([
+                'keyconcept' => component_access::ACCESS_STAFF,
+                'timeline' => component_access::ACCESS_ALL,
+                'quote' => component_access::ACCESS_NONE,
+            ]),
+            'tiny_c4lauthor'
+        );
+        $students = component_access::usable_by(true, $context);
+        $staff = component_access::usable_by(false, $context);
+        $this->assertNotContains('keyconcept', $students);
+        $this->assertContains('keyconcept', $staff);
+        $this->assertContains('timeline', $students);
+        $this->assertContains('forstudents', $students);
+        // Nobody means nobody, administrators included.
+        $this->assertNotContains('quote', $students);
+        $this->assertNotContains('quote', $staff);
 
-        $other = new admin_setting_student_components('tiny_c4lauthor/notintendedforstudents', '', '', false);
-        $other->load_choices();
-        $this->assertArrayHasKey('forteachers', $other->choices);
-        $this->assertArrayHasKey('timeline', $other->choices);
-        $this->assertSame([], $other->get_defaultsetting());
+        // The table offers a row for every component, added ones included.
+        $setting = new admin_setting_component_access(
+            'tiny_c4lauthor/' . component_access::SETTING, '', ''
+        );
+        $stored = $setting->get_setting();
+        $this->assertArrayHasKey('forstudents', $stored);
+        $this->assertArrayHasKey('forteachers', $stored);
+        $this->assertSame(component_access::ACCESS_NONE, $stored['quote']);
+        $this->assertSame('', $setting->write_setting(['quote' => component_access::ACCESS_ALL]));
+        // What the form does not say keeps the component's default, not its old level.
+        $written = component_access::decode(get_config('tiny_c4lauthor', component_access::SETTING), $context);
+        $this->assertSame(component_access::ACCESS_ALL, $written['quote']);
+        $this->assertSame(component_access::ACCESS_ALL, $written['keyconcept']);
     }
 }

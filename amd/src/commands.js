@@ -34,11 +34,11 @@ import {
     getMoodleLang,
     getCurrentLanguage,
 } from 'editor_tiny/options';
-import {component, buttonName, buttonIcon, quickInsertMenuName, convertMenuName} from './common';
+import {component, buttonName, buttonIcon, quickInsertMenuName} from './common';
 import {loadRegistry, createCatalogue} from './registry';
 import {buildCustomComponents, buildComponentHtml, insertComponentHtml} from './component_html';
-import {registerConvertMenu} from './convert';
 import {showCustomDropdown} from './dropdown';
+import {convertIconSvg} from './convert';
 import {registerComponentIcons} from './icons';
 import {buildSidebar, setupTabOverflow} from './sidebar';
 import {setupVariantToolbar} from './variant_toolbar';
@@ -46,7 +46,6 @@ import {attach as attachEditorWidgets} from './editor_widgets';
 import {
     isShowOverlay,
     isC4LVisible,
-    isStudent,
     showDocs,
     getallowedComponents,
     getcustomComponents,
@@ -102,11 +101,11 @@ export const getSetup = async() => {
     const [buttonText, buttonImage, applyStr, cancelStr,
            allStr, contextualStr, proceduralStr, evaluativeStr, sequentialStr, helperStr,
            templatesStr, customStr,
-           convertToStr, noComponentStr, notConvertibleStr, moreStr, discardStr, discardBtnStr, keepEditingStr,
+           convertToStr, moreStr, discardStr, discardBtnStr, keepEditingStr,
            overlayOpenStr, overlayRestoreStr, aiButtonStr,
            codeButtonStr,
            precisionButtonStr, regularViewStr,
-           deleteComponentStr, moveUpStr, moveDownStr,
+           deleteComponentStr, unstyleComponentStr, moveUpStr, moveDownStr,
     ] = await Promise.all([
         getString('buttontitle', component),
         getButtonImage('icon-toolbar', component),
@@ -121,8 +120,6 @@ export const getSetup = async() => {
         getString('templates', component),
         getString('custom', component),
         getString('convertto', component),
-        getString('convert_nocomponent', component),
-        getString('convert_notconvertible', component),
         getString('more', component),
         getString('discardconfirm', component),
         getString('discardclose', component),
@@ -134,6 +131,7 @@ export const getSetup = async() => {
         getString('precision_button', component),
         getString('view_regular', component),
         getString('delete_component', component),
+        getString('unstyle_component', component),
         getString('move_up', component),
         getString('move_down', component),
     ]);
@@ -158,12 +156,11 @@ export const getSetup = async() => {
         // Load variant preferences.
         await loadVariantPreferences(catalogue).catch(Notification.exception);
 
-        const userIsStudent = isStudent(editor);
         const allowedComps = getallowedComponents(editor);
 
         const tinyMCE = await getTinyMCE();
         const html = editor.getContent({format: 'html'}) || '';
-        const sidebarHtml = buildSidebar(catalogue, filterLabels, userIsStudent, allowedComps, showDocs(editor));
+        const sidebarHtml = buildSidebar(catalogue, filterLabels, allowedComps, showDocs(editor));
         const textareaId = 'tiny_c4lauthor_inner_' + Date.now();
         const toggleSidebarStr = await getString('togglesidebar', component);
 
@@ -389,7 +386,7 @@ export const getSetup = async() => {
             quickbars_selection_toolbar:
                 (dropExcluded(editor.options.get('quickbars_selection_toolbar'))
                     || 'bold italic | h3 h4 h5 h6 blockquote')
-                + ' | ' + quickInsertMenuName + ' ' + convertMenuName,
+                + ' | ' + quickInsertMenuName,
             block_formats:
                 editor.options.get('block_formats'),
             xss_sanitization: false,
@@ -443,7 +440,9 @@ export const getSetup = async() => {
                         ];
                         const allIcons = ed.ui.registry.getAll().icons;
                         typeOrder.forEach((type) => {
-                            catalogue.components.filter((c) => c.category === type).forEach((comp) => {
+                            catalogue.components.filter(
+                                (c) => c.category === type && allowedComps.includes(c.name)
+                            ).forEach((comp) => {
                                 const label = comp.label;
                                 const iconKey = 'c4l-' + comp.name;
                                 items.push({
@@ -464,27 +463,32 @@ export const getSetup = async() => {
                     },
                 });
 
-                // Register "Convert to" menu on inner editor.
-                registerConvertMenu(ed, catalogue, convertToStr, noComponentStr, notConvertibleStr);
+                // The convert icon, which the component toolbar shows.
+                ed.ui.registry.addIcon('c4l-convert', convertIconSvg);
 
                 ed.on('init', () => {
                     innerEditor = ed;
 
-                    // Add dropdown chevrons to our quickbar buttons.
+                    // The chevron our quickbar button draws for its dropdown.
                     const chevronHtml = '<div class="tox-tbtn__select-chevron">' +
                         '<svg width="10" height="10" focusable="false">' +
                         '<path d="M8.7 2.2c.3-.3.8-.3 1 0 .4.4.4.9 0 ' +
                         '1.2L5.7 7.8c-.3.3-.9.3-1.2 0L.2 3.4a.8.8 0 ' +
                         '0 1 0-1.2c.3-.3.8-.3 1.1 0L5 6l3.7-3.8Z" ' +
                         'fill-rule="nonzero"></path></svg></div>';
-                    const addChevrons = () => {
+                    // Inserting a component into a component makes no sense, so the
+                    // quick-insert button is hidden there. Nothing is left in its
+                    // quickbar group, so the group goes too, otherwise its separator
+                    // would hang off the end.
+                    const refreshQuickbar = () => {
+                        const node = ed.selection.getNode();
+                        const inComponent = !!(node && node.closest
+                            && node.closest(catalogue.wrapperSelector));
                         const wrap = (ed.getContainer() || document)
                             .closest('.tiny_c4lauthor') || document;
                         wrap.querySelectorAll(
                             '.tox-tinymce-aux [data-mce-name="' +
-                            quickInsertMenuName + '"], ' +
-                            '.tox-tinymce-aux [data-mce-name="' +
-                            convertMenuName + '"]'
+                            quickInsertMenuName + '"]'
                         ).forEach((btn) => {
                             if (!btn.querySelector(
                                 '.tox-tbtn__select-chevron'
@@ -494,17 +498,32 @@ export const getSetup = async() => {
                                 );
                                 btn.style.marginRight = '6px';
                             }
+                            const group = btn.closest('.tox-toolbar__group');
+                            const alone = group && !group.querySelector(
+                                '.tox-tbtn:not([data-mce-name="' +
+                                quickInsertMenuName + '"])'
+                            );
+                            btn.style.display = '';
+                            if (group) {
+                                group.style.display = '';
+                            }
+                            if (inComponent) {
+                                (alone ? group : btn).style.display = 'none';
+                            }
                         });
                     };
                     const edWrap = (ed.getContainer() || document)
                         .closest('.tiny_c4lauthor__editor-wrap');
                     if (edWrap) {
-                        const chObs = new MutationObserver(addChevrons);
+                        const chObs = new MutationObserver(refreshQuickbar);
                         chObs.observe(edWrap, {
                             childList: true, subtree: true,
                         });
                         ed.on('remove', () => chObs.disconnect());
                     }
+                    // The observer catches the quickbar appearing; this catches the
+                    // caret moving into or out of a component while it is up.
+                    ed.on('NodeChange', refreshQuickbar);
                 });
             },
         });
@@ -529,7 +548,8 @@ export const getSetup = async() => {
         }
 
         // Set up contextual variant toolbar.
-        setupVariantToolbar(innerEditor, catalogue, deleteComponentStr, moveUpStr, moveDownStr);
+        setupVariantToolbar(innerEditor, catalogue, deleteComponentStr, unstyleComponentStr,
+            convertToStr, moveUpStr, moveDownStr);
 
         // Tabs and carousel controls.
         attachEditorWidgets(innerEditor).catch(Notification.exception);

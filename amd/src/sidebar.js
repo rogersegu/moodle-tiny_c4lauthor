@@ -39,24 +39,19 @@ const escapeHtml = (text) => String(text)
  *
  * @param {object} catalogue - The components the editor offers.
  * @param {object} filterLabels - Translated filter labels keyed by type.
- * @param {boolean} userIsStudent - Whether the current user is a student.
- * @param {Array} allowedComps - Allowed component names for students.
+ * @param {Array} allowedComps - The component names this user may insert.
  * @param {boolean} enableTooltips - Whether to add docs tooltips to component buttons.
  * @returns {string} Sidebar HTML.
  */
-export const buildSidebar = (catalogue, filterLabels, userIsStudent, allowedComps, enableTooltips) => {
+export const buildSidebar = (catalogue, filterLabels, allowedComps, enableTooltips) => {
     // Collect visible types.
     const typeOrder = [
         'contextual', 'procedural', 'evaluative', 'sequential', 'helper', 'templates', 'custom',
     ];
 
-    // Filter components based on student/allowed.
-    const visibleComponents = catalogue.components.filter((comp) => {
-        if (!userIsStudent) {
-            return true;
-        }
-        return allowedComps.includes(comp.name);
-    });
+    // What this user may insert: a component withdrawn from everyone is in nobody's
+    // list, so this is not a students-only filter.
+    const visibleComponents = catalogue.components.filter((comp) => allowedComps.includes(comp.name));
 
     // Determine which types have visible components.
     const visibleTypes = new Set(visibleComponents.map((c) => c.category));

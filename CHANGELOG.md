@@ -2,10 +2,6 @@
 
 ## 1.4.0-beta
 
-Contributed by bdecent, except for seven of the helper components — combo, styled
-list, link block, tabs, carousel, collapsible and styled table — and the Sequential
-category.
-
 ### Security
 
 - The plugin loads only for users who hold both `tiny/c4lauthor:use` and
@@ -56,6 +52,13 @@ category.
   category, work with variants and precision mode, and can insert what an AMD module of
   theirs returns. Their labels and docs are shown as text. The hook can also add page
   modules, for the behaviour of interactive components.
+- A Remove style button on the component toolbar, next to the delete button. It strips
+  the C4L markup from a component and keeps the authored content as plain HTML: the
+  `c4lv-*` and `c4l-*` classes, the `role` and `aria-label` attributes, the layout
+  containers, the decorative elements that hold no content of their own, the generated
+  titles and the surrounding spacer paragraphs all go. The element stops being a C4L
+  component, so the toolbar no longer applies to it. Deleting a component removes its
+  content; this keeps it.
 - Documentation in `docs/`, for teachers, administrators and developers. On a site with
   the Documentation Center (`tool_mdocs`) it appears in Moodle itself.
 - PHPUnit and Behat tests, and CI for Moodle 4.5 to 5.3.
@@ -89,10 +92,39 @@ category.
   there at all.
 - `commands.js` is split into modules: the convert menu, the sidebar, the variant
   toolbar, the dropdown, the icons and the component markup each have their own.
-- The two student settings list every component, including added ones, and each
-  component declares whether it is aimed at students. Saved choices stay as they are.
-  Components that were in neither list are listed as not intended for students, so
-  students still do not get them until an admin ticks them.
+- *Component availability* replaces *Aimed at students* and *Not intended for students*
+  with one table: every component on a row, and a choice of **Everyone**, **Capability**
+  or **Nobody**. Nobody withdraws a component from the plugin for all users, site
+  administrators included, which the old pair could not express — they only ever
+  restricted students. Content that already uses a withdrawn component keeps rendering
+  and can still be edited, converted or stripped of its style; only inserting a new one
+  stops being offered.
+
+  Capability means `tiny/c4lauthor:useallcomponents`, and the column heading lists the
+  roles that hold it on this site rather than naming roles in a fixed label, which would
+  stop being true as soon as the site's permissions differ from the stock ones. Being a
+  capability, it can be overridden for a category, a course or a single activity.
+
+  Nothing changes on upgrade. An upgrade step translates the stored settings — a
+  component either list named becomes Everyone, one in neither becomes Capability — so
+  an admin who had withheld a component from students keeps that. Without it the
+  defaults would have applied and the component would have been offered to students
+  again, silently. Once the values are carried over, both old settings are deleted from
+  the database, and their strings are listed in `lang/en/deprecated.txt`.
+
+  The rows come from the declarations rather than being written out in `settings.php`,
+  where they had drifted: Concept review, Further reading, Statement and Assessment were
+  in neither setting, which left them unusable for students with no way for an admin to
+  turn them on. They appear in the table as Capability, which is what they were in
+  practice, and can now be changed. Which components a user may insert is decided on the
+  server and sent to the editor as one list, so the editor carries no role logic of its
+  own.
+- Convert to has moved from the selection quickbar to the component toolbar, beside
+  delete and remove style. It only appears on components that have compatible targets,
+  so it no longer has to report that there is nothing to convert.
+- The component picker no longer appears in the quickbar while the selection sits inside
+  a component, where inserting a component into a component made no sense. It behaves as
+  before on content that carries no component yet.
 
 ### Fixed
 
@@ -101,8 +133,26 @@ category.
   toolbar, where it used to fall back to TinyMCE's own. A font colour plugin's items,
   for one, were missing from Format. The items of the plugins the modal does without
   — the original C4L and tiny_html — are taken out of everything it inherits.
+- Converting a component now rebuilds the inner markup the target's styling relies on.
+  Swapping the root class alone left, for instance, a quote without its rule, its quote
+  marks or its italics.
 - The first analysis after accepting the AI policy could be refused, because core does
   not wait for the server to store the acceptance. It now waits.
+
+### Contributed
+
+bdecent gmbh (https://bdecent.de) contributed, from the eduHub project: the panel list
+and timeline components; the components moved from JavaScript to declarations in PHP
+with their markup in Mustache templates, and the web service that serves them; the hook
+other plugins add components through; the standalone fallback; the documentation for
+teachers, administrators and developers; and the PHPUnit, Behat and CI setup. The fix
+for the AI policy, and the security findings that remained open after 1.3.0-beta, are
+theirs too.
+
+### Funding
+
+Component availability, and the Remove style and Convert to actions on the component
+toolbar, were funded by Hochschule Hannover (https://www.hs-hannover.de).
 
 ## 1.3.0-beta
 

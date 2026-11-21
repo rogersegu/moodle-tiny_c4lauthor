@@ -20,6 +20,7 @@ use context;
 use editor_tiny\plugin;
 use editor_tiny\plugin_with_buttons;
 use editor_tiny\plugin_with_configuration;
+use tiny_c4lauthor\local\component_access;
 use tiny_c4lauthor\local\components;
 
 /**
@@ -83,18 +84,28 @@ class plugininfo extends plugin implements plugin_with_buttons, plugin_with_conf
         $showoverlay = $config->showoverlay ?? '';
         $viewc4l = has_capability('tiny/c4lauthor:viewplugin', $context);
         $showdocs = isset($config->enabledocs) && $config->enabledocs !== '' ? (bool) $config->enabledocs : false;
-        // Users without useallcomponents only see the components listed for students.
-        // This steers authoring; it is not access control, since components are plain HTML
-        // that anyone can also write in the code view.
-        $isstudent = !has_capability('tiny/c4lauthor:useallcomponents', $context);
+        // What the editor offers. This steers authoring; it is not access control, since
+        // components are plain HTML that anyone can also write in the code view.
+        $isstudent = !has_capability(component_access::STAFF_CAPABILITY, $context);
 
-        $allowedcomps = $isstudent ? components::get_student_components($context) : [];
+        // Always sent, not only for students: a component set to nobody is withdrawn
+        // from everyone, site administrators included. The client is left with no role
+        // logic of its own to get wrong.
+        $allowedcomps = component_access::usable_by($isstudent, $context);
 
         // Stylesheets other plugins add for their components, which the editor content needs too.
         $editorcss = array_map(fn($url) => $url->out(false), components::get_editor_stylesheets($context));
 
         $previewcss = $config->custompreviewcss ?? '';
         $customcomponents = self::get_custom_components($config);
+
+        // The admin's own components are governed by their own enable checkbox, and the
+        // availability table has no row for them, so they are appended untouched.
+        foreach ($customcomponents as $customcomp) {
+            if (!empty($customcomp['name'])) {
+                $allowedcomps[] = $customcomp['name'];
+            }
+        }
 
         // AI availability. The site switch is only the first of four gates: the user
         // needs the capability, a provider must offer generate_text, and the course

@@ -149,7 +149,11 @@ Icons authored by Roger Segú, except for the following, licensed under Creative
 
 ## Contributions
 
-Components as declarations with their markup in templates, the hook other plugins extend the component list through, the documentation, the test suite and the continuous integration setup were contributed by [bdecent](https://bdecent.de).
+The panel list and timeline components, the components as declarations with their markup in templates and the web service that serves them, the hook other plugins extend the component list through, the standalone fallback, the documentation, the test suite and the continuous integration setup were contributed by [bdecent](https://bdecent.de), from the eduHub project.
+
+## Funding
+
+Component availability, and the Remove style and Convert to actions on the component toolbar, were funded by [Hochschule Hannover](https://www.hs-hannover.de).
 
 ## License
 

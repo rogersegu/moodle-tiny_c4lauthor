@@ -35,10 +35,20 @@ Go to *Site administration > Plugins > Text editors > TinyMCE editor > C4L Autho
   can be dismissed to use the normal editor.
 - **Enable docs tooltips** — a description of a component after holding the pointer over
   it in the sidebar for two seconds.
-- **Aimed at students** and **Not intended for students** — together, the components
-  offered to users who do not hold `tiny/c4lauthor:useallcomponents`. Both lists show
-  every component, including those other plugins add. A component you have not seen in
-  these lists yet counts with its own default, until you save the settings.
+- **Component availability** — who may insert each component, one row each:
+  **Everyone**, meaning anyone who can use the plugin; **Capability**, meaning the
+  users who hold `tiny/c4lauthor:useallcomponents`, with the roles that hold it on your
+  site named in the column heading; or **Nobody**, which withdraws the component from
+  everyone, you included. Content that already uses a withdrawn component keeps
+  rendering, and can still be edited, converted or stripped of its style; only inserting
+  a new one stops being offered. The rows include the components other plugins add, and
+  a component added in a later release arrives at its own default without you having to
+  save the page again.
+
+  Being a capability, Capability can be allowed or prevented for a category, a course or
+  a single activity, so the answer can differ from one place to another. This shapes what
+  the editor offers, not what is possible: the markup can still be typed by hand in the
+  source view.
 
 ### AI suggest
 

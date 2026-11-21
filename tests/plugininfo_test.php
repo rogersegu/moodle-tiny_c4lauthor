@@ -17,6 +17,8 @@
 namespace tiny_c4lauthor;
 
 use core_ai\manager;
+use tiny_c4lauthor\local\component_access;
+use tiny_c4lauthor\local\components;
 
 /**
  * Tests for the editor plugin information.
@@ -107,7 +109,24 @@ final class plugininfo_test extends \advanced_testcase {
         $config = $this->configuration();
 
         $this->assertFalse($config['isstudent']);
-        $this->assertSame([], $config['allowedcomps']);
+        // The list is sent for everyone now, a component set to nobody being withdrawn
+        // from staff too.
+        $this->assertContains('keyconcept', $config['allowedcomps']);
+        $this->assertContains('timeline', $config['allowedcomps']);
+        $this->assertCount(count(components::get_components($this->context)), $config['allowedcomps']);
+    }
+
+    public function test_component_withdrawn_from_everyone(): void {
+        set_config(
+            component_access::SETTING,
+            component_access::encode(['timeline' => component_access::ACCESS_NONE]),
+            'tiny_c4lauthor'
+        );
+
+        $config = $this->configuration();
+
+        $this->assertNotContains('timeline', $config['allowedcomps']);
+        $this->assertContains('keyconcept', $config['allowedcomps']);
     }
 
     public function test_student_sees_components_listed_for_students(): void {
