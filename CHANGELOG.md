@@ -52,6 +52,13 @@
   category, work with variants and precision mode, and can insert what an AMD module of
   theirs returns. Their labels and docs are shown as text. The hook can also add page
   modules, for the behaviour of interactive components.
+- The combo takes a text background and a whole image. The panel its text sits in
+  becomes a choice of its own, and the image can be shown entire, at its own aspect
+  ratio, instead of cropped to fill its cell.
+- A tab's title is drawn as the field it is, with a caption naming it, so it reads as
+  the name of the tab rather than as a heading of the tab's content.
+- A collapsible can be worked in the editor: its title takes the look of the trigger
+  the page draws, and a control beside it folds the content away and brings it back.
 - A Remove style button on the component toolbar, next to the delete button. It strips
   the C4L markup from a component and keeps the authored content as plain HTML: the
   `c4lv-*` and `c4l-*` classes, the `role` and `aria-label` attributes, the layout
@@ -90,6 +97,9 @@
   being the part clicked rather than the first the selector matches. Components with
   a wrapper class of their own, the styled table among them, could not be selected
   there at all.
+- Precision mode draws the tabs, carousels and collapsibles of its preview as the
+  content view draws them, one tab or slide at a time, where they used to be shown all
+  at once: the preview runs no scripts of its own.
 - `commands.js` is split into modules: the convert menu, the sidebar, the variant
   toolbar, the dropdown, the icons and the component markup each have their own.
 - *Component availability* replaces *Aimed at students* and *Not intended for students*
