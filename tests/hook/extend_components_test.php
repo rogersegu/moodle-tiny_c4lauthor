@@ -268,7 +268,9 @@ final class extend_components_test extends \advanced_testcase {
 
         // The table offers a row for every component, added ones included.
         $setting = new admin_setting_component_access(
-            'tiny_c4lauthor/' . component_access::SETTING, '', ''
+            'tiny_c4lauthor/' . component_access::SETTING,
+            '',
+            ''
         );
         $stored = $setting->get_setting();
         $this->assertArrayHasKey('forstudents', $stored);
