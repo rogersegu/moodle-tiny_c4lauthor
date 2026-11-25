@@ -72,7 +72,8 @@ fills lighten rather than darken.
 ### Recolouring a component
 
 Override the tier-2 aliases, not the primitives. To make key concepts green on every
-site, in your theme's raw SCSS or in *Additional HTML*:
+site, put this in the plugin's *CSS code* setting, which reaches the editor and the
+rendered content alike; your theme's raw SCSS does the content only:
 
 ```css
 :root, [data-bs-theme="dark"] {

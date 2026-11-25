@@ -406,6 +406,7 @@ export const getSetup = async() => {
             body_class: 'tiny_c4lauthor-inner-body',
             height: '100%',
             content_css: contentCss,
+            content_style: getpreviewCSS(editor),
             setup: (ed) => {
                 // Register Moodle core options so plugins can access contextid, filepickers, etc.
                 registerMoodleOptions(ed, moodleOptions);

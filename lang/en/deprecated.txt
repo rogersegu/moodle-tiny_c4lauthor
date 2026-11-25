@@ -4,3 +4,4 @@ notintendedforstudents,tiny_c4lauthor
 notintendedforstudents_desc,tiny_c4lauthor
 convert_nocomponent,tiny_c4lauthor
 convert_notconvertible,tiny_c4lauthor
+additionalhtml,tiny_c4lauthor

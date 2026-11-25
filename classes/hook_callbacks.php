@@ -17,6 +17,7 @@
 namespace tiny_c4lauthor;
 
 use core\hook\output\before_footer_html_generation;
+use core\hook\output\before_standard_head_html_generation;
 use tiny_c4lauthor\local\components;
 
 /**
@@ -27,6 +28,45 @@ use tiny_c4lauthor\local\components;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class hook_callbacks {
+    /**
+     * Send the administrator's component CSS with the pages that show content.
+     *
+     * The setting holds the CSS on its own and the plugin writes the style element
+     * around it, so the element is always closed and the administrator never edits
+     * HTML to have their components styled outside the editor.
+     *
+     * Administration pages are left out. No component is ever shown on one, and a rule
+     * that hid half the document would otherwise take the settings page with it, leaving
+     * the administrator no way back to the field that holds the rule.
+     *
+     * @param before_standard_head_html_generation $hook
+     */
+    public static function before_standard_head_html_generation(
+        before_standard_head_html_generation $hook
+    ): void {
+        global $PAGE;
+
+        if (during_initial_install() || !get_config('tiny_c4lauthor', 'version')) {
+            return;
+        }
+
+        if ($PAGE->pagelayout === 'admin') {
+            return;
+        }
+
+        $css = trim((string) get_config('tiny_c4lauthor', 'custompreviewcss'));
+        if ($css === '') {
+            return;
+        }
+
+        // A style element ends at the first closing tag inside it, wherever it appears,
+        // and the rest of the document would then be printed as text. Escaping the slash
+        // leaves the value as CSS and keeps the browser inside the stylesheet.
+        $css = str_ireplace('</style', '<\\/style', $css);
+
+        $hook->add_html('<style>' . $css . '</style>');
+    }
+
     /**
      * Load the behaviour of interactive components on every page.
      *

@@ -83,6 +83,21 @@ Up to 12 components with your own HTML. In the code, `{{PLACEHOLDER}}` marks whe
 text goes and `{{CUSTOMCLASS}}` adds the component's classes. The HTML is cleaned when it
 is used.
 
+**CSS code** holds the styles for those components. Write plain CSS with no style tags
+around it: the plugin sends it with every page that shows content, so your components
+look the same in the editor and in the content. Administration pages are left out, so a
+rule that hides too much cannot hide this page as well. A long stylesheet belongs in your
+theme's Raw SCSS, which the theme serves as a cached file; what you write here travels
+with every page.
+
+If a rule here makes your courses unusable, empty the field from the command line and
+clear the caches:
+
+```
+php admin/cli/cfg.php --component=tiny_c4lauthor --name=custompreviewcss --set=""
+php admin/cli/purge_caches.php
+```
+
 ## Capabilities
 
 | Capability | Decides | Default roles |

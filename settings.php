@@ -168,12 +168,10 @@ if ($ADMIN->fulltree) {
     $setting->set_updatedcallback('purge_all_caches');
     $settings->add($setting);
 
-    // CSS for preview content inside editor.
+    // CSS for the custom components, in the editor and on every page.
     $name = 'tiny_c4lauthor/custompreviewcss';
     $title = get_string('custompreviewcss', 'tiny_c4lauthor');
-    $url = new moodle_url('/admin/settings.php', ['section' => 'additionalhtml']);
-    $link = html_writer::link($url, get_string('additionalhtml', 'tiny_c4lauthor'), ['target' => '_blank']);
-    $description = get_string('custompreviewcssdesc', 'tiny_c4lauthor', $link);
+    $description = get_string('custompreviewcssdesc', 'tiny_c4lauthor');
     $setting = new admin_setting_configtextarea($name, $title, $description, '');
     $settings->add($setting);
 

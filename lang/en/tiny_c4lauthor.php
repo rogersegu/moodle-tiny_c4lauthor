@@ -23,7 +23,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['additionalhtml'] = 'Additional HTML admin page';
 $string['ai_analysing'] = 'Analysing content...';
 $string['ai_apply_selected'] = 'Apply selected';
 $string['ai_back'] = 'Back';
@@ -154,9 +153,9 @@ $string['customimagesbank'] = 'Bank of images';
 $string['customimagesbankdesc'] = 'To insert any of the  uploaded images to your code, add this line:<br />
 <code>&lt;img src="{{filename.extension}}" alt="Custom image"&gt;</code>';
 $string['custompreviewcss'] = 'CSS code';
-$string['custompreviewcssdesc'] = 'CSS used to preview components inside the editor.
-<p>Any CSS code added here must be also included either to your theme or inside the style tags <code>&lt;style&gt;...&lt;style&gt;</code> and saved into the  <strong>additionalhtmlhead</strong> setting at {$a};
- otherwise your styles will not be applied to your components when rendered.</p>';
+$string['custompreviewcssdesc'] = 'Styles for your custom components. Write plain CSS, with no style tags around it: the plugin adds these styles to every page itself, so your components look the same in the editor and in the content.
+<p>Use this for the rules your components need. A long stylesheet belongs in your theme\'s Raw SCSS (Site administration > Appearance > Themes > your theme > Advanced settings), where the theme serves it as a cached file; whatever you write here is sent with every page instead.</p>
+<p>If you have already copied these styles into Additional HTML, you can remove them from there.</p>';
 $string['delete_component'] = 'Delete component';
 $string['discardclose'] = 'Close without applying changes';
 $string['discardconfirm'] = 'You have unsaved changes. Are you sure you want to close the editor? Your changes will be lost.';
