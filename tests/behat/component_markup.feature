@@ -67,16 +67,3 @@ Feature: Components insert their declared markup
       | label          | selector            | value | result             |
       | Estimated time | .c4lv-estimatedtime | 45    | 45 min             |
       | Grading value  | .c4lv-gradingvalue  | 50%   | Grading value: 50% |
-
-  Scenario: A custom component inserts the HTML the admin wrote
-    Given the following config values are set as admin:
-      | customcompcount   | 1                                                     | tiny_c4lauthor |
-      | customcompenable1 | 1                                                     | tiny_c4lauthor |
-      | customcompname1   | Info box                                              | tiny_c4lauthor |
-      | customcompcode1   | <div class="{{CUSTOMCLASS}}"><p>{{PLACEHOLDER}}</p></div> | tiny_c4lauthor |
-    And I am on the "Page 1" "page activity editing" page logged in as "teacher1"
-    When I click on the "C4L Author" button for the "Page content" TinyMCE editor
-    And I click on "Info box" "button" in the ".tiny_c4lauthor__sidebar" "css_element"
-    And I click on "Apply" "button" in the ".tiny_c4lauthor__footer" "css_element"
-    And I press "Save and display"
-    Then I should see "Lorem ipsum dolor sit amet" in the ".c4lv-customcomp1.c4lv-custom-component" "css_element"

@@ -18,6 +18,8 @@
 
 require_once(__DIR__ . '/../../../../../../../lib/behat/behat_base.php');
 
+use Behat\Mink\Exception\ExpectationException;
+
 /**
  * Behat steps for C4L Author.
  *
@@ -43,5 +45,37 @@ class behat_tiny_c4lauthor extends behat_base {
             . ".querySelectorAll('[data-c4l-action]')).find((el) => el.textContent.trim() === {$label});"
             . "if (!control) { throw new Error('No control ' + {$label}); } control.click();");
         $this->getSession()->wait(self::get_timeout(), self::PAGE_READY_JS);
+    }
+
+    /**
+     * Put a file in one of the plugin's settings, as uploading it there would.
+     *
+     * The file areas are the names of the settings that hold them: customimagesbank for
+     * the bank of images, customcompicon1 and up for the icon of each custom component.
+     *
+     * @Given /^the file "(?P<path_string>(?:[^"]|\\")*)" is stored in the "(?P<area_string>(?:[^"]|\\")*)" setting of C4L Author$/
+     * @param string $path Path of the file to store, relative to the Moodle root.
+     * @param string $area File area, which is also the setting name.
+     */
+    public function file_is_stored_in_setting(string $path, string $area): void {
+        global $CFG;
+
+        $source = $CFG->dirroot . '/' . ltrim($path, '/');
+        if (!is_readable($source)) {
+            throw new ExpectationException('There is no file at ' . $path, $this->getSession());
+        }
+
+        $filename = basename($source);
+        get_file_storage()->create_file_from_pathname([
+            'contextid' => \core\context\system::instance()->id,
+            'component' => 'tiny_c4lauthor',
+            'filearea' => $area,
+            'itemid' => 0,
+            'filepath' => '/',
+            'filename' => $filename,
+        ], $source);
+
+        // The setting stores the path of the file, and is what the plugin reads first.
+        set_config($area, '/' . $filename, 'tiny_c4lauthor');
     }
 }
