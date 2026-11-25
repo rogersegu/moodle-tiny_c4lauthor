@@ -3023,6 +3023,13 @@ p.c4l-spacer + p.c4l-spacer {
   align-items: center;
   justify-content: center;
   padding: 4px 8px;
+  /* The same drawing serves as the editor's menu icon, at its own size. It fills two
+     thirds of its viewBox, where the other icons here fill it almost entirely, so it
+     takes a larger box to be drawn at their size. */
+}
+.c4lauthor-vt__btn--convert svg {
+  width: 16px;
+  height: 16px;
 }
 
 .c4lauthor-vt__btn--convert:hover {
