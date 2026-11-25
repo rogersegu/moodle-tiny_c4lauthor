@@ -1,5 +1,29 @@
 # Changelog
 
+## 1.4.1-beta
+
+### Changed
+
+- The styles written in *CSS code* are sent with every page by the plugin itself. The
+  field takes plain CSS, the plugin writes the style element around it, and there is
+  nothing left to copy into Additional HTML; the field description says as much, and
+  the administrator guide has the rest. Administration pages are left out, so a rule
+  that hides too much cannot also hide the page where it is written.
+- Those styles also reach the editor inside the C4L Author modal, where custom
+  components used to appear as unstyled text.
+- The `additionalhtml` string, which named the link to the Additional HTML page, is
+  deprecated.
+
+### Fixed
+
+- The help text for *CSS code* asked for the styles to be wrapped in `<style>...<style>`
+  and copied into Additional HTML. The second tag was missing its slash, and a browser
+  given an element that never closes swallows the rest of the page. Nothing asks for
+  tags any more, and a closing tag written inside the field is escaped, so it cannot end
+  the stylesheet early. Reported by Hochschule Hannover.
+- The Convert to icon on the component toolbar was drawn at twice the size of the
+  others. The same drawing serves as the editor's menu icon, at its own size.
+
 ## 1.4.0-beta
 
 ### Security

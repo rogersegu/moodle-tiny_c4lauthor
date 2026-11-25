@@ -24,11 +24,11 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2026112100;
+$plugin->version   = 2026112500;
 $plugin->requires  = 2024100703.00;
 $plugin->component = 'tiny_c4lauthor';
 $plugin->maturity  = MATURITY_BETA;
-$plugin->release   = '1.4.0-beta';
+$plugin->release   = '1.4.1-beta';
 
 // The code view imports tiny_html/codemirror-lazy, so it fails to load on a site
 // without that plugin. ANY_VERSION because tiny_html ships with core and tracks it.
