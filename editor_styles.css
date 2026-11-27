@@ -354,7 +354,11 @@
 .c4l-spacer + .c4l-conceptreview,
 .c4l-spacer + .c4lv-conceptreview,
 .c4l-spacer + .c4l-furtherreading,
-.c4l-spacer + .c4lv-furtherreading {
+.c4l-spacer + .c4lv-furtherreading,
+.c4l-spacer + .c4l-statement,
+.c4l-spacer + .c4lv-statement,
+.c4l-spacer + .c4l-assessment,
+.c4l-spacer + .c4lv-assessment {
   margin: 0 auto 12px auto;
 }
 .c4l-spacer + .c4l-dodontcards .c4l-dodontcards-do,
